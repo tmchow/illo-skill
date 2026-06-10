@@ -6,16 +6,16 @@ description: >-
   blip hauling a crate") — or uses its unmistakable vocabulary: "riso" /
   "risograph", or "character pack" (install, publish, switch, or build one).
   It creates original editorial illustrations in which a recurring mascot
-  performs each idea (default character: Blot, a deadpan ink-drop); every
-  character pack carries one look — riso, blueprint, woodcut, pixel, or
-  custom. Capabilities: turning an article into one-idea-per-image scenes,
+  performs each idea (default: Blot, a deadpan ink-drop); each pack carries
+  one look — bundled (riso, blueprint, woodcut, pixel, clay, manila, chalk,
+  phosphor, enamel, gouache) or custom. Capabilities: turning an article into one-idea-per-image scenes,
   single concepts, 2–4 panel mini-comics, shot lists, named/derived/custom
   palettes, variation and model-comparison galleries, a character builder,
   style variant packs, and community pack install/publish. Do NOT trigger on
   requests that don't say illo/riso/character pack — not "illustrate this
   post", "make an image", "draw a cartoon", "make me a mascot", not
   photorealism, UI mockups, charts, or stock art.
-version: 0.5.1
+version: 0.6.0
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -52,7 +52,8 @@ This is a configurable house style, not a generic image generator. The
 parameters** — and a character pack carries its **style** with it: one look
 per pack, chosen from the bundled look library (riso — grainy halftone,
 ink-layer offset, paper grain, one bold softly-rounded outline — plus
-blueprint, woodcut, pixel) or a custom style file. The default mascot is
+blueprint, woodcut, pixel, clay, manila, chalk, phosphor, enamel, and
+gouache) or a custom style file. The default mascot is
 **Blot**, a deadpan ink-drop in riso. The same character in a different look
 is a deliberate **style variant pack**, never a runtime swap. Palettes come
 from presets, the user's own palette file, or one derived color. Whatever the
@@ -105,7 +106,7 @@ the user's key — direct them to bootstrap it:
 Do not load everything at once. Pull the file that matches the step:
 
 - `references/visual-style.md` — riso, the house default look: the risograph technique, line language, paper/ink, hard do/don'ts.
-- `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`), consumed by character packs. Read the active character's style file in full before generating.
+- `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`, `clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`), consumed by character packs. Read the active character's style file in full before generating.
 - `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.

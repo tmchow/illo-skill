@@ -14,8 +14,8 @@ The methodology is the constant; **the character pack and palette are yours
 to set** — and every character pack carries its own print style. Out of the
 box the mascot is **Blot**, a deadpan ink-drop in **risograph**. A built-in
 **character builder** designs your own mascot with you (interview — including
-picking its look from the bundled library: riso, **blueprint**, **woodcut**,
-or **pixel** — then model-sheet candidates → pick → install). Want the same
+picking its look from the bundled library of ten ([below](#looks)) — then
+model-sheet candidates → pick → install). Want the same
 character in another look? Build a *style variant pack* (`blot-woodcut`):
 one pack, one look, so a catalog of characters never turns into a grid of
 combinations. Palettes stay per-image: pick a named preset, keep your own
@@ -44,6 +44,31 @@ the bridge being rebuilt under live traffic:
 One idea per image, the mascot *performing* the move rather than decorating
 it, at most three short hand-lettered labels — every render is held to that
 bar, and off-model results get re-rolled before you see them.
+
+## Looks
+
+Every character pack picks exactly one look from the bundled library:
+
+| Look | The voice |
+|---|---|
+| **riso** | Grainy halftone risograph — the house default |
+| **blueprint** | White draftsman linework on deep blueprint blue |
+| **woodcut** | Heavy carved relief print on warm cream |
+| **pixel** | Chunky 4-color pixel art |
+| **clay** | Matte stop-motion plasticine diorama |
+| **manila** | Rubber-stamped ink on office manila paper |
+| **chalk** | Dusty chalk on a deep slate board |
+| **phosphor** | Glowing CRT trace on near-black glass |
+| **enamel** | Hard-enamel pin cells with raised metal lines |
+| **gouache** | Flat matte mid-century poster paint |
+
+Looks are shared infrastructure, deliberately separate from characters: the
+definitions live in this skill (`references/styles/`), and a character pack
+just names one — so a fix to a look immediately improves every pack that
+uses it, and adding a character never requires touching the skill. Want a
+look that doesn't exist? Drop a custom style file in
+`~/.config/illo/styles/<name>.md` and use it right away — and if it proves
+out, PR it into the library here so packs everywhere can reference it.
 
 ## Prerequisites
 
