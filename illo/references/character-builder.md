@@ -122,8 +122,11 @@ fault — return to step 2.
 
 ## 5. Install the pack
 
-Pick a pack name — usually the character's name, lowercase kebab-case. With a
-winner chosen:
+Pick a pack name — usually the character's name, lowercase kebab-case.
+**Names are globally unique** (they're how agents select characters): check
+the community registry with `packs list` before settling, even if the user
+isn't publishing, and avoid the reserved names `blot`, `illo`, `riso`,
+`blueprint`, `woodcut`, `pixel`. With a winner chosen:
 
 ```bash
 PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>"
