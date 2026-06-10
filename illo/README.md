@@ -6,6 +6,10 @@ idea. One image says one thing: a key judgment, a flow, a before/after, a
 trap. It's a deliberate house style, not a generic image generator — closer
 to a smart, deadpan print zine than to clip art or an infographic.
 
+> **🌐 [illo-skill.com](https://illo-skill.com)** — the friendly tour: live
+> examples, the character gallery, and copy-paste installs. This README is
+> the developer reference; the site is the two-minute version.
+
 The methodology is the constant; **the character pack and palette are yours
 to set** — and every character pack carries its own print style. Out of the
 box the mascot is **Blot**, a deadpan ink-drop in **risograph**. A built-in
