@@ -330,6 +330,9 @@ def cmd_doctor(args):
         lines.append(f"character: {default_char} (config default{status})")
     else:
         lines.append("character: shipped default")
+    user_styles = sorted(s.stem for s in (cdir / "styles").glob("*.md"))
+    if user_styles:
+        lines.append(f"styles: {', '.join(user_styles)} (custom looks in {cdir / 'styles'})")
     if (cdir / "palettes.md").exists():
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
     if key_src:

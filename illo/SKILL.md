@@ -1,22 +1,21 @@
 ---
 name: illo
 description: >-
-  Use this skill to create original editorial illustrations for articles, blog
-  posts, newsletters, or docs in a distinctive risograph print style, starring
-  a recurring mascot that performs each idea (default: Blot, a deadpan
-  ink-drop character; swappable via character packs). Triggers: "illustrate
-  this post", "make article images", "riso illustration", "illo this",
-  "mini-comic", "shot list for my blog", "draw this concept in our style",
-  "make me a mascot", "install/publish/switch character packs", or generating,
-  refining, recoloring, comparing, or planning these images. Turns an article
-  into interleaved one-idea-per-image scenes and a concept into a single
-  image or a 2–4 panel mini-comic; includes a character builder,
-  community character packs, named + derived + custom palettes,
-  variation/model galleries, and a reference lock that keeps the mascot
-  on-model. Do NOT use for photorealism, logos, app/UI mockups, generic stock
-  art, charts, or plain text-to-image requests that do not want this mascot
-  house style.
-version: 0.4.0
+  Use this skill ONLY when the request invokes it by name — "illo" / "the
+  illo skill" ("illo this post", "use illo on this article", "illo: draw
+  blip hauling a crate") — or uses its unmistakable vocabulary: "riso" /
+  "risograph", or "character pack" (install, publish, switch, or build one).
+  It creates original editorial illustrations in which a recurring mascot
+  performs each idea (default character: Blot, a deadpan ink-drop); every
+  character pack carries one look — riso, blueprint, woodcut, pixel, or
+  custom. Capabilities: turning an article into one-idea-per-image scenes,
+  single concepts, 2–4 panel mini-comics, shot lists, named/derived/custom
+  palettes, variation and model-comparison galleries, a character builder,
+  style variant packs, and community pack install/publish. Do NOT trigger on
+  requests that don't say illo/riso/character pack — not "illustrate this
+  post", "make an image", "draw a cartoon", "make me a mascot", not
+  photorealism, UI mockups, charts, or stock art.
+version: 0.5.0
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -48,15 +47,16 @@ the subject, never decoration. When one idea advances through stages, it can
 be a **mini-comic**: 2–4 panels inside a single image.
 
 This is a configurable house style, not a generic image generator. The
-**methodology and print technique are the constants**: a risograph look —
-grainy halftone, slight ink-layer offset, faint paper grain, flat fills, and
-one bold, even-weight, softly-rounded outline on everything. It is
-intentionally not a photo, not a logo, not a corporate infographic, not a
-flowchart, not a UI mockup. The **character and palette are parameters**: the
-skill ships with **Blot** (a deadpan ink-drop mascot) and named palettes, and
-both are replaceable — a custom character pack keeps the user's own mascot
-on-model, and palettes come from presets, the user's own palette file, or one
-derived color.
+**methodology is the constant**; the **character pack and palette are the
+parameters** — and a character pack carries its **style** with it: one look
+per pack, chosen from the bundled look library (riso — grainy halftone,
+ink-layer offset, paper grain, one bold softly-rounded outline — plus
+blueprint, woodcut, pixel) or a custom style file. The default mascot is
+**Blot**, a deadpan ink-drop in riso. The same character in a different look
+is a deliberate **style variant pack**, never a runtime swap. Palettes come
+from presets, the user's own palette file, or one derived color. Whatever the
+parameters, it is intentionally not a photo, not a logo, not a corporate
+infographic, not a flowchart, not a UI mockup.
 
 ## Use cases — route the request
 
@@ -69,6 +69,7 @@ derived color.
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
 | **Community characters** — "what characters are available", "install blip", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install`, publish via a GitHub PR. |
+| **A different look** — "in blueprint", "woodcut style", "pixel version of blip" | Styles travel with character packs: build a **style variant pack** via `references/character-builder.md`, "Style variants". |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
 
@@ -102,7 +103,8 @@ the user's key — direct them to bootstrap it:
 
 Do not load everything at once. Pull the file that matches the step:
 
-- `references/visual-style.md` — the risograph look, line language, paper/ink, hard do/don'ts.
+- `references/visual-style.md` — riso, the house default look: the risograph technique, line language, paper/ink, hard do/don'ts.
+- `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`), consumed by character packs. Read the active character's style file in full before generating.
 - `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
@@ -189,13 +191,24 @@ through stages **in one place**, plan a single mini-comic image there instead
 of several — the mini-comic-vs-separate routing is in
 `references/composition.md`.
 
-### 4. Resolve the palette
+### 4. Resolve the palette (the style is the character's)
 
-Read `references/palettes.md` in full and resolve there — it holds the
-resolution order (explicit request, then destination cue via the user's
-palettes file, then config default, then house `ink-punch`), the named
+**Style** is not separately resolvable: the active character's pack carries
+it — the `Style:` line in its `character.md` names a bundled look
+(`references/styles/<name>.md`, riso in `visual-style.md`) or a custom one at
+`${XDG_CONFIG_HOME:-~/.config}/illo/styles/<name>.md`; absent line = riso.
+Blot is riso. For any non-riso style, read its file in full: it supplies the
+STYLE and LINE LANGUAGE prompt blocks, the palette mapping, the character
+treatment, and extra QA checks. A request for the same character in a
+*different* look is a variant-pack build (route table) — never restyle on the
+fly.
+
+**Palette**: read `references/palettes.md` in full and resolve there — it
+holds the resolution order (explicit request, then destination cue via the
+user's palettes file, then config default, then house `ink-punch`), the named
 presets, custom palettes, and the derive-a-palette-from-one-color algorithm.
-Whatever the path, end with **concrete hex values** to put in the prompt.
+End with **concrete hex values**; when the pack's style isn't riso, run them
+through that style's palette mapping.
 
 ### 5. Generate — reference-locked, one metaphor per image
 
@@ -203,8 +216,9 @@ Build a full prompt per image from `references/prompt-recipe.md` (scene +
 structure + style + the active character's spec + resolved palette hexes +
 ≤3 labels), write it to a file, and render it. **Pass the active character's
 model sheet as `--ref` every time** — that reference conditioning is what
-keeps the mascot on-model; style and palette come from the prompt, so palettes
-stay swappable.
+keeps the mascot on-model; style and palette come from the prompt, so both
+stays swappable. A pack's sheet is born in its own style, so sheet and style
+always match — no cross-style reference juggling.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/
