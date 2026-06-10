@@ -1,9 +1,10 @@
 # Blueprint — style pack
 
 White draftsman linework on a deep blueprint ground: the scene drawn as a
-technical drawing of an absurd little machine. Use for engineering posts,
-systems/architecture pieces, "how it works" explainers — anywhere "this is a
-plan" is the right voice.
+technical drawing of an absurd little machine. A look for **character packs**
+(the pack's `Style:` line) suited to engineering posts, systems/architecture
+pieces, "how it works" explainers — anywhere "this is a plan" is the right
+voice.
 
 ## Prompt blocks (replace the template's LINE LANGUAGE and STYLE lines)
 
@@ -58,5 +59,6 @@ ground. Never boxed.
 Calibration example: `assets/examples/styles/blueprint-crossing.png` — study it for line/texture
 and restraint; never copy its composition.
 
-No styled reference sheet needed — blueprint renders cleanly from any
-canonical sheet (the style prompt overrides the sheet's own rendering).
+Variant note: when deriving a blueprint pack from a riso character, the
+original sheet works directly as the `--ref` — the style prompt overrides
+its rendering.

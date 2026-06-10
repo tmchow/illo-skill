@@ -1,8 +1,9 @@
 # Visual style
 
-This file defines the **default style: riso**. Bundled alternates live in
-`references/styles/` and user styles in
-`${XDG_CONFIG_HOME:-~/.config}/illo/styles/` — resolution in SKILL.md step 4.
+This file defines **riso**, the house default look. A character pack carries
+exactly one style (its `Style:` line — SKILL.md step 4); the other bundled
+looks live in `references/styles/`, custom ones in
+`${XDG_CONFIG_HOME:-~/.config}/illo/styles/`.
 
 ## One line
 

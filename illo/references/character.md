@@ -61,10 +61,11 @@ human-facing copy, captions, and shot lists. A good name reads off the design
 
 ## Blot — the shipped default
 
-**Blot** is the default mascot: a small ink drop. The canonical model sheet is
-`assets/character-reference.png` — the engine conditions on it (see SKILL.md).
-Preferred style: riso. A pixel-style sheet ships at
-`assets/character-reference-pixel.png`.
+**Blot** is the default mascot: a small ink drop. Style: riso. The model
+sheet is `assets/character-reference.png` — the engine conditions on it (see
+SKILL.md). (`assets/character-reference-pixel.png` is the sheet behind the
+pixel look's calibration example — a ready-made base for a `blot-pixel`
+variant pack.)
 
 ### Locked design
 
@@ -99,18 +100,18 @@ A character pack is a self-contained folder
 the pack name, and the `doctor` subcommand lists what's installed:
 
 - `character.md` — the written spec: name, locked design, a **prompt spec**
-  paragraph for the CHARACTER slot, value rules, and (optionally) personality
-  notes and a `Preferred style: <name>` line (feeds style resolution,
-  SKILL.md step 4). Everything in "Rules for any character" above still
-  applies. The spec is the **style-neutral canon** — pure geometry, no
-  rendering technique.
-- `reference.png` — the character's canonical model sheet, passed as `--ref`
-  in place of the default's. It is a styled *instance* of the spec (rendered
-  in the pack's preferred style).
-- `reference-<style>.png` — optional, per far style: the same model sheet
-  re-derived in that style; passed as the `--ref` when that style is active
-  (SKILL.md step 5). When it's needed and how to derive it:
-  `references/character-builder.md`, "Styled reference sheets".
+  paragraph for the CHARACTER slot, value rules, a `Style: <name>` line (the
+  pack's one look — a bundled or custom style; absent = riso), and
+  (optionally) personality notes. Everything in "Rules for any character"
+  above still applies.
+- `reference.png` — the character's model sheet, passed as `--ref` in place
+  of the default's. It is rendered **in the pack's style**, so sheet and
+  scenes always match.
+
+One pack, one look. The same character in a different style is a sibling
+**style variant pack** (`<name>-<style>`, e.g. `blot-woodcut`) — built
+deliberately via `references/character-builder.md`, "Style variants", with
+its own sheet and preview.
 
 A user can keep several packs and pick one per run by name; which character
 wins is SKILL.md step 2. Packs are portable — copying the folder to another

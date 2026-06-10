@@ -6,15 +6,17 @@ idea. One image says one thing: a key judgment, a flow, a before/after, a
 trap. It's a deliberate house style, not a generic image generator — closer
 to a smart, deadpan print zine than to clip art or an infographic.
 
-The methodology is the constant; **the character, style, and palette are
-yours to set**. Out of the box the mascot is **Blot** (a deadpan ink-drop)
-and the style is **risograph** — but a built-in **character builder** designs
-your own mascot with you (interview → model-sheet candidates → pick →
-install), and the style swaps too: **blueprint**, **woodcut**, and **pixel**
-ship alongside riso, with the same character staying on-model across all of
-them. Palettes work the same way: pick a named preset, keep your own
-site-matched palettes in a config file, or hand it one brand color and let it
-derive the rest.
+The methodology is the constant; **the character pack and palette are yours
+to set** — and every character pack carries its own print style. Out of the
+box the mascot is **Blot**, a deadpan ink-drop in **risograph**. A built-in
+**character builder** designs your own mascot with you (interview — including
+picking its look from the bundled library: riso, **blueprint**, **woodcut**,
+or **pixel** — then model-sheet candidates → pick → install). Want the same
+character in another look? Build a *style variant pack* (`blot-woodcut`):
+one pack, one look, so a catalog of characters never turns into a grid of
+combinations. Palettes stay per-image: pick a named preset, keep your own
+site-matched palettes in a config file, or hand it one brand color and let
+it derive the rest.
 
 ![Blot — the default mascot](assets/character-reference.png)
 
@@ -48,8 +50,8 @@ python3 scripts/illo.py doctor                # check readiness
 
 Key resolution is `--api-key` > `$OPENROUTER_API_KEY` > config file. The config
 (a commented `config.yaml`) also holds non-secret defaults — `model`,
-`defaultPalette`, `defaultCharacter`, `defaultStyle`, `aspect`, and an
-optional `watermark` map for attribution.
+`defaultPalette`, `defaultCharacter`, `aspect`, and an optional `watermark`
+map for attribution.
 There is **no built-in watermark**; set your own so it's only ever yours:
 
 ```bash

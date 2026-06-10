@@ -1,14 +1,16 @@
 # Pixel — style pack
 
-Chunky low-resolution pixel art on a strict 4-color palette. Use for
-retro-computing pieces, games-adjacent posts, terminal/CLI content.
+Chunky low-resolution pixel art on a strict 4-color palette. A look for
+**character packs** (the pack's `Style:` line) suited to retro-computing
+pieces, games-adjacent posts, terminal/CLI content.
 
-**Known failure mode (why this file is strict):** a smooth-rendered character
-reference fights pixelation — the scene pixelates but the mascot renders
-smooth. **Primary mitigation: a pixel reference sheet** (derivation in
-`references/character-builder.md`, "Styled reference sheets"); Blot's is
-already at `assets/character-reference-pixel.png`. The CHARACTER forcing line
-below stays mandatory as backup; a smooth mascot is an automatic re-roll.
+**Known failure mode (why this file is strict):** smooth source art fights
+pixelation — the scene pixelates but the mascot renders smooth. A pixel
+pack's model sheet must itself be pixel-built (born that way in the builder,
+or derived as a variant — `references/character-builder.md`, "Style
+variants"; a ready example sheet: `assets/character-reference-pixel.png`).
+The CHARACTER forcing line below is mandatory in every prompt; a smooth
+mascot is an automatic re-roll.
 
 ## Prompt blocks (replace the template's LINE LANGUAGE and STYLE lines)
 
