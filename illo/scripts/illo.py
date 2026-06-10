@@ -139,6 +139,15 @@ def post_chat(model, content, key, modalities):
         return json.loads(resp.read())
 
 
+def sniff_ext(b):
+    """'.png' or '.jpg' from magic bytes, else None."""
+    if b[:8] == PNG_MAGIC:
+        return ".png"
+    if b[:2] == b"\xff\xd8":
+        return ".jpg"
+    return None
+
+
 def image_size(b):
     """(width, height) from PNG or JPEG bytes, or (None, None). Stdlib only."""
     try:
@@ -209,7 +218,7 @@ def do_generate(model, content, key, out_path, want_cost):
     out = pathlib.Path(out_path)
     # Models return whichever encoding they like; name the file by what the
     # bytes actually are (callers read .path from the JSON line).
-    actual = ".png" if img[:8] == PNG_MAGIC else ".jpg" if img[:2] == b"\xff\xd8" else out.suffix
+    actual = sniff_ext(img) or out.suffix
     if actual != out.suffix:
         out = out.with_suffix(actual)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -362,7 +371,11 @@ def fetch(url):
 
 
 def cmd_packs_list(args):
-    idx = json.loads(fetch(f"{packs_repo(args)}/index.json"))
+    repo = packs_repo(args)
+    try:
+        idx = json.loads(fetch(f"{repo}/index.json"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        sys.exit(f"could not parse index.json from {repo}: {e}")
     installed = set(character_packs(config_dir()))
     for p in idx.get("packs", []):
         mark = "  [installed]" if p.get("name") in installed else ""
@@ -371,6 +384,7 @@ def cmd_packs_list(args):
 
 
 def cmd_packs_show(args):
+    # write, not print: preserve the spec byte-for-byte (no added newline)
     sys.stdout.write(
         fetch(f"{packs_repo(args)}/packs/{pack_name(args.name)}/character.md").decode("utf-8"))
 
@@ -382,7 +396,8 @@ def cmd_packs_install(args):
     if (dest / "character.md").exists() and not args.force:
         sys.exit(f"{dest} already exists — use --force to overwrite or --as <name> to rename")
     base = f"{packs_repo(args)}/packs/{name}"
-    spec = fetch(f"{base}/character.md")           # fetch both before writing anything
+    # Fetch everything first so a broken remote pack exits before any disk write.
+    spec = fetch(f"{base}/character.md")
     ref = fetch(f"{base}/reference.png")
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "character.md").write_bytes(spec)

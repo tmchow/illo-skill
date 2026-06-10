@@ -28,8 +28,10 @@ python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/c
    `--as <localname>` installs under a different name (collision escape),
    `--force` overwrites deliberately.
 3. Offer to make it the default
-   (`python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <name>`) —
-   or not; per-run "use <name>" works immediately (SKILL.md step 2).
+   (`python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <localname>`)
+   — use the name it was *installed under* (printed by the install command;
+   differs from the pack name after `--as`). Or skip it; per-run
+   "use <name>" works immediately (SKILL.md step 2).
 4. Offer a quick proof render so the user sees the character in action.
 
 ## Publish a pack
@@ -37,8 +39,8 @@ python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/c
 Prerequisites: the pack exists locally (`~/.config/illo/characters/<name>/`),
 its spec passes the character rules in `references/character.md`, the `gh`
 CLI is authenticated, and the name is free in the repo's `index.json`. Images
-must be **real PNGs** — some models return JPEG bytes (the engine then names
-the file `.jpg`); convert before publishing (`sips -s format png in.jpg
+must be **real PNGs** — renders often land as `.jpg` (see the `.path` note in
+SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
 --out out.png` on macOS, or ImageMagick `magick in.jpg out.png`).
 
 1. **Render `preview.png`** if the pack has none: one load-bearing *scene*
