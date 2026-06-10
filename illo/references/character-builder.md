@@ -13,8 +13,9 @@ Ask only what changes the design:
   brand (a teapot, a terminal cursor, a fox). Push toward things with one
   simple silhouette.
 - **What look?** The pack's one style: riso (house default) or another from
-  the look library — blueprint, woodcut, pixel — or a custom style file. The
-  model sheet and every scene render in this style.
+  the look library — blueprint, woodcut, pixel, clay, manila, chalk,
+  phosphor, enamel, gouache — or a custom style file. The model sheet and
+  every scene render in this style.
 - **Where is the accent?** One small part that will carry the palette accent
   in every image (a tip, a fold, a tail, a topknot).
 - **A name?** Optional — the best names read off the design. Offer one if the
@@ -125,8 +126,9 @@ fault — return to step 2.
 Pick a pack name — usually the character's name, lowercase kebab-case.
 **Names are globally unique** (they're how agents select characters): check
 the community registry with `packs list` before settling, even if the user
-isn't publishing, and avoid the reserved names `blot`, `illo`, `riso`,
-`blueprint`, `woodcut`, `pixel`. With a winner chosen:
+isn't publishing, and avoid the reserved names `blot`, `illo`, and the look
+names (`riso`, `blueprint`, `woodcut`, `pixel`, `clay`, `manila`, `chalk`,
+`phosphor`, `enamel`, `gouache`). With a winner chosen:
 
 ```bash
 PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>"
