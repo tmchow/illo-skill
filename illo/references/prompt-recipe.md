@@ -6,6 +6,12 @@ the active character's **prompt spec** (`references/character.md` for the
 default Blot, or the custom pack's `character.md`). End with concrete hex
 values from `palettes.md`.
 
+The template below is written for the default **riso** style. When a
+non-default style is active (SKILL.md step 4), replace the LINE LANGUAGE and
+STYLE lines with the blocks from the style's file, build the PALETTE line
+from its palette mapping, and apply its character treatment to the CHARACTER
+block's value-rule slot.
+
 ## Generation template
 
 ```text

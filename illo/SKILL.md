@@ -1,22 +1,22 @@
 ---
 name: illo
 description: >-
-  Use this skill to create original editorial illustrations for articles, blog
-  posts, newsletters, or docs in a distinctive risograph print style, starring
-  a recurring mascot that performs each idea (default: Blot, a deadpan
-  ink-drop character; swappable via character packs). Triggers: "illustrate
-  this post", "make article images", "riso illustration", "illo this",
-  "mini-comic", "shot list for my blog", "draw this concept in our style",
-  "make me a mascot", "install/publish/switch character packs", or generating,
+  Use this skill to create original editorial illustrations for articles,
+  posts, newsletters, or docs in distinctive print styles — risograph by
+  default, plus blueprint, woodcut, and pixel — starring a recurring mascot
+  that performs each idea (default: Blot, an ink-drop; swappable character
+  packs). Triggers: "illustrate this post", "make article
+  images", "riso illustration", "illo this", "mini-comic", "shot list for my
+  blog", "draw this in our style", "blueprint/woodcut/pixel style", "make me
+  a mascot", "install/publish/switch character packs", or generating,
   refining, recoloring, comparing, or planning these images. Turns an article
-  into interleaved one-idea-per-image scenes and a concept into a single
-  image or a 2–4 panel mini-comic; includes a character builder,
-  community character packs, named + derived + custom palettes,
-  variation/model galleries, and a reference lock that keeps the mascot
-  on-model. Do NOT use for photorealism, logos, app/UI mockups, generic stock
-  art, charts, or plain text-to-image requests that do not want this mascot
+  into interleaved one-idea-per-image scenes, a concept into a single image
+  or a 2–4 panel mini-comic; includes a character builder, community packs,
+  custom palettes and styles, variation galleries, and a reference lock that
+  keeps the mascot on-model. Do NOT use for photorealism, logos, UI mockups,
+  stock art, charts, or plain text-to-image requests that do not want this
   house style.
-version: 0.4.0
+version: 0.5.0
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -48,15 +48,15 @@ the subject, never decoration. When one idea advances through stages, it can
 be a **mini-comic**: 2–4 panels inside a single image.
 
 This is a configurable house style, not a generic image generator. The
-**methodology and print technique are the constants**: a risograph look —
-grainy halftone, slight ink-layer offset, faint paper grain, flat fills, and
-one bold, even-weight, softly-rounded outline on everything. It is
-intentionally not a photo, not a logo, not a corporate infographic, not a
-flowchart, not a UI mockup. The **character and palette are parameters**: the
-skill ships with **Blot** (a deadpan ink-drop mascot) and named palettes, and
-both are replaceable — a custom character pack keeps the user's own mascot
-on-model, and palettes come from presets, the user's own palette file, or one
-derived color.
+**methodology is the constant**; the **character, style, and palette are
+parameters**. The default style is a risograph print — grainy halftone,
+slight ink-layer offset, faint paper grain, flat fills, one bold
+softly-rounded outline on everything — with bundled alternates (blueprint,
+woodcut, pixel) and user-defined style packs. The default mascot is **Blot**
+(a deadpan ink-drop), replaceable via character packs. Palettes come from
+presets, the user's own palette file, or one derived color. Whatever the
+parameters, it is intentionally not a photo, not a logo, not a corporate
+infographic, not a flowchart, not a UI mockup.
 
 ## Use cases — route the request
 
@@ -69,6 +69,7 @@ derived color.
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
 | **Community characters** — "what characters are available", "install blip", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install`, publish via a GitHub PR. |
+| **A different look** — "in blueprint", "woodcut style", "pixel version" | Step 4 style resolution; bundled styles in `references/styles/`, riso is the default. |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
 
@@ -102,7 +103,8 @@ the user's key — direct them to bootstrap it:
 
 Do not load everything at once. Pull the file that matches the step:
 
-- `references/visual-style.md` — the risograph look, line language, paper/ink, hard do/don'ts.
+- `references/visual-style.md` — the default (riso) style: the risograph look, line language, paper/ink, hard do/don'ts.
+- `references/styles/<name>.md` — the bundled alternate styles (`blueprint`, `woodcut`, `pixel`). Read the active style's file in full before generating in it.
 - `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
@@ -189,13 +191,23 @@ through stages **in one place**, plan a single mini-comic image there instead
 of several — the mini-comic-vs-separate routing is in
 `references/composition.md`.
 
-### 4. Resolve the palette
+### 4. Resolve the style and palette
 
-Read `references/palettes.md` in full and resolve there — it holds the
-resolution order (explicit request, then destination cue via the user's
-palettes file, then config default, then house `ink-punch`), the named
+**Style** (first match wins): an explicit request ("in blueprint", "woodcut
+style") → a bundled style `references/styles/<name>.md` or a user style at
+`${XDG_CONFIG_HOME:-~/.config}/illo/styles/<name>.md` (user file wins a name
+clash) → config `defaultStyle` → the active character's `Preferred style:`
+line, if any → the house default, **riso**, which is already baked into the
+prompt template. For any non-default style, read its file in full: it
+supplies the STYLE and LINE LANGUAGE prompt blocks, the palette mapping, the
+character treatment, and extra QA checks.
+
+**Palette**: read `references/palettes.md` in full and resolve there — it
+holds the resolution order (explicit request, then destination cue via the
+user's palettes file, then config default, then house `ink-punch`), the named
 presets, custom palettes, and the derive-a-palette-from-one-color algorithm.
-Whatever the path, end with **concrete hex values** to put in the prompt.
+End with **concrete hex values**; when a non-default style is active, run
+them through that style's palette mapping.
 
 ### 5. Generate — reference-locked, one metaphor per image
 
@@ -203,8 +215,11 @@ Build a full prompt per image from `references/prompt-recipe.md` (scene +
 structure + style + the active character's spec + resolved palette hexes +
 ≤3 labels), write it to a file, and render it. **Pass the active character's
 model sheet as `--ref` every time** — that reference conditioning is what
-keeps the mascot on-model; style and palette come from the prompt, so palettes
-stay swappable.
+keeps the mascot on-model; style and palette come from the prompt, so both
+stay swappable. If the character has a style-specific sheet for the active
+style (`reference-<style>.png` in its pack, or
+`assets/character-reference-<style>.png` for Blot), pass that one instead —
+a reference's own rendering leaks into far styles.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/

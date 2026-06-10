@@ -82,6 +82,8 @@ def dump_config_yaml(cfg):
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
         else "# defaultCharacter: my-bot    # a pack in characters/<name>/; default: the shipped character",
+        f"defaultStyle: {val(cfg['defaultStyle'])}" if cfg.get("defaultStyle")
+        else "# defaultStyle: woodcut       # a bundled or user style; default: riso",
         f"packsRepo: {val(cfg['packsRepo'])}" if cfg.get("packsRepo")
         else f"# packsRepo: {DEFAULT_PACKS_REPO}   # raw base URL of a character-packs repo",
         f"aspect: {val(cfg['aspect'])}" if cfg.get("aspect")
@@ -275,6 +277,8 @@ def cmd_init(args):
         cfg["defaultPalette"] = args.palette
     if args.character:
         cfg["defaultCharacter"] = args.character
+    if args.style:
+        cfg["defaultStyle"] = args.style
     if args.aspect:
         cfg["aspect"] = args.aspect
     for pair in args.watermark:
@@ -330,6 +334,11 @@ def cmd_doctor(args):
         lines.append(f"character: {default_char} (config default{status})")
     else:
         lines.append("character: shipped default")
+    user_styles = sorted(p.stem for p in (cdir / "styles").glob("*.md"))
+    if user_styles:
+        lines.append(f"styles: {', '.join(user_styles)} (custom in {cdir / 'styles'})")
+    style = cfg.get("defaultStyle")
+    lines.append(f"style: {style} (config default)" if style else "style: riso (default)")
     if (cdir / "palettes.md").exists():
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
     if key_src:
@@ -493,6 +502,7 @@ def main():
     i.add_argument("--model", help="default model id")
     i.add_argument("--palette", help="default palette preset name")
     i.add_argument("--character", help="default character pack name (characters/<name>/)")
+    i.add_argument("--style", help="default style name (bundled or styles/<name>.md)")
     i.add_argument("--aspect", help="default aspect ratio")
     i.add_argument("--watermark", action="append", default=[], metavar="DEST=TEXT",
                    help="default watermark text per destination, e.g. blog=yoursite.com (repeatable)")
