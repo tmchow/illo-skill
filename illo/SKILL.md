@@ -15,7 +15,7 @@ description: >-
   requests that don't say illo/riso/character pack — not "illustrate this
   post", "make an image", "draw a cartoon", "make me a mascot", not
   photorealism, UI mockups, charts, or stock art.
-version: 0.5.0
+version: 0.5.1
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -26,6 +26,7 @@ metadata:
     requires_toolsets: [terminal]
   openclaw:
     emoji: "🎨"
+    homepage: https://illo-skill.com
     os: [macos, linux]
     requires:
       bins: [python3]
