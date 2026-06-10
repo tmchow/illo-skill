@@ -20,6 +20,12 @@ it derive the rest.
 
 ![Blot — the default mascot](assets/character-reference.png)
 
+> **Invoking:** the skill answers to its name — say **"illo"** ("illo this
+> post", "use illo: draw blip hauling a crate"). It deliberately won't hijack
+> generic requests like "illustrate this post", and it can't know your
+> installed characters' names up front — lead with "illo", then talk
+> characters freely.
+
 Same character, different voice — the bundled woodcut style telling a
 three-panel story:
 

@@ -1,20 +1,20 @@
 ---
 name: illo
 description: >-
-  Use this skill ONLY when the request names it or its own vocabulary:
-  "illo" / "the illo skill" ("illo this post", "use illo on this article");
-  "riso" / "risograph"; "character pack" (install, publish, switch, or build
-  one); or one of its characters by name — the default Blot, or any
-  installed pack (e.g. "draw blip hauling a crate"). It creates original
-  editorial illustrations in which a recurring mascot performs each idea;
-  every character pack carries one look (riso, blueprint, woodcut, pixel, or
-  custom). Capabilities: turning an article into one-idea-per-image scenes,
+  Use this skill ONLY when the request invokes it by name — "illo" / "the
+  illo skill" ("illo this post", "use illo on this article", "illo: draw
+  blip hauling a crate") — or uses its unmistakable vocabulary: "riso" /
+  "risograph", or "character pack" (install, publish, switch, or build one).
+  It creates original editorial illustrations in which a recurring mascot
+  performs each idea (default character: Blot, a deadpan ink-drop); every
+  character pack carries one look — riso, blueprint, woodcut, pixel, or
+  custom. Capabilities: turning an article into one-idea-per-image scenes,
   single concepts, 2–4 panel mini-comics, shot lists, named/derived/custom
   palettes, variation and model-comparison galleries, a character builder,
   style variant packs, and community pack install/publish. Do NOT trigger on
-  generic requests — "illustrate this post", "make an image", "draw a
-  cartoon", "make me a mascot/logo", photorealism, UI mockups, charts, stock
-  art — unless they also name illo, riso, or one of its characters/packs.
+  requests that don't say illo/riso/character pack — not "illustrate this
+  post", "make an image", "draw a cartoon", "make me a mascot", not
+  photorealism, UI mockups, charts, or stock art.
 version: 0.5.0
 author: Trevin Chow
 license: MIT
