@@ -63,6 +63,8 @@ human-facing copy, captions, and shot lists. A good name reads off the design
 
 **Blot** is the default mascot: a small ink drop. The canonical model sheet is
 `assets/character-reference.png` — the engine conditions on it (see SKILL.md).
+Preferred style: riso. A pixel-style sheet ships at
+`assets/character-reference-pixel.png`.
 
 ### Locked design
 
@@ -98,9 +100,17 @@ the pack name, and the `doctor` subcommand lists what's installed:
 
 - `character.md` — the written spec: name, locked design, a **prompt spec**
   paragraph for the CHARACTER slot, value rules, and (optionally) personality
-  notes. Everything in "Rules for any character" above still applies.
+  notes and a `Preferred style: <name>` line (feeds style resolution,
+  SKILL.md step 4). Everything in "Rules for any character" above still
+  applies. The spec is the **style-neutral canon** — pure geometry, no
+  rendering technique.
 - `reference.png` — the character's canonical model sheet, passed as `--ref`
-  in place of the default's.
+  in place of the default's. It is a styled *instance* of the spec (rendered
+  in the pack's preferred style).
+- `reference-<style>.png` — optional, per far style: the same model sheet
+  re-derived in that style (see `references/character-builder.md`). Used as
+  the `--ref` when that style is active, because a reference's own rendering
+  leaks into styles far from it (e.g. pixel).
 
 A user can keep several packs and pick one per run by name; which character
 wins is SKILL.md step 2. Packs are portable — copying the folder to another

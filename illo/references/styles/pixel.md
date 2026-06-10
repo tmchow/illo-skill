@@ -5,10 +5,11 @@ retro-computing pieces, games-adjacent posts, terminal/CLI content.
 
 **Known failure mode (why this file is strict):** a smooth-rendered character
 reference fights pixelation — the scene pixelates but the mascot renders
-smooth. **Primary mitigation: a pixel reference sheet** (derivation in
-`references/character-builder.md`, "Styled reference sheets"); Blot's is
-already at `assets/character-reference-pixel.png`. The CHARACTER forcing line
-below stays mandatory as backup; a smooth mascot is an automatic re-roll.
+smooth. **Primary mitigation: use a pixel reference sheet** — derive
+`reference-pixel.png` once per character (`references/character-builder.md`,
+"Styled reference sheets") and pass it as the `--ref`; Blot ships with one
+(`assets/character-reference-pixel.png`). The CHARACTER forcing line below
+stays mandatory as backup; a smooth mascot is an automatic re-roll.
 
 ## Prompt blocks (replace the template's LINE LANGUAGE and STYLE lines)
 
@@ -27,9 +28,6 @@ Quantize the resolved palette to exactly 4 colors:
 3. **Mid** ← a single midtone derived from the structure hue at ~60%
    lightness (secondary shapes only).
 4. **Accent** ← the palette accent.
-
-Classic default (no palette given): background `#f2ead8`, ink `#1c1a17`, mid
-`#a89c88`, accent magenta `#e0359a`.
 
 PALETTE line: `exactly 4 colors — background {paper hex}, ink {structure
 hex} for outlines and dark fills, mid {mid hex} for secondary shapes, accent
