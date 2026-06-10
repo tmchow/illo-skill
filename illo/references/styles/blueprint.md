@@ -57,3 +57,6 @@ ground. Never boxed.
 
 Calibration example: `assets/examples/styles/blueprint-crossing.png` — study it for line/texture
 and restraint; never copy its composition.
+
+No styled reference sheet needed — blueprint renders cleanly from any
+canonical sheet (the style prompt overrides the sheet's own rendering).

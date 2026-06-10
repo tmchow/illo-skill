@@ -53,3 +53,6 @@ look cut, not typeset.
 
 Calibration example: `assets/examples/styles/woodcut-minicomic.png` — study it for line/texture
 and restraint; never copy its composition.
+
+No styled reference sheet needed — woodcut renders cleanly from any
+canonical sheet (the style prompt overrides the sheet's own rendering).
