@@ -1,21 +1,20 @@
 ---
 name: illo
 description: >-
-  Use this skill to create original editorial illustrations for articles,
-  posts, or docs in distinctive print styles, starring a
-  recurring mascot that performs each idea. Each character pack carries one
-  look — riso, blueprint, woodcut, pixel, or custom (default: Blot, an
-  ink-drop in riso). Triggers: "illustrate this post", "make article
-  images", "riso illustration", "illo this", "mini-comic", "shot list for my
-  blog", "draw this in our style", "blueprint/woodcut/pixel style", "make me
-  a mascot", "install/publish/switch character packs", or generating,
-  refining, recoloring, comparing, or planning these images. Turns an article
-  into interleaved one-idea-per-image scenes, a concept into a single image
-  or a 2–4 panel mini-comic; includes a character builder, community packs,
-  custom palettes and styles, variation galleries, and a reference lock that
-  keeps the mascot on-model. Do NOT use for photorealism, logos, UI mockups,
-  stock art, charts, or plain text-to-image requests that do not want this
-  house style.
+  Use this skill ONLY when the request names it or its own vocabulary:
+  "illo" / "the illo skill" ("illo this post", "use illo on this article");
+  "riso" / "risograph"; "character pack" (install, publish, switch, or build
+  one); or one of its characters by name — the default Blot, or any
+  installed pack (e.g. "draw blip hauling a crate"). It creates original
+  editorial illustrations in which a recurring mascot performs each idea;
+  every character pack carries one look (riso, blueprint, woodcut, pixel, or
+  custom). Capabilities: turning an article into one-idea-per-image scenes,
+  single concepts, 2–4 panel mini-comics, shot lists, named/derived/custom
+  palettes, variation and model-comparison galleries, a character builder,
+  style variant packs, and community pack install/publish. Do NOT trigger on
+  generic requests — "illustrate this post", "make an image", "draw a
+  cartoon", "make me a mascot/logo", photorealism, UI mockups, charts, stock
+  art — unless they also name illo, riso, or one of its characters/packs.
 version: 0.5.0
 author: Trevin Chow
 license: MIT
