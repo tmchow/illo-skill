@@ -12,6 +12,9 @@ Ask only what changes the design:
 - **What is it?** An object or creature from the user's domain, product, or
   brand (a teapot, a terminal cursor, a fox). Push toward things with one
   simple silhouette.
+- **What look?** The pack's one style: riso (house default) or another from
+  the look library — blueprint, woodcut, pixel — or a custom style file. The
+  model sheet and every scene render in this style.
 - **Where is the accent?** One small part that will carry the palette accent
   in every image (a tip, a fold, a tail, a topknot).
 - **A name?** Optional — the best names read off the design. Offer one if the
@@ -46,6 +49,8 @@ Fill this template (it becomes `character.md` in the pack):
 # {Name} — custom character
 
 {One sentence: what it is, and why the name reads off the design.}
+
+Style: **{look name — riso if unset}**
 
 ## Locked design
 
@@ -104,7 +109,10 @@ fluoro pink #ff3d9a ONLY on {the accent part}.
 ```
 
 (Use the user's own palette hexes instead if they already have one — the
-reference conditions the character's *shape*; palette stays per-image.)
+reference conditions the character's *shape*; palette stays per-image. For a
+non-riso look, substitute the style file's LINE LANGUAGE and STYLE blocks and
+its classic-default palette into the template above — the sheet must be born
+in the pack's style.)
 
 QA each candidate against the guardrails in `character.md`: deadpan (no
 mouth/brows), no extra parts, one accent part only, silhouette reads at small
@@ -114,8 +122,11 @@ fault — return to step 2.
 
 ## 5. Install the pack
 
-Pick a pack name — usually the character's name, lowercase kebab-case. With a
-winner chosen:
+Pick a pack name — usually the character's name, lowercase kebab-case.
+**Names are globally unique** (they're how agents select characters): check
+the community registry with `packs list` before settling, even if the user
+isn't publishing, and avoid the reserved names `blot`, `illo`, `riso`,
+`blueprint`, `woodcut`, `pixel`. With a winner chosen:
 
 ```bash
 PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>"
@@ -136,5 +147,25 @@ Per-run selection ("use <name>") beats the default — SKILL.md step 2. Offer a
 quick proof render: one simple scene with the new mascot performing a move,
 so the user sees it on-model in action.
 
-Packs are folders: remove one to retire it, copy it to another machine (or
-share it) to install the character there.
+Packs are folders: remove one to retire it, copy it to another machine to
+install the character there. If the user wants to share it with everyone,
+offer to publish it to the community repo — `references/pack-sharing.md`.
+
+## Style variants
+
+A character's look is part of its pack — the same character in a different
+style is a **sibling pack**, built deliberately, never a runtime restyle:
+
+1. Name it `<name>-<style>` (e.g. `blot-woodcut`). Identity is unchanged:
+   copy the locked spec and prompt spec verbatim; set the `Style:` line to
+   the new look.
+2. Regenerate the model sheet in the new style (step 4, substituting the
+   style file's blocks), passing the **original pack's** `reference.png` as
+   `--ref` so proportions carry over. Far looks fight the original sheet's
+   rendering (worst: pixel) — the style file's character treatment and
+   forcing language are mandatory; QA against the new style's deltas plus
+   the character guardrails, and re-roll until the sheet is fully in-style.
+3. Install (and optionally publish) it as its own pack with its own preview.
+
+One look per pack keeps galleries one-image-per-character and makes every
+cross-style move a cared-for act instead of a casual transplant.

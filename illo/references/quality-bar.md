@@ -1,10 +1,15 @@
 # Quality bar
 
 Check every generated image before delivering. Re-roll or edit on any failure.
+The checks below assume riso; when the active character's style isn't riso,
+swap the riso-specific checks (grain, halftone, paper) for the **QA deltas in
+its style's file** — everything else here still applies.
 
 ## Must pass
 
-- Correct aspect ratio; light paper background with the risograph grain.
+- Correct aspect ratio; the style's expected ground (riso: light paper with
+  the risograph grain; other styles: per their QA deltas — e.g. blueprint's
+  deep ground is correct).
 - **The mascot is present and performs the move** (passes the load-bearing
   test in `character.md`) — not standing beside the idea.
 - **Mascot is on-model**: matches the active character's locked design (the
@@ -45,5 +50,5 @@ Check every generated image before delivering. Re-roll or edit on any failure.
 ## Delivery test
 
 A strong image reads "a bit odd" first, then clicks within ~1 second. If it
-reads like a tutorial slide instead of a clean, deadpan riso scene, it is not
-ready.
+reads like a tutorial slide instead of a clean, deadpan scene in the active
+style, it is not ready.

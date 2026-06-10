@@ -8,6 +8,7 @@ Subcommands:
   gallery    Build a self-contained index.html from a run dir's manifest.jsonl.
   init       Create/update the user config (run by the user; prompts for the key).
   doctor     Preflight: report whether the skill is ready to generate.
+  packs      Community character packs: list / show <name> / install <name>.
 
 Resolution (generate):
   api key : --api-key  >  $OPENROUTER_API_KEY  >  config "apiKey"
@@ -21,10 +22,13 @@ still runs from the env var + flags, so generation stays install-free. The API
 key is read from the file only as a fallback; the env var is preferred. The
 agent must NOT enter the key: `init` is run by the user.
 """
-import argparse, base64, getpass, json, mimetypes, os, pathlib, sys, time
+import argparse, base64, getpass, json, mimetypes, os, pathlib, re, sys, time
 import urllib.error, urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_PACKS_REPO = "https://raw.githubusercontent.com/tmchow/illo-characters/main"
+PACK_NAME_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # Grok Imagine: best riso quality + cheapest in testing. Note: it is reachable via
 # the API but not in OpenRouter's public /models list, so an account without access
 # 404s — fall back to a catalogued model like google/gemini-3.1-flash-image-preview.
@@ -78,6 +82,8 @@ def dump_config_yaml(cfg):
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
         else "# defaultCharacter: my-bot    # a pack in characters/<name>/; default: the shipped character",
+        f"packsRepo: {val(cfg['packsRepo'])}" if cfg.get("packsRepo")
+        else f"# packsRepo: {DEFAULT_PACKS_REPO}   # raw base URL of a character-packs repo",
         f"aspect: {val(cfg['aspect'])}" if cfg.get("aspect")
         else "# aspect: 16:9               # default aspect ratio",
         "",
@@ -133,12 +139,21 @@ def post_chat(model, content, key, modalities):
         return json.loads(resp.read())
 
 
+def sniff_ext(b):
+    """'.png' or '.jpg' from magic bytes, else None."""
+    if b[:8] == PNG_MAGIC:
+        return ".png"
+    if b[:2] == b"\xff\xd8":
+        return ".jpg"
+    return None
+
+
 def image_size(b):
     """(width, height) from PNG or JPEG bytes, or (None, None). Stdlib only."""
     try:
         # PNG: 8-byte signature, then the IHDR chunk (4-byte length, "IHDR" type,
         # then width/height as big-endian uint32 at offsets 16 and 20).
-        if b[:8] == b"\x89PNG\r\n\x1a\n" and b[12:16] == b"IHDR":
+        if b[:8] == PNG_MAGIC and b[12:16] == b"IHDR":
             return int.from_bytes(b[16:20], "big"), int.from_bytes(b[20:24], "big")
         if b[:2] == b"\xff\xd8":  # JPEG: scan to a start-of-frame marker
             i = 2
@@ -201,6 +216,11 @@ def do_generate(model, content, key, out_path, want_cost):
         sys.exit(f"No image in response. message keys: {list(message.keys())}; "
                  f"text: {message.get('content', '')[:300]}")
     out = pathlib.Path(out_path)
+    # Models return whichever encoding they like; name the file by what the
+    # bytes actually are (callers read .path from the JSON line).
+    actual = sniff_ext(img) or out.suffix
+    if actual != out.suffix:
+        out = out.with_suffix(actual)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(img)
     w, h = image_size(img)
@@ -310,6 +330,9 @@ def cmd_doctor(args):
         lines.append(f"character: {default_char} (config default{status})")
     else:
         lines.append("character: shipped default")
+    user_styles = sorted(s.stem for s in (cdir / "styles").glob("*.md"))
+    if user_styles:
+        lines.append(f"styles: {', '.join(user_styles)} (custom looks in {cdir / 'styles'})")
     if (cdir / "palettes.md").exists():
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
     if key_src:
@@ -326,6 +349,64 @@ def cmd_newrun(args):
     d = run_base() / rid
     d.mkdir(parents=True, exist_ok=True)
     print(str(d))
+
+
+def packs_repo(args):
+    return (args.repo or load_config().get("packsRepo") or DEFAULT_PACKS_REPO).rstrip("/")
+
+
+def pack_name(name):
+    """Validate a pack name before it goes into a URL or filesystem path."""
+    if not PACK_NAME_RE.fullmatch(name or ""):
+        sys.exit(f"invalid pack name {name!r} — lowercase kebab-case only")
+    return name
+
+
+def fetch(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "illo-skill"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return resp.read()
+    except urllib.error.HTTPError as e:
+        sys.exit(f"HTTP {e.code} fetching {url}")
+    except urllib.error.URLError as e:
+        sys.exit(f"network error fetching {url}: {e.reason}")
+
+
+def cmd_packs_list(args):
+    repo = packs_repo(args)
+    try:
+        idx = json.loads(fetch(f"{repo}/index.json"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        sys.exit(f"could not parse index.json from {repo}: {e}")
+    installed = set(character_packs(config_dir()))
+    for p in idx.get("packs", []):
+        mark = "  [installed]" if p.get("name") in installed else ""
+        print(f"{p.get('name')} {p.get('version', '')}  {p.get('author', '')} — "
+              f"{p.get('description', '')}{mark}")
+
+
+def cmd_packs_show(args):
+    # write, not print: preserve the spec byte-for-byte (no added newline)
+    sys.stdout.write(
+        fetch(f"{packs_repo(args)}/packs/{pack_name(args.name)}/character.md").decode("utf-8"))
+
+
+def cmd_packs_install(args):
+    name = pack_name(args.name)
+    local = pack_name(args.as_name) if args.as_name else name
+    dest = config_dir() / "characters" / local
+    if (dest / "character.md").exists() and not args.force:
+        sys.exit(f"{dest} already exists — use --force to overwrite or --as <name> to rename")
+    base = f"{packs_repo(args)}/packs/{name}"
+    # Fetch everything first so a broken remote pack exits before any disk write.
+    spec = fetch(f"{base}/character.md")
+    ref = fetch(f"{base}/reference.png")
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "character.md").write_bytes(spec)
+    (dest / "reference.png").write_bytes(ref)
+    suffix = f" (as {local})" if local != name else ""
+    print(f"installed {name} -> {dest}{suffix}")
 
 
 GALLERY_CSS = """
@@ -427,6 +508,22 @@ def main():
 
     nr = sub.add_parser("newrun", help="make + print a fresh batch dir (/tmp/illo/<runid>)")
     nr.set_defaults(func=cmd_newrun)
+
+    pk = sub.add_parser("packs", help="community character packs (list/show/install)")
+    pksub = pk.add_subparsers(dest="packs_cmd", required=True)
+    pl = pksub.add_parser("list", help="list packs in the community repo")
+    pl.set_defaults(func=cmd_packs_list)
+    ps = pksub.add_parser("show", help="print a pack's character.md (review before install)")
+    ps.add_argument("name")
+    ps.set_defaults(func=cmd_packs_show)
+    pi = pksub.add_parser("install", help="install a pack into ~/.config/illo/characters/")
+    pi.add_argument("name")
+    pi.add_argument("--as", dest="as_name", metavar="NAME",
+                    help="install under a different local name (collision escape)")
+    pi.add_argument("--force", action="store_true", help="overwrite an existing local pack")
+    pi.set_defaults(func=cmd_packs_install)
+    for sp in (pl, ps, pi):
+        sp.add_argument("--repo", help=f"raw base URL of a packs repo (default: {DEFAULT_PACKS_REPO})")
 
     gl = sub.add_parser("gallery", help="build a self-contained index.html from a run dir's manifest")
     gl.add_argument("dir", help="run dir containing manifest.jsonl")

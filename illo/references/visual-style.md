@@ -1,5 +1,10 @@
 # Visual style
 
+This file defines **riso**, the house default look. A character pack carries
+exactly one style (its `Style:` line — SKILL.md step 4); the other bundled
+looks live in `references/styles/`, custom ones in
+`${XDG_CONFIG_HOME:-~/.config}/illo/styles/`.
+
 ## One line
 
 A risograph print of a small absurd machine-world: grainy, flat, bold-lined,
