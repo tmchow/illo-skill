@@ -219,7 +219,11 @@ keeps the mascot on-model; style and palette come from the prompt, so both
 stay swappable. If the character has a style-specific sheet for the active
 style (`reference-<style>.png` in its pack, or
 `assets/character-reference-<style>.png` for Blot), pass that one instead —
-a reference's own rendering leaks into far styles.
+a reference's own rendering leaks into far styles. If the active style's file
+calls for a styled sheet and the pack lacks one, **derive it now** (one
+render — `references/character-builder.md`, "Styled reference sheets"), save
+it into the pack, and proceed; never ask the user to pre-build sheets per
+style.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/

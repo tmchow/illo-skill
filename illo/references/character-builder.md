@@ -151,3 +151,10 @@ guardrails; save the winner as `reference-<style>.png` beside the canonical
 sheet. Scenes in that style then use it as the `--ref` (SKILL.md step 5).
 Near styles (riso ↔ woodcut ↔ blueprint) don't need this — the canonical
 sheet carries identity cleanly.
+
+This is **lazy, at use time** — a pack ships exactly one sheet (its preferred
+style), and styled sheets materialize only when someone actually asks for
+that character × far-style combo, automatically, for ~one render's cost.
+Never pre-build a sheet matrix. A derived sheet for a community pack is
+worth contributing back (a PR adding `reference-<style>.png` to the pack),
+so each combo is derived once ever.
