@@ -20,12 +20,16 @@ python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/c
 ```
 
 1. `packs list`, and `packs show <name>` to review — surface the design and
-   any credit line to the user before installing.
+   any credit line to the user before installing. To show the character
+   *visually*, fetch the pack's scene render to a temp file and display it:
+   `<repo-base>/packs/<name>/preview.png` (and `reference.png` for the model
+   sheet).
 2. `packs install <name>`. It refuses to overwrite an existing local pack:
    `--as <localname>` installs under a different name (collision escape),
    `--force` overwrites deliberately.
-3. Offer to make it the default (`init --no-key --character <name>`) — or not;
-   per-run "use <name>" works immediately (SKILL.md step 2).
+3. Offer to make it the default
+   (`python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <name>`) —
+   or not; per-run "use <name>" works immediately (SKILL.md step 2).
 4. Offer a quick proof render so the user sees the character in action.
 
 ## Publish a pack

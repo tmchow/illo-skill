@@ -7,7 +7,7 @@ description: >-
   ink-drop character; swappable via character packs). Triggers: "illustrate
   this post", "make article images", "riso illustration", "illo this",
   "mini-comic", "shot list for my blog", "draw this concept in our style",
-  "make me a mascot", "install/publish a character pack", or generating,
+  "make me a mascot", "install/publish/switch character packs", or generating,
   refining, recoloring, comparing, or planning these images. Turns an article
   into interleaved one-idea-per-image scenes and a concept into a single
   image or a 2–4 panel mini-comic; includes a character builder,
@@ -87,11 +87,12 @@ derived color.
 Entering an API key is something the **user** does. Do not type, paste, or write
 the user's key — direct them to bootstrap it:
 
-- **Bootstrap (user runs it):** `python3 scripts/illo.py init` — prompts for the
-  key at a hidden prompt (never echoed) and writes the optional YAML config
-  `${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml` (mode 600). It can also store
-  non-secret defaults: `--model`, `--palette`, `--aspect`. Use `--no-key` to set
-  only preferences and leave the key to the env var. (The config file is read via
+- **Bootstrap (user runs it):** `python3 "$SKILL_DIR/scripts/illo.py" init` —
+  prompts for the key at a hidden prompt (never echoed) and writes the optional
+  YAML config `${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml` (mode 600). It
+  can also store non-secret defaults: `--model`, `--palette`, `--aspect`,
+  `--character`, `--watermark`. Use `--no-key` to set only preferences and
+  leave the key to the env var. (The config file is read via
   PyYAML; without it the file is ignored and the tool runs from env var + flags,
   so generation stays install-free.)
 - **You may seed non-secret prefs** for the user with the same command and
@@ -129,8 +130,9 @@ python3 "$SKILL_DIR/scripts/illo.py" doctor
 It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists, and
 whether a key is found (without revealing it); exit 0 = ready. If the key is
-**missing**, stop and ask the user to run `python3 scripts/illo.py init`
-themselves (or to export `OPENROUTER_API_KEY`) — do not enter the key for them.
+**missing**, stop and ask the user to run
+`python3 "$SKILL_DIR/scripts/illo.py" init` themselves (or to export
+`OPENROUTER_API_KEY`) — do not enter the key for them.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
@@ -163,7 +165,7 @@ is the folder name, and `doctor` lists what's installed. A user can keep
 several and pick per run. First match wins:
 
 1. **Explicit request** — "use <pack name>", "as <name>": that pack (or the
-   shipped default when its name is asked for).
+   shipped default when asked for by name, `blot`).
 2. **Config default** — `defaultCharacter` from the user config, if set.
 3. **Shipped default** — **Blot** (spec in `references/character.md`, model
    sheet `assets/character-reference.png`).
