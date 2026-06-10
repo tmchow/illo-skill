@@ -95,9 +95,13 @@ openclaw skills install illo
   guardrails, renders model-sheet candidates, and installs the winner as a
   named character pack in `~/.config/illo/characters/<name>/`. Keep several
   packs, set a default in the config, and switch per run by name ("use
-  blot"). Packs are plain folders — share one and someone else has your
-  character. Every image stars the active character, kept on-model by a
+  blot"). Every image stars the active character, kept on-model by a
   reference lock.
+- **Community characters** — browse and install packs from
+  [illo-characters](https://github.com/tmchow/illo-characters) ("install the
+  blip character"), or publish your own: the skill opens a PR there with your
+  model sheet and a scene render embedded for one-glance review. Companies
+  can point `packsRepo` at a private pack repo instead.
 - **Blog / brand-matched art** — keep site-matched palettes in
   `~/.config/illo/palettes.md`, or hand it one brand color and it derives a
   full palette around it.

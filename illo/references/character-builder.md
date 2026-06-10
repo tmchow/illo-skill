@@ -136,5 +136,6 @@ Per-run selection ("use <name>") beats the default — SKILL.md step 2. Offer a
 quick proof render: one simple scene with the new mascot performing a move,
 so the user sees it on-model in action.
 
-Packs are folders: remove one to retire it, copy it to another machine (or
-share it) to install the character there.
+Packs are folders: remove one to retire it, copy it to another machine to
+install the character there. If the user wants to share it with everyone,
+offer to publish it to the community repo — `references/pack-sharing.md`.

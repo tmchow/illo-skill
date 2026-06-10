@@ -7,15 +7,16 @@ description: >-
   ink-drop character; swappable via character packs). Triggers: "illustrate
   this post", "make article images", "riso illustration", "illo this",
   "mini-comic", "shot list for my blog", "draw this concept in our style",
-  "make me a mascot" / "change my character", or generating, refining,
-  recoloring, comparing, or planning these images. Turns an article into an
-  interleaved set of one-idea-per-image scenes and a concept into a single
-  image or a 2–4 panel mini-comic; includes a character builder, named +
-  derived + custom palettes, variation/model-comparison galleries, and a
-  reference lock that keeps the mascot on-model. Do NOT use for photorealistic
-  images, logos, app/UI mockups, generic stock art, charts, or plain
-  text-to-image requests that do not want this mascot house style.
-version: 0.3.0
+  "make me a mascot", "install/publish a character pack", or generating,
+  refining, recoloring, comparing, or planning these images. Turns an article
+  into interleaved one-idea-per-image scenes and a concept into a single
+  image or a 2–4 panel mini-comic; includes a character builder,
+  community character packs, named + derived + custom palettes,
+  variation/model galleries, and a reference lock that keeps the mascot
+  on-model. Do NOT use for photorealism, logos, app/UI mockups, generic stock
+  art, charts, or plain text-to-image requests that do not want this mascot
+  house style.
+version: 0.4.0
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -67,6 +68,7 @@ derived color.
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
+| **Community characters** — "what characters are available", "install blip", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install`, publish via a GitHub PR. |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
 
@@ -102,6 +104,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/visual-style.md` — the risograph look, line language, paper/ink, hard do/don'ts.
 - `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
+- `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
@@ -169,8 +172,9 @@ Once resolved, read the pack's `character.md` and use its prompt spec, value
 rules, and `reference.png` everywhere the default's would be used.
 
 If the user wants a *new* character, that is the character builder
-(`references/character-builder.md`) — build and install it first, then
-continue here.
+(`references/character-builder.md`); if they want someone else's, packs
+install from the community repo (`references/pack-sharing.md`). Either way,
+install first, then continue here.
 
 ### 3. Plan (shot list) — when asked to plan, or for anything multi-image
 
@@ -215,7 +219,10 @@ python3 "$SKILL_DIR/scripts/illo.py" generate \
 `illo.py generate` prints a **JSON line per image** (`{path, model, id, cost,
 width, height, label, prompt}`) and appends the same record to
 `<out-dir>/manifest.jsonl`.
-Read `.path`; use `.width/.height` to catch a square when you asked for 16:9 (re-roll).
+Read `.path` — it may differ from `--out`: the engine names the file by the
+actual encoding (some models return JPEG bytes, so a requested `.png` lands
+as `.jpg`). Use `.width/.height` to catch a square when you asked for 16:9
+(re-roll).
 Generate each image **separately** — never combine ideas into one canvas. Default
 aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. To lock style as
 well as the character, add a finished example as a second `--ref`. Pass `--label`
