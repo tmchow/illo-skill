@@ -1,9 +1,6 @@
 # Quality bar
 
 Check every generated image before delivering. Re-roll or edit on any failure.
-The checks below assume the default riso style; when another style is active,
-swap the riso-specific checks (grain, halftone, paper) for the **QA deltas in
-that style's file** — everything else here still applies.
 
 ## Must pass
 

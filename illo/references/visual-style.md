@@ -1,9 +1,5 @@
 # Visual style
 
-This file defines the **default style: riso**. Bundled alternates live in
-`references/styles/` and user styles in
-`${XDG_CONFIG_HOME:-~/.config}/illo/styles/` — resolution in SKILL.md step 4.
-
 ## One line
 
 A risograph print of a small absurd machine-world: grainy, flat, bold-lined,

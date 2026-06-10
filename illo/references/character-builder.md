@@ -136,18 +136,5 @@ Per-run selection ("use <name>") beats the default — SKILL.md step 2. Offer a
 quick proof render: one simple scene with the new mascot performing a move,
 so the user sees it on-model in action.
 
-Packs are folders: remove one to retire it, copy it to another machine to
-install the character there. If the user wants to share it with everyone,
-offer to publish it to the community repo — `references/pack-sharing.md`.
-
-## Styled reference sheets (far styles)
-
-A reference's own rendering leaks into styles far from it (worst: pixel). To
-use a character in such a style, derive a styled instance of its model sheet
-once: re-run the step-4 sheet prompt with the style file's STYLE / LINE
-LANGUAGE blocks and character treatment substituted in, passing the canonical
-`reference.png` as `--ref`; QA against the style's deltas plus the character
-guardrails; save the winner as `reference-<style>.png` beside the canonical
-sheet. Scenes in that style then use it as the `--ref` (SKILL.md step 5).
-Near styles (riso ↔ woodcut ↔ blueprint) don't need this — the canonical
-sheet carries identity cleanly.
+Packs are folders: remove one to retire it, copy it to another machine (or
+share it) to install the character there.

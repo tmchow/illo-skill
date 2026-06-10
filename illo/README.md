@@ -1,27 +1,21 @@
 # Illo
 
-Turn a concept or an article into original **editorial illustrations** —
-flat, bold-lined print-style scenes where a recurring mascot performs the
-idea. One image says one thing: a key judgment, a flow, a before/after, a
-trap. It's a deliberate house style, not a generic image generator — closer
-to a smart, deadpan print zine than to clip art or an infographic.
+Turn a concept or an article into original **risograph-style editorial
+illustrations** — grainy, flat, bold-lined scenes where a recurring mascot
+performs the idea. One image says one thing: a key judgment, a flow, a
+before/after, a trap. It's a deliberate house style, not a generic image
+generator — closer to a smart, deadpan print zine than to clip art or an
+infographic.
 
-The methodology is the constant; **the character, style, and palette are
-yours to set**. Out of the box the mascot is **Blot** (a deadpan ink-drop)
-and the style is **risograph** — but a built-in **character builder** designs
-your own mascot with you (interview → model-sheet candidates → pick →
-install), and the style swaps too: **blueprint**, **woodcut**, and **pixel**
-ship alongside riso, with the same character staying on-model across all of
-them. Palettes work the same way: pick a named preset, keep your own
-site-matched palettes in a config file, or hand it one brand color and let it
-derive the rest.
+The methodology and print technique are the constants; **the character and
+palette are yours to set**. Out of the box the mascot is **Blot**, a deadpan
+ink-drop character — but a built-in **character builder** designs your own
+mascot with you (interview → model-sheet candidates → pick → install), and
+from then on every image stars your character instead. Palettes work the same
+way: pick a named preset, keep your own site-matched palettes in a config
+file, or hand it one brand color and let it derive the rest.
 
 ![Blot — the default mascot](assets/character-reference.png)
-
-Same character, different voice — the bundled woodcut style telling a
-three-panel story:
-
-![Woodcut mini-comic example](assets/examples/styles/woodcut-minicomic.png)
 
 ## Prerequisites
 
@@ -101,13 +95,9 @@ openclaw skills install illo
   guardrails, renders model-sheet candidates, and installs the winner as a
   named character pack in `~/.config/illo/characters/<name>/`. Keep several
   packs, set a default in the config, and switch per run by name ("use
-  blot"). Every image stars the active character, kept on-model by a
+  blot"). Packs are plain folders — share one and someone else has your
+  character. Every image stars the active character, kept on-model by a
   reference lock.
-- **Community characters** — browse and install packs from
-  [illo-characters](https://github.com/tmchow/illo-characters) ("install the
-  blip character"), or publish your own: the skill opens a PR there with your
-  model sheet and a scene render embedded for one-glance review. Companies
-  can point `packsRepo` at a private pack repo instead.
 - **Blog / brand-matched art** — keep site-matched palettes in
   `~/.config/illo/palettes.md`, or hand it one brand color and it derives a
   full palette around it.
