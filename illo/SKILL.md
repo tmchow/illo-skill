@@ -223,7 +223,7 @@ a reference's own rendering leaks into far styles.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/
-REF="$SKILL_DIR/assets/character-reference.png"   # or the active pack's reference.png
+REF="$SKILL_DIR/assets/character-reference.png"   # or the pack's reference.png / reference-<style>.png
 
 python3 "$SKILL_DIR/scripts/illo.py" generate \
   --prompt-file /tmp/shot-01.txt \

@@ -48,7 +48,8 @@ python3 scripts/illo.py doctor                # check readiness
 
 Key resolution is `--api-key` > `$OPENROUTER_API_KEY` > config file. The config
 (a commented `config.yaml`) also holds non-secret defaults — `model`,
-`defaultPalette`, `aspect`, and an optional `watermark` map for attribution.
+`defaultPalette`, `defaultCharacter`, `defaultStyle`, `aspect`, and an
+optional `watermark` map for attribution.
 There is **no built-in watermark**; set your own so it's only ever yours:
 
 ```bash
