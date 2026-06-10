@@ -27,6 +27,7 @@ import urllib.error, urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_PACKS_REPO = "https://raw.githubusercontent.com/tmchow/illo-characters/main"
+BUNDLED_STYLES = ("riso", "blueprint", "woodcut", "pixel")
 PACK_NAME_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # Grok Imagine: best riso quality + cheapest in testing. Note: it is reachable via
@@ -334,11 +335,15 @@ def cmd_doctor(args):
         lines.append(f"character: {default_char} (config default{status})")
     else:
         lines.append("character: shipped default")
-    user_styles = sorted(p.stem for p in (cdir / "styles").glob("*.md"))
+    user_styles = sorted(s.stem for s in (cdir / "styles").glob("*.md"))
     if user_styles:
         lines.append(f"styles: {', '.join(user_styles)} (custom in {cdir / 'styles'})")
     style = cfg.get("defaultStyle")
-    lines.append(f"style: {style} (config default)" if style else "style: riso (default)")
+    if style:
+        status = "" if style in BUNDLED_STYLES or style in user_styles else " — no such style"
+        lines.append(f"style: {style} (config default{status})")
+    else:
+        lines.append("style: riso (default)")
     if (cdir / "palettes.md").exists():
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
     if key_src:

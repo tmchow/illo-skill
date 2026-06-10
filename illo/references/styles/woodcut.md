@@ -22,6 +22,9 @@ STYLE: WOODCUT / linocut relief print — hand-carved look, heavy ink on warm cr
 
 No midtones: every area is paper, ink, or accent.
 
+Classic default (no palette given): paper `#f6efe0`, carving ink `#161311`,
+accent vermilion `#d8401f`.
+
 PALETTE line: `paper {paper hex}. Carving ink {ink hex}. Accent ink
 {accent hex} used sparingly, slightly off-register — the character's accent
 part + 1–2 elements.`

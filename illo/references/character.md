@@ -108,9 +108,9 @@ the pack name, and the `doctor` subcommand lists what's installed:
   in place of the default's. It is a styled *instance* of the spec (rendered
   in the pack's preferred style).
 - `reference-<style>.png` — optional, per far style: the same model sheet
-  re-derived in that style (see `references/character-builder.md`). Used as
-  the `--ref` when that style is active, because a reference's own rendering
-  leaks into styles far from it (e.g. pixel).
+  re-derived in that style; passed as the `--ref` when that style is active
+  (SKILL.md step 5). When it's needed and how to derive it:
+  `references/character-builder.md`, "Styled reference sheets".
 
 A user can keep several packs and pick one per run by name; which character
 wins is SKILL.md step 2. Packs are portable — copying the folder to another
