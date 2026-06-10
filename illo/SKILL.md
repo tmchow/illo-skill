@@ -1,16 +1,16 @@
 ---
 name: illo
 description: >-
-  Use this skill ONLY when the request invokes it by name — "illo" / "the
-  illo skill" ("illo this post", "use illo on this article", "illo: draw
-  blip hauling a crate") — or uses its unmistakable vocabulary: "riso" /
-  "risograph", or "character pack" (install, publish, switch, or build one).
-  It creates original editorial illustrations in which a recurring mascot
-  performs each idea (default: Blot, a deadpan ink-drop); each pack carries
-  one look — bundled (riso, blueprint, woodcut, pixel, clay, manila, chalk,
-  phosphor, enamel, gouache) or custom. Capabilities: turning an article into one-idea-per-image scenes,
-  single concepts, 2–4 panel mini-comics, shot lists, named/derived/custom
-  palettes, variation and model-comparison galleries, a character builder,
+  Creates original editorial illustrations in which a recurring deadpan
+  mascot performs the idea (default mascot: Blot, an ink-drop) — article
+  illustration sets, single-concept images, and 2–4 panel mini-comics, in one
+  of ten bundled looks (riso, blueprint, woodcut, pixel, clay, manila, chalk,
+  phosphor, enamel, gouache) or a custom style. This skill should be used ONLY
+  when the request invokes it by name ("illo this post", "use illo on this
+  article", "illo: draw blip hauling a crate") or uses its unmistakable
+  vocabulary: "riso" / "risograph", or "character pack" (install, publish,
+  switch, or build one). Also covers shot lists, named/derived/custom
+  palettes, variation and model-comparison galleries, the character builder,
   style variant packs, and community pack install/publish. Do NOT trigger on
   requests that don't say illo/riso/character pack — not "illustrate this
   post", "make an image", "draw a cartoon", "make me a mascot", not
