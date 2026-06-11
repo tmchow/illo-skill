@@ -45,6 +45,8 @@ def build_manifest():
             sys.exit(f"ERROR: {rel_repo} has uncommitted changes — commit it first "
                      f"so its pin commit exists, then regenerate.")
         pin = git("log", "-1", "--format=%H", "--", rel_repo)
+        if not pin:
+            sys.exit(f"ERROR: {rel_repo} has no commit history — commit it first.")
         sha = hashlib.sha256(f.read_bytes()).hexdigest()
         lines.append(f"{sha}  {pin}  {rel_skill}\n")
     return HEADER + "".join(lines)

@@ -27,7 +27,7 @@ sha256_file() {
 }
 
 status=0
-while read -r expected pin rel; do
+while read -r expected pin rel || [[ -n "${expected:-}" ]]; do
   [[ -z "$expected" || "$expected" == \#* ]] && continue
   dest="$SKILL_DIR/$rel"
   if [[ -f "$dest" ]] && [[ "$(sha256_file "$dest")" == "$expected" ]]; then
@@ -41,7 +41,12 @@ while read -r expected pin rel; do
   fi
   url="$RAW_BASE/$pin/illo/$rel"
   tmp="$(mktemp)"
-  curl -fsSL "$url" -o "$tmp"
+  if ! curl -fsSL "$url" -o "$tmp"; then
+    echo "ERROR: download failed: $url" >&2
+    rm -f "$tmp"
+    status=1
+    continue
+  fi
   actual="$(sha256_file "$tmp")"
   if [[ "$actual" != "$expected" ]]; then
     echo "ERROR: downloaded $rel does not match its known-good hash" >&2

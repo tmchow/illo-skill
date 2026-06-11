@@ -16,13 +16,14 @@ on:
       - "illo/assets/**"
       - ".github/scripts/regen_asset_checksums.py"
 
-permissions:
-  contents: write
-
 jobs:
   regen-on-pr:
-    if: github.event_name == 'pull_request'
+    # Fork PRs can't be pushed to with GITHUB_TOKEN; verify-on-main still
+    # gates anything that slips through a fork.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:

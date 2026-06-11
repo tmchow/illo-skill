@@ -34,6 +34,7 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # 404s — fall back to a catalogued model like google/gemini-3.1-flash-image-preview.
 DEFAULT_MODEL = "x-ai/grok-imagine-image-quality"
 PROG = pathlib.Path(__file__).name
+SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 
 def config_dir():
@@ -324,16 +325,15 @@ def corrupted_assets():
     assets/checksums.txt — the signature of an installer that decoded
     binaries as text (some Hermes versions do this on GitHub installs)."""
     import hashlib
-    skill = pathlib.Path(__file__).resolve().parent.parent
-    manifest = skill / "assets" / "checksums.txt"
+    manifest = SKILL_DIR / "assets" / "checksums.txt"
     if not manifest.is_file():
         return []
     bad = []
     for line in manifest.read_text().splitlines():
-        if not line.strip() or line.startswith("#"):
+        if not line.strip() or line.lstrip().startswith("#"):
             continue
-        expected, _pin, rel = line.split()
-        f = skill / rel
+        expected, _pin, rel = line.split(None, 2)
+        f = SKILL_DIR / rel
         if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest() != expected:
             bad.append(f)
     return bad
@@ -374,10 +374,9 @@ def cmd_doctor(args):
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
     bad = corrupted_assets()
     if bad:
-        skill_dir = pathlib.Path(__file__).resolve().parent.parent
-        names = ", ".join(str(f.relative_to(skill_dir)) for f in bad)
+        names = ", ".join(str(f.relative_to(SKILL_DIR)) for f in bad)
         lines.append(f"assets: CORRUPTED ({names}) — reinstall the skill, or run: "
-                     f"bash {skill_dir / 'scripts/repair-hermes-assets.sh'}")
+                     f"bash {SKILL_DIR / 'scripts/repair-hermes-assets.sh'}")
     else:
         lines.append("assets: OK")
     if key_src:
