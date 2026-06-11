@@ -47,13 +47,19 @@ def config_path():
 
 def parse_flat_yaml(text):
     """Stdlib fallback for the config `init` writes: top-level `key: value`
-    string pairs only (nested maps like `watermark` need PyYAML)."""
+    string pairs only (nested maps like `watermark` need PyYAML). Unquoted
+    values containing ':' or ' #' would be misread — `init` always quotes
+    those, so quote them in hand edits too."""
     cfg = {}
     for line in text.splitlines():
         if not line or line.startswith((" ", "\t", "#")) or ":" not in line:
             continue
         k, _, v = line.partition(":")
-        v = v.split(" #")[0].strip().strip("'\"")
+        v = v.strip()
+        if v[:1] in ("'", '"'):
+            v = v.strip("'\"")
+        else:
+            v = v.split(" #")[0].strip()
         if k.strip() and v:
             cfg[k.strip()] = v
     return cfg
