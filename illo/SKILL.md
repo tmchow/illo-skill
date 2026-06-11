@@ -360,12 +360,17 @@ the review artifact.
 
 ### 7. Deliver — match the session's medium
 
-Copy finals next to the user's work when appropriate
-(`assets/<slug>-illustrations/01-topic.png`, `02-topic.png`, …); never
-overwrite existing assets without being asked. Then report: how many images,
-each one's purpose, the palette used, and which are strongest vs optional —
-plus the images themselves, delivered the way this session can actually
-show them:
+Copy finals next to the user's work when appropriate; never overwrite
+existing assets without being asked. **Filenames carry the role** — they
+are the only metadata that survives a document attachment, so make them
+self-identifying: `00-hero-<slug>.png` for the hero, then
+`01-<section-slug>.png`, `02-<section-slug>.png`, … for anchors in piece
+order (`assets/<slug>-illustrations/`). Then report: how many images, the
+palette used, which are strongest vs optional — and for any multi-image
+job, a **placement map**: one line per image naming the file, its role
+(hero, or after which section), and the one idea it lands, so the user can
+drop each file where it belongs without re-deriving the plan. Deliver the
+images themselves the way this session can actually show them:
 
 - **Filesystem sessions** (IDE/terminal agents — Claude Code, Codex,
   Cursor): report each final's **absolute path** (the engine's JSON `.path`
@@ -407,8 +412,9 @@ Before the final reply in a chat session, check:
   in the reply;
 - `[[as_document]]` is in the reply unless this is explicitly preview-only;
 - rejected/re-rolled candidates are excluded from delivery;
-- the text says what was made — character, palette, strongest final —
-  without implementation noise.
+- the text says what was made — character, palette, strongest final, and
+  for sets the placement map (which file is the hero, which follows which
+  section) — without implementation noise.
 
 ## Output discipline
 
