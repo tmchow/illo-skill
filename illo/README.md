@@ -27,7 +27,7 @@ color → accent; re-extract only if you rebrand). Same mascot, fluoro pink
 on X, your blog's exact orange on the blog — never asked twice. Or pick a
 named preset, or hand it one brand color and let it derive the rest.
 
-![Blot — the default mascot](assets/character-reference.jpg)
+![Blot — the default mascot](assets/character-reference.webp)
 
 > **Invoking:** the skill answers to its name — say **"illo"** ("illo this
 > post", "use illo: draw blip hauling a crate"). It deliberately won't hijack
@@ -125,7 +125,6 @@ dollar on the default model. Prices are OpenRouter's and drift — check
 | **Grok Imagine** — *default* | The recommendation comes from testing, not loyalty: boldest riso texture, the strongest character lock from the reference sheet, honors 16:9 — and the cheapest of the set. | $ |
 | Nano Banana 2 | The dependable fallback: fast, the most reliable label text, publicly catalogued. | $ |
 | Nano Banana Pro | Richest detail — worth it for hero images. | $$ |
-| Microsoft MAI 2.5 | Clean look, lighter grain. | $$ |
 | GPT-5.4 Image 2 | Strong instruction-following, but pricey and tends to return square regardless of the requested aspect. | $$$ |
 
 Worth knowing:
