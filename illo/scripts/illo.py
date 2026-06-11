@@ -362,27 +362,70 @@ def pack_name(name):
     return name
 
 
-def fetch(url):
+def fetch(url, optional=False):
     req = urllib.request.Request(url, headers={"User-Agent": "illo-skill"})
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
             return resp.read()
     except urllib.error.HTTPError as e:
+        if optional:
+            return None
         sys.exit(f"HTTP {e.code} fetching {url}")
     except urllib.error.URLError as e:
+        if optional:
+            return None
         sys.exit(f"network error fetching {url}: {e.reason}")
 
 
-def cmd_packs_list(args):
+def repo_index(args, optional=False):
+    """{name: index entry} from the packs repo ({} when optional and unavailable/unparsable)."""
     repo = packs_repo(args)
+    raw = fetch(f"{repo}/index.json", optional=optional)
+    if raw is None:
+        return {}
     try:
-        idx = json.loads(fetch(f"{repo}/index.json"))
+        idx = json.loads(raw)
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        if optional:
+            return {}
         sys.exit(f"could not parse index.json from {repo}: {e}")
-    installed = set(character_packs(config_dir()))
-    for p in idx.get("packs", []):
-        mark = "  [installed]" if p.get("name") in installed else ""
-        print(f"{p.get('name')} {p.get('version', '')}  {p.get('author', '')} — "
+    return {p["name"]: p for p in idx.get("packs", []) if p.get("name")}
+
+
+def installed_version(pack_dir):
+    """The repo version a local pack was installed at, or None (pre-stamp installs)."""
+    f = pack_dir / ".version"
+    return f.read_text().strip() if f.is_file() else None
+
+
+def stamp_version(dest, entry):
+    """Record the index version a pack was installed at; silently a no-op without one."""
+    if entry and entry.get("version"):
+        (dest / ".version").write_text(entry["version"] + "\n")
+
+
+def install_pack_files(repo, name, dest):
+    base = f"{repo}/packs/{name}"
+    # Fetch everything first so a broken remote pack exits before any disk write.
+    spec = fetch(f"{base}/character.md")
+    ref = fetch(f"{base}/reference.png")
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "character.md").write_bytes(spec)
+    (dest / "reference.png").write_bytes(ref)
+
+
+def cmd_packs_list(args):
+    entries = repo_index(args)
+    packs = character_packs(config_dir())
+    for name, p in entries.items():
+        mark = ""
+        if name in packs:
+            local, remote = installed_version(packs[name]), p.get("version", "")
+            if local and remote and local != remote:
+                mark = f"  [installed {local} — {remote} available: packs update {name}]"
+            else:
+                mark = "  [installed]"
+        print(f"{name} {p.get('version', '')}  {p.get('author', '')} — "
               f"{p.get('description', '')}{mark}")
 
 
@@ -398,15 +441,41 @@ def cmd_packs_install(args):
     dest = config_dir() / "characters" / local
     if (dest / "character.md").exists() and not args.force:
         sys.exit(f"{dest} already exists — use --force to overwrite or --as <name> to rename")
-    base = f"{packs_repo(args)}/packs/{name}"
-    # Fetch everything first so a broken remote pack exits before any disk write.
-    spec = fetch(f"{base}/character.md")
-    ref = fetch(f"{base}/reference.png")
-    dest.mkdir(parents=True, exist_ok=True)
-    (dest / "character.md").write_bytes(spec)
-    (dest / "reference.png").write_bytes(ref)
+    repo = packs_repo(args)
+    entry = repo_index(args, optional=True).get(name)  # version stamp is best-effort
+    install_pack_files(repo, name, dest)
+    stamp_version(dest, entry)
     suffix = f" (as {local})" if local != name else ""
     print(f"installed {name} -> {dest}{suffix}")
+
+
+def cmd_packs_update(args):
+    """Re-fetch installed pack(s) from the repo. Overwrites local edits to a pack."""
+    repo = packs_repo(args)
+    entries = repo_index(args)
+    packs = character_packs(config_dir())
+    if args.name:
+        names = [pack_name(args.name)]
+    else:
+        names = sorted(set(packs) & set(entries))
+        if not names:
+            sys.exit("no installed packs found in the repo index — nothing to update")
+    for name in names:
+        dest = packs.get(name)
+        if dest is None:
+            sys.exit(f"{name} is not installed — use: packs install {name}")
+        entry = entries.get(name)
+        if entry is None:
+            sys.exit(f"{name} is not in the repo index at {repo} — a local-only "
+                     f"character, or installed under a different name (--as)")
+        local, remote = installed_version(dest), entry.get("version", "")
+        if local and remote and local == remote and not args.force:
+            print(f"{name} {local} — already up to date")
+            continue
+        install_pack_files(repo, name, dest)
+        stamp_version(dest, entry)
+        was = f"{local} -> " if local else ""
+        print(f"updated {name} {was}{remote or '?'} -> {dest}")
 
 
 GALLERY_CSS = """
@@ -509,7 +578,7 @@ def main():
     nr = sub.add_parser("newrun", help="make + print a fresh batch dir (/tmp/illo/<runid>)")
     nr.set_defaults(func=cmd_newrun)
 
-    pk = sub.add_parser("packs", help="community character packs (list/show/install)")
+    pk = sub.add_parser("packs", help="community character packs (list/show/install/update)")
     pksub = pk.add_subparsers(dest="packs_cmd", required=True)
     pl = pksub.add_parser("list", help="list packs in the community repo")
     pl.set_defaults(func=cmd_packs_list)
@@ -522,7 +591,13 @@ def main():
                     help="install under a different local name (collision escape)")
     pi.add_argument("--force", action="store_true", help="overwrite an existing local pack")
     pi.set_defaults(func=cmd_packs_install)
-    for sp in (pl, ps, pi):
+    pu = pksub.add_parser("update", help="re-fetch installed pack(s) at the repo's current version")
+    pu.add_argument("name", nargs="?",
+                    help="pack to update (default: every installed pack in the repo index)")
+    pu.add_argument("--force", action="store_true",
+                    help="re-fetch even when already at the index version")
+    pu.set_defaults(func=cmd_packs_update)
+    for sp in (pl, ps, pi, pu):
         sp.add_argument("--repo", help=f"raw base URL of a packs repo (default: {DEFAULT_PACKS_REPO})")
 
     gl = sub.add_parser("gallery", help="build a self-contained index.html from a run dir's manifest")

@@ -178,7 +178,8 @@ openclaw skills install illo
   reference lock.
 - **Community characters** — browse and install packs from
   [illo-characters](https://github.com/tmchow/illo-characters) ("install the
-  blip character"), or publish your own: the skill opens a PR there with your
+  blip character"); installs are pinned, and "update blip" pulls the repo's
+  current version when you want it. Or publish your own: the skill opens a PR there with your
   model sheet and a scene render embedded for one-glance review. Companies
   can point `packsRepo` at a private pack repo instead.
 - **Blog / brand-matched art** — keep site-matched palettes in
