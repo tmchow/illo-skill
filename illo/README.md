@@ -27,7 +27,7 @@ color → accent; re-extract only if you rebrand). Same mascot, fluoro pink
 on X, your blog's exact orange on the blog — never asked twice. Or pick a
 named preset, or hand it one brand color and let it derive the rest.
 
-![Blot — the default mascot](assets/character-reference.webp)
+![Blot — the default mascot](assets/character-reference.jpg)
 
 > **Invoking:** the skill answers to its name — say **"illo"** ("illo this
 > post", "use illo: draw blip hauling a crate"). It deliberately won't hijack
