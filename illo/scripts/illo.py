@@ -494,8 +494,9 @@ figcaption{padding:10px 14px 14px}
 """
 
 
-def build_gallery_html(recs, embed, base):
+def build_gallery_html(recs, embed, base, title=None):
     import html as _html
+    heading = _html.escape(title or "Illo gallery")
     total = sum(r["cost"] for r in recs if r.get("cost"))
     cards = []
     for r in recs:
@@ -518,8 +519,8 @@ def build_gallery_html(recs, embed, base):
             f'<p class="meta">{meta}</p>{prompt}</figcaption></figure>')
     return (f"<!doctype html><html lang=en><head><meta charset=utf-8>"
             f'<meta name=viewport content="width=device-width,initial-scale=1">'
-            f"<title>Illo gallery</title><style>{GALLERY_CSS}</style></head>"
-            f'<body><h1>Illo gallery <span class="tot">{len(recs)} images'
+            f"<title>{heading}</title><style>{GALLERY_CSS}</style></head>"
+            f'<body><h1>{heading} <span class="tot">{len(recs)} images'
             f" · ${total:.4f}</span></h1>"
             f'<div class="grid">{"".join(cards)}</div></body></html>')
 
@@ -540,7 +541,7 @@ def cmd_gallery(args):
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
     out = d / "index.html"
-    out.write_text(build_gallery_html(recs, args.embed, d))
+    out.write_text(build_gallery_html(recs, args.embed, d, title=args.title))
     print(str(out))
     if args.open:
         import shutil, subprocess
@@ -611,6 +612,7 @@ def main():
     gl.add_argument("--embed", action="store_true", help="inline images as data-URIs (single portable file)")
     gl.add_argument("--exclude", action="append", default=[], metavar="LABEL",
                     help="drop records with this exact label (repeatable) — e.g. rolls superseded by a re-roll")
+    gl.add_argument("--title", help="gallery heading naming the piece/request this run is for")
     gl.set_defaults(func=cmd_gallery)
 
     args = ap.parse_args()

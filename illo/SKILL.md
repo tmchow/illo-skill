@@ -280,7 +280,8 @@ for m in <model-id-1> <model-id-2>; do
 python3 .../illo.py generate --prompt-file staging-A.txt --ref <ref> --label "as a funnel" --out "$RUN/a.png"
 python3 .../illo.py generate --prompt-file staging-B.txt --ref <ref> --label "as a crossing" --out "$RUN/b.png"
 
-python3 "$SKILL_DIR/scripts/illo.py" gallery "$RUN" --open    # build + open index.html
+python3 "$SKILL_DIR/scripts/illo.py" gallery "$RUN" --title "<the piece or request>" --open
+# always pass --title so a saved gallery stays identifiable later;
 # add --embed for a single portable file (images inlined)
 ```
 
