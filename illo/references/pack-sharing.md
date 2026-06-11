@@ -34,6 +34,27 @@ python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/c
    "use <name>" works immediately (SKILL.md step 2).
 4. Offer a quick proof render so the user sees the character in action.
 
+## Update a pack
+
+Installs are pinned copies — nothing updates by itself. When the user asks
+("update mole", "is my blip current?", "refresh my characters"):
+
+```bash
+python3 "$SKILL_DIR/scripts/illo.py" packs update <name>   # one pack
+python3 "$SKILL_DIR/scripts/illo.py" packs update          # all installed packs in the index
+```
+
+- Install stamps the repo version into the pack (`.version`); `packs list`
+  flags stale installs (`[installed 1.0.0 — 1.1.0 available: …]`), and
+  `update` skips packs already at the index version (`--force` re-fetches
+  anyway).
+- **Updating overwrites the local copy** — warn first if the user has
+  hand-edited their installed `character.md`; `packs install <name> --as
+  <other>` keeps a side-by-side copy instead.
+- Packs installed under a different name (`--as`) and local-only characters
+  aren't in the repo index and are skipped/refused by `update` — re-install
+  those explicitly.
+
 ## Publish a pack
 
 Prerequisites: the pack exists locally (`~/.config/illo/characters/<name>/`),

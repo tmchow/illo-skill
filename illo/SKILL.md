@@ -8,14 +8,14 @@ description: >-
   phosphor, enamel, gouache) or a custom style. This skill should be used ONLY
   when the request invokes it by name ("illo this post", "use illo on this
   article", "illo: draw blip hauling a crate") or uses its unmistakable
-  vocabulary: "riso" / "risograph", or "character pack" (install, publish,
-  switch, or build one). Also covers shot lists, named/derived/custom
+  vocabulary: "riso" / "risograph", or "character pack" (install, update,
+  publish, switch, or build one). Also covers shot lists, named/derived/custom
   palettes, variation and model-comparison galleries, the character builder,
   style variant packs, and community pack install/publish. Do NOT trigger on
   requests that don't say illo/riso/character pack — not "illustrate this
   post", "make an image", "draw a cartoon", "make me a mascot", not
   photorealism, UI mockups, charts, or stock art.
-version: 0.6.1
+version: 0.7.0
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]
@@ -70,7 +70,7 @@ infographic, not a flowchart, not a UI mockup.
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
-| **Community characters** — "what characters are available", "install blip", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install`, publish via a GitHub PR. |
+| **Community characters** — "what characters are available", "install blip", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, publish via a GitHub PR. |
 | **A different look** — "in blueprint", "woodcut style", "pixel version of blip" | Styles travel with character packs: build a **style variant pack** via `references/character-builder.md`, "Style variants". |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
