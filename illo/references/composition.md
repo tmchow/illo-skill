@@ -53,14 +53,43 @@ single-claim short post · multi-claim short post / launch announcement ·
 long article / newsletter · narrative / postmortem · procedural sequence
 or thread.
 
-**2. Lock the thesis.** Write one sentence before any prompt: *"The image
-must communicate: \<main thesis>."* A single image must carry that
-sentence, not a vivid supporting detail. A launch post listing six
-improvements is about the step-change they add up to ("runs farther with
-less steering"), not about whichever list item stages best — illustrating
-a subclaim is a miss unless the user asked for that angle. For multi-beat
-sources, also pull the 3–7 load-bearing moments (criteria in the
-shot-list section below).
+**2. Lock the thesis — per coverage unit, not once per piece.** Write one
+sentence before any prompt: *"This image must communicate: \<thesis>."*
+The thesis is scoped to the unit you are about to draw, and every image
+gets its own:
+
+- A **single image / hero** locks the *whole piece's* thesis. A launch
+  post listing six improvements is about the step-change they add up to
+  ("runs farther with less steering"), not about whichever list item
+  stages best.
+- A **set member** locks *its own section's* thesis — what that section
+  turns on — analyzed fresh, never sliced off the piece summary. Four
+  sections with four different angles must produce four different images;
+  if they all restate the headline, the per-section locks weren't done.
+
+Then **draw the locked thesis, not the most drawable thing near it.** The
+trap: the most *illustratable* moment is usually a supporting anecdote,
+not the thesis — a concrete process (measure → log → verify) pictures in
+one second while an abstract claim (judgment, taste, a step-change, "now a
+partner not a tool") resists. The easy picture is bait. When the thesis is
+abstract, do not retreat to whatever concrete activity the piece happens
+to describe; turn the abstract claim into a **role / scale / relationship
+move** — tool→partner (climb out of the toolbox, pull up a chair),
+rung→higher rung, follows-orders→exercises-taste — the same "turn the idea
+into a move" discipline applied to a quality claim.
+
+**"Subclaim" is relative to the unit's own thesis.** Drawing a section's
+point is correct for that section's image even though it's a "supporting
+detail" of the whole — the subclaim filter rejects only what is smaller
+than *this unit's* lock, never a section image for being smaller than the
+article. **A process is the subject when it IS the locked thesis** (an
+article section "how X deploys", a how-to whose point is the steps →
+mini-comic), and bait when it is merely evidence for a different lock (the
+debugging anecdote under a "it's a thinking partner now" thesis). The lock
+is the arbiter; the shape rules below then carry whatever it named.
+
+For multi-beat sources, pull the 3–7 load-bearing moments (criteria in the
+shot-list section below) before locking each.
 
 **3. Decide coverage — and ask once when it's both ambiguous and costly.**
 Reason in five coverage shapes (users won't name them; map their words):
@@ -201,7 +230,9 @@ piece", idea = the locked thesis — which sits outside the anchor count
 and the never-pad rule. Per image:
 
 - **Placement** — after which section or idea
-- **Idea** — the one sentence it lands
+- **Idea** — the one sentence it lands: *this anchor's* own thesis-lock
+  (Source routing step 2), what this section turns on — not a fragment of
+  the piece summary. Each row is analyzed on its own terms.
 - **Staging** — which angle above
 - **The mascot's move** — the physical action
 - **Object(s)** — the one or two built things
