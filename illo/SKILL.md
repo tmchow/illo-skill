@@ -10,7 +10,7 @@ author: Trevin Chow
 license: MIT
 metadata:
   hermes:
-    tags: [illustration, riso, image-generation, blog, editorial, mascot]
+    tags: [illustration, riso, image-generation, editorial, mascot, openrouter]
     category: creative
     requires_toolsets: [terminal]
   openclaw:
@@ -69,8 +69,8 @@ infographic, not a flowchart, not a UI mockup.
 
 ### Setup is the user's job (never enter the key yourself)
 
-Entering an API key is something the **user** does. Do not type, paste, or write
-the user's key — direct them to bootstrap it:
+Entering an API key is something the **user** does. Do not type, paste, print,
+or store the user's key — direct them to bootstrap it:
 
 - **Bootstrap (user runs it):** `python3 "$SKILL_DIR/scripts/illo.py" init` —
   prompts for the key at a hidden prompt (never echoed) and writes the
