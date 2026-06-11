@@ -1,24 +1,13 @@
 ---
 name: illo
 description: >-
-  Creates original editorial illustrations in which a recurring deadpan
-  mascot performs the idea (default mascot: Blot, an ink-drop) — article
-  illustration sets, single-concept images, and 2–4 panel mini-comics, in one
-  of ten bundled looks (riso, blueprint, woodcut, pixel, clay, manila, chalk,
-  phosphor, enamel, gouache) or a custom style. This skill should be used ONLY
-  when the request invokes it by name ("illo this post", "use illo on this
-  article", "illo: draw blip hauling a crate") or uses its unmistakable
-  vocabulary: "riso" / "risograph", or "character pack" (install, update,
-  publish, switch, or build one). Also covers shot lists, named/derived/custom
-  palettes, variation and model-comparison galleries, the character builder,
-  style variant packs, and community pack install/publish. Do NOT trigger on
-  requests that don't say illo/riso/character pack — not "illustrate this
-  post", "make an image", "draw a cartoon", "make me a mascot", not
-  photorealism, UI mockups, charts, or stock art.
-version: 0.7.0
+  Creates original editorial illustrations where a recurring mascot
+  character performs the idea, in one of ten bundled print looks. Triggers
+  only when the skill is directly invoked or "illo" is requested; never on
+  generic illustrate / draw / make-an-image requests.
+version: 0.7.1
 author: Trevin Chow
 license: MIT
-platforms: [macos, linux]
 metadata:
   hermes:
     tags: [illustration, riso, image-generation, blog, editorial, mascot]
@@ -35,7 +24,7 @@ metadata:
         required: true
         description: >-
           OpenRouter API key used by scripts/illo.py to call the image model
-          (default Grok Imagine; any OpenRouter image model via --model).
+          (any OpenRouter image model via --model).
           May instead be stored in the user config via `illo.py init`.
 ---
 
@@ -54,8 +43,7 @@ per pack, chosen from the bundled look library (riso — grainy halftone,
 ink-layer offset, paper grain, one bold softly-rounded outline — plus
 blueprint, woodcut, pixel, clay, manila, chalk, phosphor, enamel, and
 gouache) or a custom style file. The default mascot is
-**Blot**, a deadpan ink-drop in riso. The same character in a different look
-is a deliberate **style variant pack**, never a runtime swap. Palettes come
+**Blot**, a deadpan ink-drop in riso. Palettes come
 from presets, the user's own palette file, or one derived color. Whatever the
 parameters, it is intentionally not a photo, not a logo, not a corporate
 infographic, not a flowchart, not a UI mockup.
@@ -98,7 +86,7 @@ the user's key — direct them to bootstrap it:
   leave the key to the env var. (The config file is read via
   PyYAML; without it the file is ignored and the tool runs from env var + flags,
   so generation stays install-free.)
-- **You may seed non-secret prefs** for the user with the same command and
+- **Non-secret prefs may be seeded** for the user with the same command and
   `--no-key`, but the key itself is theirs to enter.
 
 ## Read these references as needed
@@ -112,6 +100,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
+- `references/models.md` — the model lineup: friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
 
@@ -162,11 +151,10 @@ Two kinds of input, handled differently:
 
 ### 2. Resolve the character
 
-Character packs are named folders under
-`${XDG_CONFIG_HOME:-~/.config}/illo/characters/<name>/`, each holding
-`character.md` (the spec) + `reference.png` (the model sheet); the pack name
-is the folder name, and `doctor` lists what's installed. A user can keep
-several and pick per run. First match wins:
+Installed packs live under `${XDG_CONFIG_HOME:-~/.config}/illo/characters/`
+(format and location details: `references/character.md`); `doctor` lists
+what's installed. A user can keep several and pick per run. First match
+wins:
 
 1. **Explicit request** — "use <pack name>", "as <name>": that pack (or the
    shipped default when asked for by name, `blot`).
@@ -235,48 +223,23 @@ python3 "$SKILL_DIR/scripts/illo.py" generate \
 ```
 
 `illo.py generate` prints a **JSON line per image** (`{path, model, id, cost,
-width, height, label, prompt}`) and appends the same record to
+width, height, label, prompt}`; `cost` is null unless `--cost` is passed —
+`gallery` backfills it) and appends the same record to
 `<out-dir>/manifest.jsonl`.
 Read `.path` — it may differ from `--out`: the engine names the file by the
 actual encoding (some models return JPEG bytes, so a requested `.png` lands
-as `.jpg`). Use `.width/.height` to catch a square when you asked for 16:9
+as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
 (re-roll).
 Generate each image **separately** — never combine ideas into one canvas. Default
 aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. To lock style as
 well as the character, add a finished example as a second `--ref`. Pass `--label`
 for a caption that shows in the gallery.
 
-**Model choice.** Resolution is `--model` > config `model` > built-in default.
-`illo.py` takes a full OpenRouter id only — the friendly-name translation is
-yours: when the user names a model in plain language, map it to the id and pass
-it as `--model`. Don't make the user remember the formal ids.
-
-| When the user says (any of) | Pass to `--model` | Traits |
-|---|---|---|
-| "Grok Imagine", "Grok image", "xAI image", "Grok", or says nothing | `x-ai/grok-imagine-image-quality` | **default**; bold riso, strong character lock, cheapest, 16:9 |
-| "Nano Banana 2", "nano banana", "banana", "nb2" | `google/gemini-3.1-flash-image-preview` | safe catalogued fallback; fast, reliable text; 16:9 |
-| "Nano Banana Pro", "banana pro", "nb pro", "the pro one" | `google/gemini-3-pro-image-preview` | richest detail; honors 16:9 |
-| "GPT Image 2", "GPT image", "GPT-5.4 Image", "GPT-5.4 Image 2", "OpenAI image" | `openai/gpt-5.4-image-2` | strong instructions; pricey; tends square |
-| "Microsoft AI Image", "MAI Image", "Microsoft image", "MAI 2.5" | `microsoft/mai-image-2.5` | clean, lighter grain; honors 16:9 |
-
-Translating:
-
-- An exact OpenRouter id (contains `/`) passes through verbatim.
-- Reason over **traits**, not just names: "best quality / richest" → Nano Banana
-  Pro; "default / boldest riso" → Grok Imagine; "safe catalogued option / most
-  reliable text" → Nano Banana 2.
-- If a name is genuinely ambiguous, or names a model not in this table, ask
-  rather than guess — and confirm it's an **image-output** model on OpenRouter.
-- **Aspect ratio** is only a prompt-text hint, so some models (e.g. GPT) ignore
-  it and return square; the others honor 16:9. Crop in post if needed.
-- Some models are image-only output — `illo.py` retries with image-only
-  modality automatically. A 404 on *modalities* even after that retry means the
-  id isn't an image model on OpenRouter (e.g. MiniMax M3) — drop it. Ids drift;
-  if one 404s, this table is what to update.
-- **Default note:** the default `x-ai/grok-imagine-image-quality` is best+cheapest
-  in testing but is **not in OpenRouter's public `/models` list** — it works for
-  accounts with access. If a generation 404s "no endpoints found", that account
-  can't reach it; fall back to `google/gemini-3.1-flash-image-preview` (catalogued).
+**Model choice.** Read `references/models.md` in full before passing any
+`--model` (or whenever the user names a model in plain language or asks for
+"best quality" / "cheapest"): it holds the friendly-name → OpenRouter id
+map, per-model traits, the aspect-ratio caveat, and the 404/fallback
+handling. Resolution is `--model` > config `model` > built-in default.
 
 **Watermark / attribution (optional, off by default).** The skill ships with
 **no** default watermark — the text comes only from the user's `watermark`
@@ -287,17 +250,18 @@ append, and the two-render caveat are in `references/prompt-recipe.md`.
 ### 5b. Batches & comparison (only when it helps)
 
 **Default to ONE image.** Fan out only when the user asks for options/comparison
-or the piece is important enough to be worth it — and **say the projected cost
-first** (each image ≈ 6–25¢ depending on model). Keep N small (2–4). You
-orchestrate the
-loop; the skill gives you the primitives:
+or the piece is important enough to be worth it — and **say first that it
+bills the user's OpenRouter account** (typically under ten cents per image,
+varying by model). Keep N small (2–4). Orchestrate the loop with the
+engine's primitives:
 
 ```bash
 RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun)      # -> /tmp/illo/<runid>
 # (a) VARIATIONS — same prompt+model, pick-the-best:
 python3 .../illo.py generate --prompt-file p.txt --ref <ref> --count 4 --label "draft→ship" --out "$RUN/v.png"
-# (b) MODEL COMPARISON — loop the SAME prompt over models you choose:
-for m in x-ai/grok-imagine-image-quality google/gemini-3-pro-image-preview; do
+# (b) MODEL COMPARISON — loop the SAME prompt over the chosen models
+#     (full OpenRouter ids from references/models.md):
+for m in <model-id-1> <model-id-2>; do
   python3 .../illo.py generate --prompt-file p.txt --ref <ref> --model "$m" --label "$m" --out "$RUN/$(basename $m).png"; done
 # (c) CONCEPT VARIATIONS — different prompts (different stagings) for one idea:
 python3 .../illo.py generate --prompt-file staging-A.txt --ref <ref> --label "as a funnel" --out "$RUN/a.png"
@@ -322,7 +286,7 @@ palette, label text sits on a colored fill, the accent has spread past the
 character's accent part + 1–2 elements, an unwanted title bar appears, the
 composition copies an example, or text is misspelled. Subject scale varies
 run-to-run — re-roll if the subject is tiny (check `.width/.height` in the
-JSON: a square back when you asked 16:9 → re-roll).
+JSON: a square back when 16:9 was requested → re-roll).
 
 ### 7. Deliver
 

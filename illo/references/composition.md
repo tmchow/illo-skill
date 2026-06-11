@@ -10,8 +10,8 @@ Start from the one sentence the picture has to land, then find the **physical
 move** that embodies it — something the mascot can be mid-action on. Push the
 abstract into the concrete: "we ship too slowly" → the mascot cranking a press
 that drips a single parcel; "we're buried in inputs" → the mascot bailing a
-bucket that keeps overflowing. The move *is* the picture; if you can't name
-the move, you don't have the image yet.
+bucket that keeps overflowing. The move *is* the picture; until the move has
+a name, there is no image yet.
 
 Give the move a **built thing to happen on or in** — a low-tech, faintly-broken
 machine, container, or rig that the move implies. Invent it for this idea rather
