@@ -125,7 +125,14 @@ whether a **custom character pack** or **custom palettes file** exists, and
 whether a key is found (without revealing it); exit 0 = ready. If the key is
 **missing**, stop and ask the user to run
 `python3 "$SKILL_DIR/scripts/illo.py" init` themselves — do not enter the
-key for them.
+key for them. In a **chat session** the user can't run commands where they
+are: send the command with `$SKILL_DIR` resolved to its real absolute path,
+to run once **on the machine the agent runs on** (that host is the user's —
+it's where they installed the agent). The key must never transit the chat:
+never ask for it in a message, and if the user pastes it anyway, do not use
+it — tell them to revoke that key at openrouter.ai and run `init` on the
+host with a fresh one (the pasted key now lives in chat history and
+platform servers).
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
