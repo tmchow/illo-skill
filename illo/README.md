@@ -18,9 +18,14 @@ picking its look from the bundled library of ten ([below](#looks)) — then
 model-sheet candidates → pick → install). Want the same
 character in another look? Build a *style variant pack* (`blot-woodcut`):
 one pack, one look, so a catalog of characters never turns into a grid of
-combinations. Palettes stay per-image: pick a named preset, keep your own
-site-matched palettes in a config file, or hand it one brand color and let
-it derive the rest.
+combinations. Palettes stay per-image and resolve by **destination**: a
+character defines *where* its accent lives, never the color. One plain-text
+line in your palettes file — `blog → notes` — and anything headed for your
+blog automatically wears `notes`, a palette built once by copying your
+site's real CSS colors into hexes (background → paper, text → ink, link
+color → accent; re-extract only if you rebrand). Same mascot, fluoro pink
+on X, your blog's exact orange on the blog — never asked twice. Or pick a
+named preset, or hand it one brand color and let it derive the rest.
 
 ![Blot — the default mascot](assets/character-reference.png)
 
@@ -191,9 +196,13 @@ openclaw skills install illo
   current version when you want it. Or publish your own: the skill opens a PR there with your
   model sheet and a scene render embedded for one-glance review. Companies
   can point `packsRepo` at a private pack repo instead.
-- **Blog / brand-matched art** — keep site-matched palettes in
-  `~/.config/illo/palettes.md`, or hand it one brand color and it derives a
-  full palette around it.
+- **Blog / brand-matched art** — `~/.config/illo/palettes.md` holds your own
+  named palettes (the skill builds one for you by reading your site's CSS:
+  background → paper, text → ink, link color → accent) plus plain-text
+  destination lines like `blog → notes`. After that, blog posts wear your
+  site's colors and X posts wear the bold house palette — same character,
+  automatically. Or hand it one brand color and it derives a full palette
+  around it.
 - **Social-ready art** — bold house palette, square or wide, with your handle
   hand-lettered in as an optional watermark (from your config; never a built-in
   default).
