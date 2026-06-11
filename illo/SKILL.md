@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.7.1
+version: 0.8.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -54,7 +54,7 @@ infographic, not a flowchart, not a UI mockup.
 |---|---|
 | **Illustrate an article / post / newsletter** | Steps 0–7: pull the load-bearing moments, shot list, one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
-| **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (routing in `references/composition.md`). Best shape for social. |
+| **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
@@ -120,6 +120,10 @@ Before generating, confirm the engine is ready:
 python3 "$SKILL_DIR/scripts/illo.py" doctor
 ```
 
+Run it standalone — never chained with `&&` — so the displayed exit code is
+the readiness signal itself (0 = ready): a chained neighbor's failure paints
+a healthy check as an error.
+
 It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists, and
 whether a key is found (without revealing it); exit 0 = ready. If the key is
@@ -140,9 +144,10 @@ Two kinds of input, handled differently:
   ones that change the output — then build.** Draw from:
   - the single takeaway (what should the reader conclude?),
   - where it's headed (blog / X / deck → sets palette, aspect, watermark),
-  - the shape: one image, a **mini-comic** (2–4 panels in one image — right
-    when the idea advances through stages, and best for social), or several
-    separate images — plus any must-include element or constraint.
+  - the shape: one image (the default), a **mini-comic** (2–4 panels in one
+    image — only when the idea itself advances through stages), or several
+    separate images — plus any must-include element or constraint. The shape
+    follows the idea, never the destination (`references/composition.md`).
 
   Keep it to **one short round**, then proceed. **Skip the questions entirely**
   if the user already gave enough, said "just make it" / "single shot" /
@@ -231,9 +236,17 @@ actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
 (re-roll).
 Generate each image **separately** — never combine ideas into one canvas. Default
-aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. To lock style as
-well as the character, add a finished example as a second `--ref`. Pass `--label`
+aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. Pass `--label`
 for a caption that shows in the gallery.
+
+**Sets read as one artist.** For any multi-image set, the first image that
+**passes the full quality bar** (never an unvetted render — a failed anchor,
+e.g. an off-palette ground, would propagate its failure set-wide) becomes the
+set's **style anchor**: pass it as a second `--ref` after the character sheet
+for every later image in the set and for every re-roll of a set member, so
+line weight, halftone density, and flat-vs-dimensional treatment stay
+consistent throughout. The same trick locks style for a one-off: add any
+finished example as a second `--ref`.
 
 **Model choice.** Read `references/models.md` in full before passing any
 `--model` (or whenever the user names a model in plain language or asks for
@@ -257,6 +270,9 @@ engine's primitives:
 
 ```bash
 RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun)      # -> /tmp/illo/<runid>
+# record the user's VERBATIM request (URL, pasted text, concept) — the
+# gallery shows it as provenance so anyone can tell what the run was for:
+printf '%s' "<the verbatim request>" > "$RUN/request.txt"
 # (a) VARIATIONS — same prompt+model, pick-the-best:
 python3 .../illo.py generate --prompt-file p.txt --ref <ref> --count 4 --label "draft→ship" --out "$RUN/v.png"
 # (b) MODEL COMPARISON — loop the SAME prompt over the chosen models
@@ -267,7 +283,8 @@ for m in <model-id-1> <model-id-2>; do
 python3 .../illo.py generate --prompt-file staging-A.txt --ref <ref> --label "as a funnel" --out "$RUN/a.png"
 python3 .../illo.py generate --prompt-file staging-B.txt --ref <ref> --label "as a crossing" --out "$RUN/b.png"
 
-python3 "$SKILL_DIR/scripts/illo.py" gallery "$RUN" --open    # build + open index.html
+python3 "$SKILL_DIR/scripts/illo.py" gallery "$RUN" --title "<the piece or request>" --open
+# always pass --title so a saved gallery stays identifiable later;
 # add --embed for a single portable file (images inlined)
 ```
 
@@ -286,7 +303,10 @@ palette, label text sits on a colored fill, the accent has spread past the
 character's accent part + 1–2 elements, an unwanted title bar appears, the
 composition copies an example, or text is misspelled. Subject scale varies
 run-to-run — re-roll if the subject is tiny (check `.width/.height` in the
-JSON: a square back when 16:9 was requested → re-roll).
+JSON: a square back when 16:9 was requested → re-roll). When a re-roll
+supersedes a render, rebuild any delivery gallery with
+`--exclude <superseded label>` (repeatable) so rejected rolls don't appear in
+the review artifact.
 
 ### 7. Deliver
 

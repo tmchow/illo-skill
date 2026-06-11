@@ -23,6 +23,10 @@ its style's file** — everything else here still applies.
 - **Accent discipline**: accent on the character's accent part + 1–2 elements
   only; the body and background are not colored-in with the accent.
 - Unified line language across mascot and props (one artist).
+- **Sets read as one artist too**: across a multi-image set, line weight,
+  halftone density, and flat-vs-dimensional treatment stay consistent — an
+  outlier re-rolls with the set's style anchor (a QA-passed set member) as a
+  second `--ref`.
 - A fresh metaphor — not a copy of an `assets/examples/` composition.
 - **Mini-comics**: 2–4 panels, one action per panel, the same mascot and key
   object in every panel, clear left-to-right reading, ≤1 short label per panel.

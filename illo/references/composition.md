@@ -41,16 +41,69 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
-## Mini-comic vs. separate images (routing)
+## Picking the shape (single scene vs mini-comic vs separate images)
 
-When an idea moves through stages, pick by where the sequence lives:
+For anything multi-image, decide in two passes, in order: **count first,
+shape second.** The count of images is the count of load-bearing anchors in
+the piece (the shot-list section below) — one image per anchor. Then each
+anchor's image picks its own shape with the rules here. The passes never
+trade: a mini-comic is one image at one anchor, never a way to merge several
+anchors into one frame; a multi-stage anchor is one image (possibly a
+comic), never sliced into several. The placement test separates them: panels
+that would sit at *different* places in the piece, each landing its own
+sentence, are separate anchors — separate images.
 
-- The progression sits **in one place** — a process, a before→during→after, a
-  fail→fix inside one section or one concept → **one mini-comic image**.
+The idea picks the shape; the destination never does — destination sets
+aspect, palette, and watermark only. Default to a **single scene**: it is
+bolder at every size, and most ideas land in one caught moment.
+
+A mini-comic earns its panels only when **the meaning lives between the
+panels** — panels beat one scene when at least one of these holds:
+
+- **Causality is the claim** — the idea says "X leads to Y", and Y only
+  reads as a consequence if X is seen first (a fail→fix, a
+  before→during→after). One frame can show X and Y; it can't show *because*.
+- **Accumulation is the point** — the idea is about steps compounding
+  (stuck → small slice → shipped); freezing any single moment loses the
+  build.
+- **A turn lands it** — setup, then a deadpan reversal in the last panel.
+  Only panels have comic timing; if the idea is funny because of the turn,
+  the beat structure is the joke.
+- **Rhythm carries it** — the same scene repeated with one change per
+  panel, where the pattern itself is the message (the retry loop, the
+  meeting that never ends).
+
+The negative test: **if the panels could be reordered, or any panel dropped,
+without losing the meaning, it is not a sequence** — collapse it to one
+scene. In particular, a comparison of two states with no journey between
+them is a single "change" staging (one frame holding both states, or one
+state caught mid-action that implies the other), not a comic.
+
+Note that almost any sequence *can* be flattened into one frame — with
+arrows, numbered stations, a winding path, ghosted before-states. That
+machinery is exactly this style's forbidden register (the quality bar's
+flowchart/infographic fail). So the question is never "can it be one
+frame?" but what the flattening costs: one caught moment implies the arc
+cleanly → single scene; the flattening would need diagram machinery or a
+second instance of the mascot → panels, each panel staying a simple one-move
+scene; the sequence needs more than 4 beats even as panels → depict the one
+load-bearing beat and let the prose carry the rest.
+
+Borderline cases — an idea that passes the sequence test but where one
+caught moment could still imply the whole arc — are a style call, and the
+house style calls it for the single scene: panels are a deliberate choice,
+never a fallback. An explicit user request ("make it a comic", "single
+shot") beats all of the above.
+
+When a sequence IS the right call, pick where it lives:
+
+- The progression sits **in one place** — inside one section or one concept
+  → **one mini-comic image**.
 - The ideas are **spread across the piece** → **separate interleaved images**,
   one per anchor.
-- **Social destination** → prefer the mini-comic: one self-contained image that
-  carries the whole sequence beats a multi-image thread.
+- On a **social destination**, one self-contained mini-comic beats a thread
+  of separate images — but a social destination alone never upgrades a
+  single-moment idea into panels.
 
 Panel rules: 2–4 panels, never more; one action per panel; same mascot, same
 key object, same palette in every panel; clear gutters or thin panel borders;
@@ -84,5 +137,8 @@ with no load-bearing moment gets no image. Per image:
 - **Labels** — the 1–3 short strings
 
 Pick the moments that carry the piece — a pivotal claim, a loop, a turn, a trap,
-a handoff — not even coverage across every paragraph. Help the reader; don't
-turn the whole article into a picture book.
+a handoff — not even coverage across every paragraph. A moment is
+load-bearing when the argument *turns* on it (remove it and the conclusion
+stops following), when the prose goes most abstract and a concrete picture
+re-grounds the reader, or when it is the one beat a reader should carry away.
+Help the reader; don't turn the whole article into a picture book.

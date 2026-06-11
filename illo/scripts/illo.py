@@ -491,11 +491,23 @@ figcaption{padding:10px 14px 14px}
 .meta{color:#9aa0a6;font-size:13px;margin:0}
 .pr{margin-top:8px}.pr summary{cursor:pointer;color:#8ab4f8;font-size:12px}
 .pr pre{white-space:pre-wrap;font:12px/1.45 ui-monospace,Menlo,monospace;color:#c0c4c9;background:#0f1115;border:1px solid #232830;border-radius:8px;padding:10px;margin:8px 0 0;max-height:240px;overflow:auto}
+.req{color:#9aa0a6;font-size:13px;margin:-8px 0 20px;max-width:920px;white-space:pre-wrap}
+.req summary{cursor:pointer;list-style:none}.req summary::after{content:" …more";color:#8ab4f8}
+.req[open] summary::after{content:""}
+.req pre{white-space:pre-wrap;font:12px/1.45 ui-monospace,Menlo,monospace;color:#c0c4c9;background:#171a20;border:1px solid #232830;border-radius:8px;padding:10px;margin:8px 0 0;max-height:320px;overflow:auto}
 """
 
 
-def build_gallery_html(recs, embed, base):
+def build_gallery_html(recs, embed, base, title=None, request=None):
     import html as _html
+    heading = _html.escape(title or "Illo gallery")
+    req_html = ""
+    if request:
+        if len(request) > 280:
+            req_html = (f'<details class="req"><summary>{_html.escape(request[:280])}</summary>'
+                        f'<pre>{_html.escape(request)}</pre></details>')
+        else:
+            req_html = f'<p class="req">{_html.escape(request)}</p>'
     total = sum(r["cost"] for r in recs if r.get("cost"))
     cards = []
     for r in recs:
@@ -518,9 +530,9 @@ def build_gallery_html(recs, embed, base):
             f'<p class="meta">{meta}</p>{prompt}</figcaption></figure>')
     return (f"<!doctype html><html lang=en><head><meta charset=utf-8>"
             f'<meta name=viewport content="width=device-width,initial-scale=1">'
-            f"<title>Illo gallery</title><style>{GALLERY_CSS}</style></head>"
-            f'<body><h1>Illo gallery <span class="tot">{len(recs)} images'
-            f" · ${total:.4f}</span></h1>"
+            f"<title>{heading}</title><style>{GALLERY_CSS}</style></head>"
+            f'<body><h1>{heading} <span class="tot">{len(recs)} images'
+            f" · ${total:.4f}</span></h1>{req_html}"
             f'<div class="grid">{"".join(cards)}</div></body></html>')
 
 
@@ -530,12 +542,19 @@ def cmd_gallery(args):
     if not man.exists():
         sys.exit(f"No manifest.jsonl in {d}")
     recs = [json.loads(line) for line in man.read_text().splitlines() if line.strip()]
+    if args.exclude:
+        skip = set(args.exclude)
+        recs = [r for r in recs if r.get("label") not in skip]
+        if not recs:
+            sys.exit("every manifest record excluded — nothing to build")
     key = os.environ.get("OPENROUTER_API_KEY") or load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
+    req = d / "request.txt"
+    request = req.read_text().strip() if req.is_file() else None
     out = d / "index.html"
-    out.write_text(build_gallery_html(recs, args.embed, d))
+    out.write_text(build_gallery_html(recs, args.embed, d, title=args.title, request=request))
     print(str(out))
     if args.open:
         import shutil, subprocess
@@ -604,6 +623,9 @@ def main():
     gl.add_argument("dir", help="run dir containing manifest.jsonl")
     gl.add_argument("--open", action="store_true", help="open the gallery after building")
     gl.add_argument("--embed", action="store_true", help="inline images as data-URIs (single portable file)")
+    gl.add_argument("--exclude", action="append", default=[], metavar="LABEL",
+                    help="drop records with this exact label (repeatable) — e.g. rolls superseded by a re-roll")
+    gl.add_argument("--title", help="gallery heading naming the piece/request this run is for")
     gl.set_defaults(func=cmd_gallery)
 
     args = ap.parse_args()
