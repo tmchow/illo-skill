@@ -7,6 +7,13 @@ its style's file** — everything else here still applies.
 
 ## Must pass
 
+- **Thesis test** (do this first): cover the labels and ask what one idea a
+  stranger would name. It must be *this image's locked thesis*
+  (`composition.md`, Source routing step 2 — for a set member, its own
+  section's lock), not a side activity the scene happens to depict. If the
+  picture lands a supporting anecdote while the thesis was an abstract claim
+  (a quality, a step-change, a role shift), it failed — re-roll toward the
+  thesis via a role/scale/relationship move, don't ship the drawable detail.
 - Correct aspect ratio; the style's expected ground (riso: light paper with
   the risograph grain; other styles: per their QA deltas — e.g. blueprint's
   deep ground is correct).
