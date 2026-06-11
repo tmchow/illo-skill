@@ -378,7 +378,7 @@ def fetch(url, optional=False):
 
 
 def repo_index(args, optional=False):
-    """{name: index entry} from the packs repo ({} when optional and unavailable)."""
+    """{name: index entry} from the packs repo ({} when optional and unavailable/unparsable)."""
     repo = packs_repo(args)
     raw = fetch(f"{repo}/index.json", optional=optional)
     if raw is None:
@@ -399,6 +399,7 @@ def installed_version(pack_dir):
 
 
 def stamp_version(dest, entry):
+    """Record the index version a pack was installed at; silently a no-op without one."""
     if entry and entry.get("version"):
         (dest / ".version").write_text(entry["version"] + "\n")
 
@@ -416,8 +417,7 @@ def install_pack_files(repo, name, dest):
 def cmd_packs_list(args):
     entries = repo_index(args)
     packs = character_packs(config_dir())
-    for p in entries.values():
-        name = p.get("name")
+    for name, p in entries.items():
         mark = ""
         if name in packs:
             local, remote = installed_version(packs[name]), p.get("version", "")
@@ -442,8 +442,9 @@ def cmd_packs_install(args):
     if (dest / "character.md").exists() and not args.force:
         sys.exit(f"{dest} already exists — use --force to overwrite or --as <name> to rename")
     repo = packs_repo(args)
+    entry = repo_index(args, optional=True).get(name)  # version stamp is best-effort
     install_pack_files(repo, name, dest)
-    stamp_version(dest, repo_index(args, optional=True).get(name))
+    stamp_version(dest, entry)
     suffix = f" (as {local})" if local != name else ""
     print(f"installed {name} -> {dest}{suffix}")
 
