@@ -18,9 +18,13 @@ picking its look from the bundled library of ten ([below](#looks)) — then
 model-sheet candidates → pick → install). Want the same
 character in another look? Build a *style variant pack* (`blot-woodcut`):
 one pack, one look, so a catalog of characters never turns into a grid of
-combinations. Palettes stay per-image: pick a named preset, keep your own
-site-matched palettes in a config file, or hand it one brand color and let
-it derive the rest.
+combinations. Palettes stay per-image and resolve by **destination**: a
+character defines *where* its accent lives, never the color — so the same
+mascot ships in bold fluoro pink on X and in your blog's own accent on your
+blog, automatically, via destination cues in your palettes file. Pick a
+named preset, keep site-matched palettes (extracted from your live theme
+tokens) in a config file, or hand it one brand color and let it derive the
+rest.
 
 ![Blot — the default mascot](assets/character-reference.png)
 
@@ -192,8 +196,10 @@ openclaw skills install illo
   model sheet and a scene render embedded for one-glance review. Companies
   can point `packsRepo` at a private pack repo instead.
 - **Blog / brand-matched art** — keep site-matched palettes in
-  `~/.config/illo/palettes.md`, or hand it one brand color and it derives a
-  full palette around it.
+  `~/.config/illo/palettes.md`, tagged with destination cues (`blog`, `x`,
+  `deck`); resolution is then automatic — your brand's accent on the blog,
+  the bold house palette on X, same character, never asked twice. Or hand it
+  one brand color and it derives a full palette around it.
 - **Social-ready art** — bold house palette, square or wide, with your handle
   hand-lettered in as an optional watermark (from your config; never a built-in
   default).
