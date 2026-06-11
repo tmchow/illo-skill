@@ -138,7 +138,15 @@ and if the user pastes it anyway, do not use it — tell them to revoke that
 key at openrouter.ai and set a fresh one on the host (the pasted key now
 lives in chat history and platform servers). Never copy a key from the
 environment or any other store into the config yourself — the user is the
-only writer of that line.
+only writer of that line — with **one scoped exception**: an ephemeral
+cloud workspace (Claude Code web, Codex cloud, CI) where the user
+provisioned `OPENROUTER_API_KEY` through the platform's secrets mechanism.
+That provisioning is itself the user's deliberate, workspace-scoped
+consent, and there is no interactive prompt or persistent home for `init` —
+so there, seed the config from the workspace secret once (the "Cloud & CI"
+one-liner in README.md). On a personal machine an ambient env var proves
+nothing about intent (it may belong to other tools) — the rule stands:
+never copy it.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 

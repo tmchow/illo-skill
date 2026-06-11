@@ -116,6 +116,27 @@ python3 scripts/illo.py init --no-key \
 > settings like `watermark` need PyYAML. Either way, image generation
 > itself needs no installs.
 
+### Cloud & CI environments
+
+In ephemeral workspaces (Claude Code on the web, Codex cloud, GitHub
+Actions, devcontainers) there's no interactive prompt and the home
+directory doesn't persist — there, use the platform's own secrets
+mechanism: add `OPENROUTER_API_KEY` to the environment's secrets, and
+materialize the config in the environment's **setup hook** (Codex
+environment setup script, devcontainer `postCreateCommand`, a CI step):
+
+```bash
+mkdir -p ~/.config/illo
+printf 'apiKey: "%s"\n' "$OPENROUTER_API_KEY" > ~/.config/illo/config.yaml
+chmod 600 ~/.config/illo/config.yaml
+```
+
+The key stays in the platform's secret store; each fresh workspace gets
+its config rebuilt at setup time, and the engine still reads only its
+own file. Adding the secret to the environment is the consent — it's
+scoped to that workspace and provisioned by you, deliberately, for the
+tools running there.
+
 ## Models & cost
 
 Generation is **pay-per-image through your OpenRouter account** — there's no
