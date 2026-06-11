@@ -2,8 +2,9 @@
 
 Design a user's own recurring mascot and install it as the active character
 pack. Read `references/character.md` first — the guardrails there are the
-acceptance criteria for everything below. The whole flow costs a few renders
-(~6–25¢ each); say the projected cost before generating.
+acceptance criteria for everything below. The whole flow costs a few paid
+renders (typically under ten cents each); say the projected cost before
+generating.
 
 ## 1. Interview (one short round, ≤4 questions)
 
