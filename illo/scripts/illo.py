@@ -66,6 +66,20 @@ def parse_flat_yaml(text):
     return cfg
 
 
+def needs_pyyaml(text):
+    """True when the config holds content the flat fallback parser can't
+    round-trip — indented lines or block-map intros like `watermark:`.
+    Rewriting such a file from a flat parse would silently drop that data."""
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if line[0] in (" ", "\t"):
+            return True
+        if line.split(" #")[0].rstrip().endswith(":"):
+            return True
+    return False
+
+
 def load_config():
     """Read the optional YAML config. Graceful: returns {} (with a note) if the
     file is absent or unparseable. Without PyYAML, falls back to a flat parse
@@ -286,10 +300,15 @@ def cmd_init(args):
     p = config_path()
     if p.exists():
         try:
-            import yaml  # noqa: F401 — needed to read the existing file before merging
+            import yaml  # noqa: F401 — full reader, needed only for nested keys
         except ImportError:
-            sys.exit(f"{p} already exists but PyYAML isn't installed, so it can't be read "
-                     f"safely to merge. Install PyYAML first (python -m pip install 'PyYAML==6.0.2') or delete the file.")
+            # Flat keys round-trip through parse_flat_yaml; only nested
+            # content (e.g. a watermark block) would be lost on rewrite.
+            if needs_pyyaml(p.read_text()):
+                sys.exit(f"{p} has nested settings (e.g. watermark) that need PyYAML "
+                         f"to preserve when rewriting. Install it "
+                         f"(python -m pip install 'PyYAML==6.0.2') "
+                         f"or delete the file and re-run init.")
     cfg = load_config()
     if args.model:
         cfg["model"] = args.model
