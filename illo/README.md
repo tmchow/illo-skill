@@ -134,6 +134,16 @@ Worth knowing:
 
 ## Install
 
+### Any agent (skills CLI)
+
+```bash
+npx skills add tmchow/agent-skills --skill illo
+```
+
+One command for Claude Code, Cursor, Codex, and the other runtimes the
+[skills CLI](https://skills.sh) supports — it finds the skill in this repo
+and asks which agents to install it into.
+
 ### Hermes
 
 ```bash
