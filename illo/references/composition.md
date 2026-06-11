@@ -43,6 +43,16 @@ metaphor family.
 
 ## Picking the shape (single scene vs mini-comic vs separate images)
 
+For anything multi-image, decide in two passes, in order: **count first,
+shape second.** The count of images is the count of load-bearing anchors in
+the piece (the shot-list section below) — one image per anchor. Then each
+anchor's image picks its own shape with the rules here. The passes never
+trade: a mini-comic is one image at one anchor, never a way to merge several
+anchors into one frame; a multi-stage anchor is one image (possibly a
+comic), never sliced into several. The placement test separates them: panels
+that would sit at *different* places in the piece, each landing its own
+sentence, are separate anchors — separate images.
+
 The idea picks the shape; the destination never does — destination sets
 aspect, palette, and watermark only. Default to a **single scene**: it is
 bolder at every size, and most ideas land in one caught moment.
@@ -127,5 +137,8 @@ with no load-bearing moment gets no image. Per image:
 - **Labels** — the 1–3 short strings
 
 Pick the moments that carry the piece — a pivotal claim, a loop, a turn, a trap,
-a handoff — not even coverage across every paragraph. Help the reader; don't
-turn the whole article into a picture book.
+a handoff — not even coverage across every paragraph. A moment is
+load-bearing when the argument *turns* on it (remove it and the conclusion
+stops following), when the prose goes most abstract and a concrete picture
+re-grounds the reader, or when it is the one beat a reader should carry away.
+Help the reader; don't turn the whole article into a picture book.
