@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.16.2
+version: 0.17.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -140,7 +140,13 @@ a healthy check as an error.
 
 It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists, and
-whether a key is found (without revealing it); exit 0 = ready. If the key is
+whether a key is found (without revealing it); exit 0 = ready. Read the
+printed **config path** before concluding the key is missing: under Hermes,
+multi-profile setups can resolve `HOME`/`XDG_CONFIG_HOME` to *another*
+profile's home (e.g. `…/profiles/<name>/home/.config/illo/…`), so a key
+that exists looks absent. If the path points at the wrong profile, re-run
+with the right `HERMES_HOME`/`HOME`/`XDG_CONFIG_HOME` rather than treating
+the key as missing. If the key is genuinely
 **missing**, stop and ask the user to run
 `python3 "$SKILL_DIR/scripts/illo.py" init` themselves — do not enter the
 key for them. In a **chat session** the user can't run commands where they
@@ -172,10 +178,12 @@ Two kinds of input, handled differently:
 
 - **A URL / article / paste / long post** carries its own context — but
   never generate from the first vivid detail. Route it first
-  (`references/composition.md`, "Source routing"): classify the source
-  shape, **lock the main thesis in one sentence**, then pick the coverage —
-  hero, hero + per-section set (the full article job), set, mini-comic, or
-  shot list first. Sets need placements: compact sources (a tweet, one
+  (`references/composition.md`, "Source routing"): classify the source's
+  **shape and genre**, separate the source's *rhetorical job* from its most
+  drawable detail, **lock the main thesis in one sentence** (a hero locks
+  the source's job, not its loudest evidence — the genre guardrails say what
+  each genre heroes), then pick the coverage — hero, hero + per-section set
+  (the full article job), set, mini-comic, or shot list first. Sets need placements: compact sources (a tweet, one
   concept) never yield a set — their multi-beat form is the mini-comic. Pull the **load-bearing moments** —
   the few places that turn on a judgment, a loop, an input→output, a
   before/after, or a trap — never one image per paragraph. The text already

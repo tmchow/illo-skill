@@ -14,6 +14,14 @@ its style's file** — everything else here still applies.
   picture lands a supporting anecdote while the thesis was an abstract claim
   (a quality, a step-change, a role shift), it failed — re-roll toward the
   thesis via a role/scale/relationship move, don't ship the drawable detail.
+- **Source-fit test** (for source-derived images, before re-rolling
+  anything): was the locked thesis the *right compression of the source*?
+  An image can perfectly land its lock and still be wrong if the lock
+  itself was a supporting mechanism, not the source's rhetorical job — a
+  launch post heroed as one debugging anecdote, a postmortem heroed as one
+  incident. Apply the genre guardrails (`composition.md`): does the hero
+  match what this genre should hero? If not, **re-route, then re-roll** —
+  fix the lock first; do not keep iterating a well-rendered wrong thesis.
 - Correct aspect ratio; the style's expected ground (riso: light paper with
   the risograph grain; other styles: per their QA deltas — e.g. blueprint's
   deep ground is correct).

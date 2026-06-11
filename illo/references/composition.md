@@ -48,10 +48,14 @@ generate from the first vivid detail — that produces an image of a
 *subclaim* while the piece's actual point goes unillustrated. Route in
 three steps, before writing any prompt:
 
-**1. Classify the source shape** (internally — no need to show the user):
-single-claim short post · multi-claim short post / launch announcement ·
-long article / newsletter · narrative / postmortem · procedural sequence
-or thread.
+**1. Classify the source — shape *and* genre** (internally — no need to show
+the user). Shape sizes the coverage: single-claim short post · multi-claim
+short post · long article / newsletter · procedural sequence or thread.
+Genre sets the hero logic: launch / announcement · failure report /
+postmortem · quote · how-to / process · benchmark / comparison · personal
+anecdote · opinion / argument. Genre matters because each one heroes a
+different thing (the **Genre guardrails** below) — the same vivid detail
+that's the headline in one genre is a supporting prop in another.
 
 **2. Lock the thesis — per coverage unit, not once per piece.** Write one
 sentence before any prompt: *"This image must communicate: \<thesis>."*
@@ -67,6 +71,21 @@ gets its own:
   sections with four different angles must produce four different images;
   if they all restate the headline, the per-section locks weren't done.
 
+**A hero locks the source's *job*, not its loudest evidence.** Separate
+three things the source contains and do not confuse them: the **rhetorical
+job** (what the author wants the reader to believe or feel), the **primary
+claim** (the one sentence that job reduces to — this is the hero thesis),
+and the **supporting mechanisms** (the concrete anecdotes/details that
+*prove* the claim). A load-bearing moment is usually a *supporting
+mechanism* — load-bearing for the argument, but evidence, not headline. It
+earns a spot as a **prop or secondary action** in the hero, or its own
+anchor in a set — never the hero itself, unless the source's job genuinely
+*is* that mechanism (a post whose whole point is "measure, log, verify"
+heroes measure/verify; a launch post that merely *mentions* careful
+debugging does not). The classic miss: heroing the most drawable mechanism
+while the source's actual job — a role shift, a verdict, a warning — goes
+unillustrated.
+
 Then **draw the locked thesis, not the most drawable thing near it.** The
 trap: the most *illustratable* moment is usually a supporting anecdote,
 not the thesis — a concrete process (measure → log → verify) pictures in
@@ -76,7 +95,8 @@ abstract, do not retreat to whatever concrete activity the piece happens
 to describe; turn the abstract claim into a **role / scale / relationship
 move** — tool→partner (climb out of the toolbox, pull up a chair),
 rung→higher rung, follows-orders→exercises-taste — the same "turn the idea
-into a move" discipline applied to a quality claim.
+into a move" discipline applied to a quality claim, with the leftover
+mechanisms tucked in as small evidence props.
 
 **"Subclaim" is relative to the unit's own thesis.** Drawing a section's
 point is correct for that section's image even though it's a "supporting
@@ -90,6 +110,28 @@ is the arbiter; the shape rules below then carry whatever it named.
 
 For multi-beat sources, pull the 3–7 load-bearing moments (criteria in the
 shot-list section below) before locking each.
+
+**Genre guardrails — what each genre heroes** (the rest become props or
+set anchors):
+
+- **Launch / announcement** → the new role, capability, or step-change
+  being claimed (the product/person/model *crossing into* what it now is).
+  Benchmarks, demos, and debugging anecdotes are supporting props.
+- **Failure report / postmortem** → the failed premise, the broken loop,
+  or the final outcome; individual incidents support it, not replace it.
+- **Quote** → the abstract relationship the quote names. Avoid an author
+  portrait or literal quote text unless the user asks.
+- **How-to / process** → the transformation it produces; a mini-comic only
+  when the *sequence itself* is the point (meaning lives between the steps).
+- **Benchmark / comparison** → the contrast or threshold crossed, not a
+  generic chart (charts are the forbidden register).
+- **Personal anecdote** → the felt realization if that's the point; the
+  event only if the event is the point.
+- **Opinion / argument** → the claim's consequence or the thing it
+  overturns, not a neutral depiction of the topic.
+
+Do not bake a product/person/model *name* into the image unless the user
+asks for the text — hero the role or claim, not the wordmark.
 
 **3. Decide coverage — and ask once when it's both ambiguous and costly.**
 Reason in five coverage shapes (users won't name them; map their words):
