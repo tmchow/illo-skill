@@ -24,20 +24,30 @@ its style's file** — everything else here still applies.
   blank deadpan (no brow, no mouth), one accent carrier, no added parts.
 - **Structural integrity** — a separate axis from "on-model" (a body can be
   perfectly on-model and still be assembled wrong, so the identity check
-  above will not catch this; scan for it deliberately):
-  - **Occlusion / opacity** — trace the mascot's outline: nothing from
-    behind passes *through* the body. A ground line, horizon, table edge,
-    belt, shelf, or prop must **stop at the silhouette**, not cut across
-    the waist/torso. The mascot (and every solid object) is opaque and sits
-    in front of what's behind it. A line through the body is the most common
-    miss because the character still "looks like itself."
+  above will not catch this; scan for it deliberately). The one rule that
+  covers every case: **only the character's own design parts touch its
+  silhouette** — limbs, the accent carrier, nothing else. Everything else is
+  either *clearly held in a hand with visible separation from the body* or
+  *resting in the scene* (on the table, the ground). Trace the outline and
+  check the three ways that breaks:
+  - **Occlusion / opacity** — nothing from behind passes *through* the body.
+    A ground line, horizon, table edge, belt, shelf, or prop must **stop at
+    the silhouette**, not cut across the waist/torso. The mascot (and every
+    solid object) is opaque and sits in front of what's behind it. A line
+    through the body is the most common miss because the character still
+    "looks like itself."
   - **Anatomy / attachment** — trace each limb to where it joins: exactly
     the character's limb count (no extra, floating, doubled, or merged
     arms/legs), each rooted at a sensible point on the body, not emerging
     from mid-torso or an accent band.
-  - **In mini-comics, run both checks on every panel separately** — each
-    panel is its own small render and the repeated, smaller mascot instances
-    are where occlusion and limb errors drift in most.
+  - **No fused props** — a tool/object is held in a hand (separated from the
+    torso) or sits in the scene; it is never pressed flat against the body
+    or sprouting from it. Watch the case where the mascot is given more
+    props than it has hands: the extra one tends to fuse to the torso — keep
+    held props to **one per hand** and let any others rest in the world.
+  - **In mini-comics, run all three checks on every panel separately** —
+    each panel is its own small render and the repeated, smaller mascot
+    instances are where these errors drift in most.
 - **Value matches the palette**: in light palettes the body is light with
   structure-ink (not pure-black) features — not a heavy dark blob.
 - One core idea, one structure. Subject large (~50–70%), ≥35% negative space.
@@ -62,8 +72,11 @@ its style's file** — everything else here still applies.
 - Too many objects/arrows/nodes; text became sentences → cut to one action + ≤3 labels.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
-- A line passes through the mascot's body, or a limb roots wrong / is
-  doubled/floating → re-roll (these resist edits; a fresh render is cleaner).
+- A line passes through the mascot's body, a limb roots wrong / is
+  doubled/floating, or a prop is fused flat to the torso instead of held →
+  re-roll (these resist edits; a fresh render is cleaner). If the re-roll
+  keeps fusing a prop, the scene likely has more tools than hands — drop one
+  or rest it on the table.
 - Accent spread across the body/background, or label text on an accent fill → fix.
 - Derived/custom palette colors off-target → eyedrop vs the target hex; re-roll or snap in post.
 - Misspelled labels → prefer an edit; if widespread, re-roll with fewer/shorter labels.
