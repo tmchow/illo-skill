@@ -126,13 +126,19 @@ whether a key is found (without revealing it); exit 0 = ready. If the key is
 **missing**, stop and ask the user to run
 `python3 "$SKILL_DIR/scripts/illo.py" init` themselves — do not enter the
 key for them. In a **chat session** the user can't run commands where they
-are: send the command with `$SKILL_DIR` resolved to its real absolute path,
-to run once **on the machine the agent runs on** (that host is the user's —
-it's where they installed the agent). The key must never transit the chat:
-never ask for it in a message, and if the user pastes it anyway, do not use
-it — tell them to revoke that key at openrouter.ai and run `init` on the
-host with a fresh one (the pasted key now lives in chat history and
-platform servers).
+are, so shrink their host-side step first: run `init --no-key` yourself
+(allowed — it scaffolds the config with defaults and a commented `# apiKey:`
+placeholder, mode 600, never touching a key), then offer the user two
+equivalent one-time options **on the machine the agent runs on** (that host
+is theirs — it's where they installed the agent): run
+`python3 <resolved absolute $SKILL_DIR>/scripts/illo.py init` (hidden
+prompt), or open `~/.config/illo/config.yaml` and fill in the `apiKey:`
+line. The key must never transit the chat: never ask for it in a message,
+and if the user pastes it anyway, do not use it — tell them to revoke that
+key at openrouter.ai and set a fresh one on the host (the pasted key now
+lives in chat history and platform servers). Never copy a key from the
+environment or any other store into the config yourself — the user is the
+only writer of that line.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
