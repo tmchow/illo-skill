@@ -41,6 +41,57 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
+## Source routing (URLs, articles, threads, long posts) — before any prompt
+
+For any URL, pasted article, newsletter, thread, or long post, never
+generate from the first vivid detail — that produces an image of a
+*subclaim* while the piece's actual point goes unillustrated. Route in
+three steps, before writing any prompt:
+
+**1. Classify the source shape** (internally — no need to show the user):
+single-claim short post · multi-claim short post / launch announcement ·
+long article / newsletter · narrative / postmortem · procedural sequence
+or thread.
+
+**2. Lock the thesis.** Write one sentence before any prompt: *"The image
+must communicate: \<main thesis>."* A single image must carry that
+sentence, not a vivid supporting detail. A launch post listing six
+improvements is about the step-change they add up to ("runs farther with
+less steering"), not about whichever list item stages best — illustrating
+a subclaim is a miss unless the user asked for that angle. For multi-beat
+sources, also pull the 3–7 load-bearing moments (criteria in the
+shot-list section below).
+
+**3. Decide coverage — and ask once when it's both ambiguous and costly.**
+Reason in four coverage shapes (users won't name them; map their words):
+
+- **hero** — one image carrying the whole thesis
+- **set** — one image per load-bearing anchor (count rules below)
+- **mini-comic** — one canvas, 2–4 panels, when the thesis is itself a
+  progression
+- **shot list** — plan only, render nothing yet
+
+Routing:
+
+- **Single-claim short post** → hero; no questions.
+- **Multi-claim post / launch** → hero only if one scene can carry the
+  *full* thesis; otherwise treat as multi-beat.
+- **Materially multi-beat source** (long article, postmortem, multi-claim
+  launch that won't compress) → never silently collapse it into one image,
+  and never silently render a set either (each render bills the user). Ask
+  **one** short question — "This has several visual beats — one hero
+  image, a 3–5 image set, or a mini-comic? (Default: one hero — it won't
+  be full coverage.)" — then proceed with the answer or the stated
+  default. Never ask twice.
+- **The user already named the coverage** ("one hero image", "a 4-image
+  set", "make it a comic", "shot list first") → that wins; no questions.
+- A lone image made from a multi-beat source is a **hero for the central
+  lesson** — deliver it saying so, never as if it covered the piece.
+
+**One idea per image never means one image per article.** It means a
+multi-idea piece needs multiple images, a mini-comic, or an explicit
+hero decision. From here, the count and shape rules below take over.
+
 ## Picking the shape (single scene vs mini-comic vs separate images)
 
 For anything multi-image, decide in two passes, in order: **count first,
