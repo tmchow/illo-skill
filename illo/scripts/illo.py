@@ -224,7 +224,9 @@ def do_generate(model, content, key, out_path, want_cost):
     out.write_bytes(img)
     w, h = image_size(img)
     gid = payload.get("id")
-    return {"path": str(out), "model": model, "id": gid,
+    # Absolute: IDE agents get a clickable path; chat gateways (e.g. Hermes)
+    # auto-detect bare absolute media paths and deliver the file natively.
+    return {"path": str(out.resolve()), "model": model, "id": gid,
             "cost": (fetch_cost(gid, key) if want_cost else None), "width": w, "height": h}
 
 
@@ -550,7 +552,7 @@ def cmd_gallery(args):
     request = req.read_text().strip() if req.is_file() else None
     out = d / "index.html"
     out.write_text(build_gallery_html(recs, args.embed, d, title=args.title, request=request))
-    print(str(out))
+    print(str(out.resolve()))
     if args.open:
         import webbrowser
         webbrowser.open(out.resolve().as_uri())

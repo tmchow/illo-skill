@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.11.0
+version: 0.12.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -287,7 +287,9 @@ Every `generate` self-records to `$RUN/manifest.jsonl`; `gallery` assembles them
 into one page with each image's **label, model, dimensions, cost, and a
 collapsible prompt** — the prompt toggle is what makes concept-variation
 comparison readable (the prompt is the variable). Always present the gallery
-**with a recommendation**, not a raw dump. Multi-model failures are per-image
+**with a recommendation**, not a raw dump — and in a chat session, present
+the labeled candidates directly in the chat instead of a gallery (delivery
+routing in step 7). Multi-model failures are per-image
 (an unavailable model errors that one render only); keep the rest.
 
 ### 6. QA and iterate
@@ -303,13 +305,31 @@ supersedes a render, rebuild any delivery gallery with
 `--exclude <superseded label>` (repeatable) so rejected rolls don't appear in
 the review artifact.
 
-### 7. Deliver
+### 7. Deliver — match the session's medium
 
 Copy finals next to the user's work when appropriate
 (`assets/<slug>-illustrations/01-topic.png`, `02-topic.png`, …); never
 overwrite existing assets without being asked. Then report: how many images,
-each one's purpose, the palette used, save paths, and which are strongest vs
-optional.
+each one's purpose, the palette used, and which are strongest vs optional —
+plus the images themselves, delivered the way this session can actually
+show them:
+
+- **Filesystem sessions** (IDE/terminal agents — Claude Code, Codex,
+  Cursor): report each final's **absolute path** (the engine's JSON `.path`
+  is already absolute) and present the gallery for multi-image runs.
+- **Chat sessions** (the user is on a messaging surface — e.g. Hermes over
+  Telegram/Discord/WhatsApp — and cannot open local files): a path is not a
+  deliverable; the image must land **in the chat**. On Hermes, write each
+  final's bare absolute path in the reply — the gateway detects bare
+  absolute media paths, strips them from the text, and sends the files as
+  native images. When the user wants the original files (publishing, print),
+  add the literal directive `[[as_document]]` to that reply: it delivers
+  full-resolution attachments instead of platform-recompressed image bubbles
+  (recompression smears riso grain and fine hand-lettering). **Skip the HTML
+  gallery in chat** — the user has no easy way to open or host it; send the
+  labeled finals directly with the recommendation as text, and only build
+  `gallery --embed` (one self-contained file) if a portable artifact is
+  explicitly requested, delivering it with `[[as_document]]`.
 
 ## Output discipline
 
