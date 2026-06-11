@@ -69,6 +69,16 @@ scene. In particular, a comparison of two states with no journey between
 them is a single "change" staging (one frame holding both states, or one
 state caught mid-action that implies the other), not a comic.
 
+Note that almost any sequence *can* be flattened into one frame — with
+arrows, numbered stations, a winding path, ghosted before-states. That
+machinery is exactly this style's forbidden register (the quality bar's
+flowchart/infographic fail). So the question is never "can it be one
+frame?" but what the flattening costs: one caught moment implies the arc
+cleanly → single scene; the flattening would need diagram machinery or a
+second instance of the mascot → panels, each panel staying a simple one-move
+scene; the sequence needs more than 4 beats even as panels → depict the one
+load-bearing beat and let the prose carry the rest.
+
 Borderline cases — an idea that passes the sequence test but where one
 caught moment could still imply the whole arc — are a style call, and the
 house style calls it for the single scene: panels are a deliberate choice,
