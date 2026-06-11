@@ -1,0 +1,3 @@
+# Not installed/scanned: style-calibration examples are docs, not runtime files.
+# Style references link each one by raw GitHub URL instead.
+assets/examples/

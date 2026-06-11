@@ -27,7 +27,7 @@ color → accent; re-extract only if you rebrand). Same mascot, fluoro pink
 on X, your blog's exact orange on the blog — never asked twice. Or pick a
 named preset, or hand it one brand color and let it derive the rest.
 
-![Blot — the default mascot](assets/character-reference.png)
+![Blot — the default mascot](assets/character-reference.webp)
 
 > **Invoking:** the skill answers to its name — say **"illo"** ("illo this
 > post", "use illo: draw blip hauling a crate"). It deliberately won't hijack
@@ -86,20 +86,20 @@ out, PR it into the library here so packs everywhere can reference it.
 
 ### Setting the key
 
-Either export it, or bootstrap a config file once:
+Bootstrap the config file once — you type the key at a hidden prompt, and
+nothing else ever reads or stores it:
 
 ```bash
-export OPENROUTER_API_KEY=sk-or-...           # option A: env var (preferred)
-
-python3 scripts/illo.py init                  # option B: prompts for the key (hidden),
+python3 scripts/illo.py init                  # prompts for the key (hidden),
                                               # writes ~/.config/illo/config.yaml (mode 600)
 python3 scripts/illo.py doctor                # check readiness
 ```
 
-Key resolution is `--api-key` > `$OPENROUTER_API_KEY` > config file. The config
-(a commented `config.yaml`) also holds non-secret defaults — `model`,
-`defaultPalette`, `defaultCharacter`, `aspect`, and an optional `watermark`
-map for attribution.
+Key resolution is `--api-key` > config file — the engine deliberately never
+reads secrets from environment variables. The config (a commented
+`config.yaml`) also holds non-secret defaults — `model`, `defaultPalette`,
+`defaultCharacter`, `aspect`, and an optional `watermark` map for
+attribution.
 There is **no built-in watermark**; set your own so it's only ever yours:
 
 ```bash
@@ -107,9 +107,10 @@ python3 scripts/illo.py init --no-key \
   --watermark blog=yoursite.com --watermark x=@yourhandle
 ```
 
-> The config file is read via **PyYAML** (`pip install pyyaml`) — needed only
-> if you use a config file. Image generation itself needs no installs: it runs
-> from `$OPENROUTER_API_KEY` + flags whether or not PyYAML is present.
+> The config file is read via **PyYAML**
+> (`python -m pip install 'PyYAML==6.0.2'`) — needed only if you use a
+> config file. Image generation itself needs no installs: it runs from
+> `--api-key` + flags whether or not PyYAML is present.
 
 ## Models & cost
 
@@ -152,16 +153,20 @@ and asks which agents to install it into.
 ### Hermes
 
 ```bash
-hermes skills install https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/SKILL.md
+hermes skills install tmchow/agent-skills/illo
 ```
 
 From an interactive Hermes session:
 
 ```text
-/skills install https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/SKILL.md
+/skills install tmchow/agent-skills/illo
 /reload-skills
 /skill illo
 ```
+
+> Use the directory identifier, not a raw `SKILL.md` URL — illo is a
+> multi-file skill (engine script, references, character sheet), and the
+> single-file URL form would install the instructions without the engine.
 
 ### OpenClaw
 

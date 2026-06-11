@@ -62,7 +62,7 @@ human-facing copy, captions, and shot lists. A good name reads off the design
 ## Blot — the shipped default
 
 **Blot** is the default mascot: a small ink drop. Style: riso. The model
-sheet is `assets/character-reference.png` — the engine conditions on it (see
+sheet is `assets/character-reference.webp` — the engine conditions on it (see
 SKILL.md). (`assets/character-reference-pixel.png` is the sheet behind the
 pixel look's calibration example — a ready-made base for a `blot-pixel`
 variant pack.)

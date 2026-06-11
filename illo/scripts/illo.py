@@ -11,15 +11,15 @@ Subcommands:
   packs      Community character packs: list / show <name> / install <name>.
 
 Resolution (generate):
-  api key : --api-key  >  $OPENROUTER_API_KEY  >  config "apiKey"
+  api key : --api-key  >  config "apiKey" (written by `init`, mode 600)
   model   : --model    >  config "model"        >  built-in default
   aspect  : --aspect   >  config "aspect"
 
 The config file is an OPTIONAL user-level YAML file at
 ${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml — never commit it. Reading it
 needs PyYAML; if PyYAML is absent the file is ignored (with a note) and the tool
-still runs from the env var + flags, so generation stays install-free. The API
-key is read from the file only as a fallback; the env var is preferred. The
+still runs from --api-key + flags, so generation stays install-free. The
+engine never reads secrets from the environment. The
 agent must NOT enter the key: `init` is run by the user.
 """
 import argparse, base64, getpass, json, mimetypes, os, pathlib, re, sys, time
@@ -48,7 +48,7 @@ def config_path():
 def load_config():
     """Read the optional YAML config. Graceful: returns {} (with a note) if the
     file is absent, unparseable, or PyYAML isn't installed — generation still
-    works from env var + flags."""
+    works from --api-key + flags."""
     p = config_path()
     if not p.exists():
         return {}
@@ -56,7 +56,7 @@ def load_config():
         import yaml
     except ImportError:
         sys.stderr.write(f"note: {p} found but PyYAML is not installed — ignoring it. "
-                         f"Run `pip install pyyaml`, or use OPENROUTER_API_KEY + flags.\n")
+                         f"Install PyYAML (python -m pip install 'PyYAML==6.0.2'), or pass --api-key.\n")
         return {}
     try:
         return yaml.safe_load(p.read_text()) or {}
@@ -72,10 +72,10 @@ def dump_config_yaml(cfg):
         return f'"{s}"' if (not s or s[0] in "@#&*!|>%`\"'" or ":" in s) else s
     out = [
         "# ~/.config/illo/config.yaml — Illo settings. All keys optional.",
-        "# The API key is best left to the OPENROUTER_API_KEY env var.",
+        "# Set the API key once with: illo.py init (stored here, file mode 600).",
         "",
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
-        else "# apiKey: sk-or-...           # optional; the env var is preferred",
+        else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
         else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
@@ -99,10 +99,9 @@ def dump_config_yaml(cfg):
 
 
 def resolve_key(cli_key, cfg):
-    key = cli_key or os.environ.get("OPENROUTER_API_KEY") or cfg.get("apiKey")
+    key = cli_key or cfg.get("apiKey")
     if not key:
-        sys.exit("No OpenRouter key. Set OPENROUTER_API_KEY, pass --api-key, "
-                 f"or run: {PROG} init")
+        sys.exit(f"No OpenRouter key. Run: {PROG} init  (or pass --api-key)")
     return key
 
 
@@ -267,7 +266,7 @@ def cmd_init(args):
             import yaml  # noqa: F401 — needed to read the existing file before merging
         except ImportError:
             sys.exit(f"{p} already exists but PyYAML isn't installed, so it can't be read "
-                     f"safely to merge. Run `pip install pyyaml` first (or delete the file).")
+                     f"safely to merge. Install PyYAML first (python -m pip install 'PyYAML==6.0.2') or delete the file.")
     cfg = load_config()
     if args.model:
         cfg["model"] = args.model
@@ -282,16 +281,13 @@ def cmd_init(args):
             dest, text = pair.split("=", 1)
             cfg.setdefault("watermark", {})[dest.strip()] = text.strip()
     if not args.no_key:
-        if args.from_env and os.environ.get("OPENROUTER_API_KEY"):
-            cfg["apiKey"] = os.environ["OPENROUTER_API_KEY"]
-        else:
-            entered = getpass.getpass("OpenRouter API key (blank to skip): ").strip()
-            if entered:
-                cfg["apiKey"] = entered
+        entered = getpass.getpass("OpenRouter API key (blank to skip): ").strip()
+        if entered:
+            cfg["apiKey"] = entered
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(dump_config_yaml(cfg))
     os.chmod(p, 0o600)
-    print(f"wrote {p} (key: {'set' if cfg.get('apiKey') else 'not set — use env var'}; "
+    print(f"wrote {p} (key: {'set' if cfg.get('apiKey') else 'not set — run init again or pass --api-key'}; "
           f"model: {cfg.get('model', DEFAULT_MODEL)})")
 
 
@@ -306,8 +302,7 @@ def cmd_doctor(args):
     cfg = load_config()
     cdir = config_dir()
     p = cdir / "config.yaml"
-    key_src = ("env" if os.environ.get("OPENROUTER_API_KEY")
-               else "config" if cfg.get("apiKey") else None)
+    key_src = "config" if cfg.get("apiKey") else None
     lines = [
         f"python:  {sys.version.split()[0]}",
         f"config:  {p} ({'present' if p.exists() else 'absent'})",
@@ -338,7 +333,7 @@ def cmd_doctor(args):
     if key_src:
         lines.append(f"api key: found ({key_src})")
     else:
-        lines.append(f"api key: MISSING — set OPENROUTER_API_KEY or run: {PROG} init")
+        lines.append(f"api key: MISSING — run: {PROG} init")
     print("\n".join(lines))
     sys.exit(0 if key_src else 1)
 
@@ -547,7 +542,7 @@ def cmd_gallery(args):
         recs = [r for r in recs if r.get("label") not in skip]
         if not recs:
             sys.exit("every manifest record excluded — nothing to build")
-    key = os.environ.get("OPENROUTER_API_KEY") or load_config().get("apiKey")
+    key = load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
@@ -557,10 +552,8 @@ def cmd_gallery(args):
     out.write_text(build_gallery_html(recs, args.embed, d, title=args.title, request=request))
     print(str(out))
     if args.open:
-        import shutil, subprocess
-        opener = next((o for o in ("open", "xdg-open") if shutil.which(o)), None)
-        if opener:
-            subprocess.run([opener, str(out)], check=False)
+        import webbrowser
+        webbrowser.open(out.resolve().as_uri())
 
 
 def main():
@@ -587,8 +580,7 @@ def main():
     i.add_argument("--aspect", help="default aspect ratio")
     i.add_argument("--watermark", action="append", default=[], metavar="DEST=TEXT",
                    help="default watermark text per destination, e.g. blog=yoursite.com (repeatable)")
-    i.add_argument("--from-env", action="store_true", help="copy key from $OPENROUTER_API_KEY instead of prompting")
-    i.add_argument("--no-key", action="store_true", help="set prefs only; leave the key to the env var")
+    i.add_argument("--no-key", action="store_true", help="set prefs only; skip the key prompt")
     i.set_defaults(func=cmd_init)
 
     d = sub.add_parser("doctor", help="preflight readiness check")
