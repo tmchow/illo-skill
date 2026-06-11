@@ -530,6 +530,11 @@ def cmd_gallery(args):
     if not man.exists():
         sys.exit(f"No manifest.jsonl in {d}")
     recs = [json.loads(line) for line in man.read_text().splitlines() if line.strip()]
+    if args.exclude:
+        skip = set(args.exclude)
+        recs = [r for r in recs if r.get("label") not in skip]
+        if not recs:
+            sys.exit("every manifest record excluded — nothing to build")
     key = os.environ.get("OPENROUTER_API_KEY") or load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
         if r.get("cost") is None and r.get("id"):
@@ -604,6 +609,8 @@ def main():
     gl.add_argument("dir", help="run dir containing manifest.jsonl")
     gl.add_argument("--open", action="store_true", help="open the gallery after building")
     gl.add_argument("--embed", action="store_true", help="inline images as data-URIs (single portable file)")
+    gl.add_argument("--exclude", action="append", default=[], metavar="LABEL",
+                    help="drop records with this exact label (repeatable) — e.g. rolls superseded by a re-roll")
     gl.set_defaults(func=cmd_gallery)
 
     args = ap.parse_args()

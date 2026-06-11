@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.7.2
+version: 0.8.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -236,9 +236,17 @@ actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
 (re-roll).
 Generate each image **separately** — never combine ideas into one canvas. Default
-aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. To lock style as
-well as the character, add a finished example as a second `--ref`. Pass `--label`
+aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. Pass `--label`
 for a caption that shows in the gallery.
+
+**Sets read as one artist.** For any multi-image set, the first image that
+**passes the full quality bar** (never an unvetted render — a failed anchor,
+e.g. an off-palette ground, would propagate its failure set-wide) becomes the
+set's **style anchor**: pass it as a second `--ref` after the character sheet
+for every later image in the set and for every re-roll of a set member, so
+line weight, halftone density, and flat-vs-dimensional treatment stay
+consistent throughout. The same trick locks style for a one-off: add any
+finished example as a second `--ref`.
 
 **Model choice.** Read `references/models.md` in full before passing any
 `--model` (or whenever the user names a model in plain language or asks for
@@ -291,7 +299,10 @@ palette, label text sits on a colored fill, the accent has spread past the
 character's accent part + 1–2 elements, an unwanted title bar appears, the
 composition copies an example, or text is misspelled. Subject scale varies
 run-to-run — re-roll if the subject is tiny (check `.width/.height` in the
-JSON: a square back when 16:9 was requested → re-roll).
+JSON: a square back when 16:9 was requested → re-roll). When a re-roll
+supersedes a render, rebuild any delivery gallery with
+`--exclude <superseded label>` (repeatable) so rejected rolls don't appear in
+the review artifact.
 
 ### 7. Deliver
 
