@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.13.0
+version: 0.13.1
 author: Trevin Chow
 license: MIT
 metadata:
@@ -125,7 +125,28 @@ whether a **custom character pack** or **custom palettes file** exists, and
 whether a key is found (without revealing it); exit 0 = ready. If the key is
 **missing**, stop and ask the user to run
 `python3 "$SKILL_DIR/scripts/illo.py" init` themselves — do not enter the
-key for them.
+key for them. In a **chat session** the user can't run commands where they
+are, so shrink their host-side step first: run `init --no-key` yourself
+(allowed — it scaffolds the config with defaults and a commented `# apiKey:`
+placeholder, mode 600, never touching a key), then offer the user two
+equivalent one-time options **on the machine the agent runs on** (that host
+is theirs — it's where they installed the agent): run
+`python3 <resolved absolute $SKILL_DIR>/scripts/illo.py init` (hidden
+prompt), or open `~/.config/illo/config.yaml` and fill in the `apiKey:`
+line. The key must never transit the chat: never ask for it in a message,
+and if the user pastes it anyway, do not use it — tell them to revoke that
+key at openrouter.ai and set a fresh one on the host (the pasted key now
+lives in chat history and platform servers). Never copy a key from the
+environment or any other store into the config yourself — the user is the
+only writer of that line — with **one scoped exception**: an ephemeral
+cloud workspace (Claude Code web, Codex cloud, CI) where the user
+provisioned `OPENROUTER_API_KEY` through the platform's secrets mechanism.
+That provisioning is itself the user's deliberate, workspace-scoped
+consent, and there is no interactive prompt or persistent home for `init` —
+so there, seed the config from the workspace secret once (the "Cloud & CI"
+one-liner in README.md). On a personal machine an ambient env var proves
+nothing about intent (it may belong to other tools) — the rule stands:
+never copy it.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
