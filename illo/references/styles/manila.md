@@ -54,7 +54,15 @@ and slightly patchy inking, like an office stamp, never typeset.
 - **No typed text, no printed forms, no ruled lines or checkbox grids, no
   barcodes, no date stamps with digits** — the office clichés the model
   loves.
+- **Stamps attract type**: the model stamps stray words — even hex codes from
+  the PALETTE line — onto any paper sheet in the scene, and migrates labels
+  onto the sheets. State that in-scene papers stay blank (marks are plain
+  filled shapes, nothing inside) and float labels in empty manila, well clear
+  of the sheets. Stray writing = re-roll.
 - ≤2 accent elements beyond the character's accent part.
+
+Calibration example: `assets/examples/styles/manila-queue.png` — study it
+for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving a manila pack from a riso character, the original
 sheet works directly as the `--ref` — the style prompt overrides its

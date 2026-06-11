@@ -15,7 +15,7 @@ description: >-
   requests that don't say illo/riso/character pack — not "illustrate this
   post", "make an image", "draw a cartoon", "make me a mascot", not
   photorealism, UI mockups, charts, or stock art.
-version: 0.6.0
+version: 0.6.1
 author: Trevin Chow
 license: MIT
 platforms: [macos, linux]

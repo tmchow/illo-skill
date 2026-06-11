@@ -57,6 +57,9 @@ directly on the screen. Never boxed.
   faint.
 - One line weight; accent only on the accent part + 1–2 elements.
 
+Calibration example: `assets/examples/styles/phosphor-spike.png` — study it
+for line/texture and restraint; never copy its composition.
+
 Variant note: when deriving a phosphor pack from a riso character, the
 original sheet works directly as the `--ref` — the style prompt overrides its
 rendering.

@@ -53,6 +53,9 @@ hand-drawn underline is allowed; never boxed.
 - One stroke weight everywhere; no wispy sketch lines.
 - Accent appears only on the character's accent part + 1–2 elements.
 
+Calibration example: `assets/examples/styles/chalk-timebox.png` — study it
+for line/texture and restraint; never copy its composition.
+
 Variant note: when deriving a chalk pack from a riso character, the original
 sheet works directly as the `--ref` — the style prompt overrides its
 rendering.
