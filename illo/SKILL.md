@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.12.0
+version: 0.13.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -60,9 +60,9 @@ infographic, not a flowchart, not a UI mockup.
 
 - **An OpenRouter API key.** Generation goes straight to OpenRouter's image API
   via `scripts/illo.py` (stdlib Python, no installs). The key lives in the
-  user's config file, written once by `init` (mode 600); resolution is
-  `--api-key` > the config file. The engine never reads secrets from the
-  environment.
+  user's config file — the **single credential channel** — written once by the
+  user-run `init` (mode 600). The engine never reads secrets from the
+  environment and never accepts them as command-line arguments.
 - **`python3`** and network access. Nothing else to install.
 - The engine is **model-selectable** (`--model`); the default renders English
   labels reliably and honors a reference image for character consistency.
@@ -77,9 +77,10 @@ or store the user's key — direct them to bootstrap it:
   YAML config `${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml` (mode 600). It
   can also store non-secret defaults: `--model`, `--palette`, `--aspect`,
   `--character`, `--watermark`. Use `--no-key` to update preferences without
-  touching the stored key. (The config file is read via PyYAML — install it
-  with `python -m pip install 'PyYAML==6.0.2'` if absent; without it the
-  file is ignored and the tool runs from `--api-key` + flags.)
+  touching the stored key. (The config is read via PyYAML when installed;
+  without it a minimal built-in parser still reads the flat keys — `apiKey`,
+  `model`, … — so generation needs no installs. Only nested settings like
+  `watermark` need PyYAML: `python -m pip install 'PyYAML==6.0.2'`.)
 - **Non-secret prefs may be seeded** for the user with the same command and
   `--no-key`, but the key itself is theirs to enter.
 

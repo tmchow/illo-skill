@@ -95,8 +95,11 @@ python3 scripts/illo.py init                  # prompts for the key (hidden),
 python3 scripts/illo.py doctor                # check readiness
 ```
 
-Key resolution is `--api-key` > config file — the engine deliberately never
-reads secrets from environment variables. The config (a commented
+The config file is the **only** place the engine reads the key from —
+deliberately: no environment variables (skill security scanners treat
+secret-shaped env reads in community skills as exfiltration) and no
+`--api-key`-style flags (command-line secrets leak into process listings
+and shell history). The config (a commented
 `config.yaml`) also holds non-secret defaults — `model`, `defaultPalette`,
 `defaultCharacter`, `aspect`, and an optional `watermark` map for
 attribution.
@@ -107,10 +110,11 @@ python3 scripts/illo.py init --no-key \
   --watermark blog=yoursite.com --watermark x=@yourhandle
 ```
 
-> The config file is read via **PyYAML**
-> (`python -m pip install 'PyYAML==6.0.2'`) — needed only if you use a
-> config file. Image generation itself needs no installs: it runs from
-> `--api-key` + flags whether or not PyYAML is present.
+> The config file is read via **PyYAML** when installed
+> (`python -m pip install 'PyYAML==6.0.2'`); without it a minimal built-in
+> parser still reads the flat keys (`apiKey`, `model`, …) — only nested
+> settings like `watermark` need PyYAML. Either way, image generation
+> itself needs no installs.
 
 ## Models & cost
 

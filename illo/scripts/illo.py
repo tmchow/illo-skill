@@ -11,14 +11,14 @@ Subcommands:
   packs      Community character packs: list / show <name> / install <name>.
 
 Resolution (generate):
-  api key : --api-key  >  config "apiKey" (written by `init`, mode 600)
+  api key : config "apiKey" only — written by `init` (user-run, mode 600)
   model   : --model    >  config "model"        >  built-in default
   aspect  : --aspect   >  config "aspect"
 
 The config file is an OPTIONAL user-level YAML file at
 ${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml — never commit it. Reading it
-needs PyYAML; if PyYAML is absent the file is ignored (with a note) and the tool
-still runs from --api-key + flags, so generation stays install-free.
+needs PyYAML; if PyYAML is absent, a minimal stdlib parser still reads the
+flat string keys (apiKey, model, …), so generation stays install-free.
 The engine never reads secrets from the environment.
 The agent must NOT enter the key: `init` is run by the user.
 """
@@ -45,19 +45,33 @@ def config_path():
     return config_dir() / "config.yaml"
 
 
+def parse_flat_yaml(text):
+    """Stdlib fallback for the config `init` writes: top-level `key: value`
+    string pairs only (nested maps like `watermark` need PyYAML)."""
+    cfg = {}
+    for line in text.splitlines():
+        if not line or line.startswith((" ", "\t", "#")) or ":" not in line:
+            continue
+        k, _, v = line.partition(":")
+        v = v.split(" #")[0].strip().strip("'\"")
+        if k.strip() and v:
+            cfg[k.strip()] = v
+    return cfg
+
+
 def load_config():
     """Read the optional YAML config. Graceful: returns {} (with a note) if the
-    file is absent, unparseable, or PyYAML isn't installed — generation still
-    works from --api-key + flags."""
+    file is absent or unparseable. Without PyYAML, falls back to a flat parse
+    of the string keys (apiKey, model, …) so generation needs no installs."""
     p = config_path()
     if not p.exists():
         return {}
     try:
         import yaml
     except ImportError:
-        sys.stderr.write(f"note: {p} found but PyYAML is not installed — ignoring it. "
-                         f"Install PyYAML (python -m pip install 'PyYAML==6.0.2'), or pass --api-key.\n")
-        return {}
+        sys.stderr.write(f"note: PyYAML not installed — reading only {p}'s flat keys "
+                         f"(nested keys like watermark need: python -m pip install 'PyYAML==6.0.2').\n")
+        return parse_flat_yaml(p.read_text())
     try:
         return yaml.safe_load(p.read_text()) or {}
     except Exception as e:
@@ -98,10 +112,10 @@ def dump_config_yaml(cfg):
     return "\n".join(out) + "\n"
 
 
-def resolve_key(cli_key, cfg):
-    key = cli_key or cfg.get("apiKey")
+def resolve_key(cfg):
+    key = cfg.get("apiKey")
     if not key:
-        sys.exit(f"No OpenRouter key. Run: {PROG} init  (or pass --api-key)")
+        sys.exit(f"No OpenRouter key. Run: {PROG} init")
     return key
 
 
@@ -244,7 +258,7 @@ def cmd_generate(args):
         content.append({"type": "image_url", "image_url": {"url": data_url(r)}})
 
     model = args.model or cfg.get("model") or DEFAULT_MODEL
-    key = resolve_key(args.api_key, cfg)
+    key = resolve_key(cfg)
 
     out = pathlib.Path(args.out)
     n = max(1, args.count)
@@ -289,7 +303,7 @@ def cmd_init(args):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(dump_config_yaml(cfg))
     os.chmod(p, 0o600)
-    print(f"wrote {p} (key: {'set' if cfg.get('apiKey') else 'not set — run init again or pass --api-key'}; "
+    print(f"wrote {p} (key: {'set' if cfg.get('apiKey') else 'not set — run init again to set it'}; "
           f"model: {cfg.get('model', DEFAULT_MODEL)})")
 
 
@@ -572,7 +586,6 @@ def main():
     g.add_argument("--label", help="short caption recorded in the manifest / gallery")
     g.add_argument("--count", type=int, default=1, help="render N variations (out-1, out-2, …)")
     g.add_argument("--cost", action="store_true", help="fetch each render's cost inline (adds latency)")
-    g.add_argument("--api-key")
     g.set_defaults(func=cmd_generate)
 
     i = sub.add_parser("init", help="create/update user config (run this yourself)")
