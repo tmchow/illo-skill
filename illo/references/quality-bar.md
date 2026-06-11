@@ -22,6 +22,22 @@ its style's file** — everything else here still applies.
 - **Mascot is on-model**: matches the active character's locked design (the
   default Blot's in `character.md`, or the custom pack's) — two dot eyes,
   blank deadpan (no brow, no mouth), one accent carrier, no added parts.
+- **Structural integrity** — a separate axis from "on-model" (a body can be
+  perfectly on-model and still be assembled wrong, so the identity check
+  above will not catch this; scan for it deliberately):
+  - **Occlusion / opacity** — trace the mascot's outline: nothing from
+    behind passes *through* the body. A ground line, horizon, table edge,
+    belt, shelf, or prop must **stop at the silhouette**, not cut across
+    the waist/torso. The mascot (and every solid object) is opaque and sits
+    in front of what's behind it. A line through the body is the most common
+    miss because the character still "looks like itself."
+  - **Anatomy / attachment** — trace each limb to where it joins: exactly
+    the character's limb count (no extra, floating, doubled, or merged
+    arms/legs), each rooted at a sensible point on the body, not emerging
+    from mid-torso or an accent band.
+  - **In mini-comics, run both checks on every panel separately** — each
+    panel is its own small render and the repeated, smaller mascot instances
+    are where occlusion and limb errors drift in most.
 - **Value matches the palette**: in light palettes the body is light with
   structure-ink (not pure-black) features — not a heavy dark blob.
 - One core idea, one structure. Subject large (~50–70%), ≥35% negative space.
@@ -46,6 +62,8 @@ its style's file** — everything else here still applies.
 - Too many objects/arrows/nodes; text became sentences → cut to one action + ≤3 labels.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
+- A line passes through the mascot's body, or a limb roots wrong / is
+  doubled/floating → re-roll (these resist edits; a fresh render is cleaner).
 - Accent spread across the body/background, or label text on an accent fill → fix.
 - Derived/custom palette colors off-target → eyedrop vs the target hex; re-roll or snap in post.
 - Misspelled labels → prefer an edit; if widespread, re-roll with fewer/shorter labels.
