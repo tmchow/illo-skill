@@ -18,9 +18,9 @@ Resolution (generate):
 The config file is an OPTIONAL user-level YAML file at
 ${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml — never commit it. Reading it
 needs PyYAML; if PyYAML is absent the file is ignored (with a note) and the tool
-still runs from --api-key + flags, so generation stays install-free. The
-engine never reads secrets from the environment. The
-agent must NOT enter the key: `init` is run by the user.
+still runs from --api-key + flags, so generation stays install-free.
+The engine never reads secrets from the environment.
+The agent must NOT enter the key: `init` is run by the user.
 """
 import argparse, base64, getpass, json, mimetypes, os, pathlib, re, sys, time
 import urllib.error, urllib.request
