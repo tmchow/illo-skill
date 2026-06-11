@@ -69,6 +69,12 @@ scene. In particular, a comparison of two states with no journey between
 them is a single "change" staging (one frame holding both states, or one
 state caught mid-action that implies the other), not a comic.
 
+Borderline cases — an idea that passes the sequence test but where one
+caught moment could still imply the whole arc — are a style call, and the
+house style calls it for the single scene: panels are a deliberate choice,
+never a fallback. An explicit user request ("make it a comic", "single
+shot") beats all of the above.
+
 When a sequence IS the right call, pick where it lives:
 
 - The progression sits **in one place** — inside one section or one concept
