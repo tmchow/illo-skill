@@ -70,7 +70,7 @@ scene drifts toward a board-game product shot.
   the product-shot cliché.
 - Cells few and large; accent enamel only on the accent part + 1–2 cells.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/examples/styles/enamel-deflect.png — study it
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo-examples/styles/enamel-deflect.png — study it
 for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving an enamel pack from a riso character, the

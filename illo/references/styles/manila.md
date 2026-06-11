@@ -61,7 +61,7 @@ and slightly patchy inking, like an office stamp, never typeset.
   of the sheets. Stray writing = re-roll.
 - ≤2 accent elements beyond the character's accent part.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/examples/styles/manila-queue.png — study it
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo-examples/styles/manila-queue.png — study it
 for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving a manila pack from a riso character, the original
