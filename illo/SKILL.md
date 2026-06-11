@@ -54,7 +54,7 @@ infographic, not a flowchart, not a UI mockup.
 |---|---|
 | **Illustrate an article / post / newsletter** | Steps 0–7: pull the load-bearing moments, shot list, one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
-| **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (routing in `references/composition.md`). Best shape for social. |
+| **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
@@ -144,9 +144,10 @@ Two kinds of input, handled differently:
   ones that change the output — then build.** Draw from:
   - the single takeaway (what should the reader conclude?),
   - where it's headed (blog / X / deck → sets palette, aspect, watermark),
-  - the shape: one image, a **mini-comic** (2–4 panels in one image — right
-    when the idea advances through stages, and best for social), or several
-    separate images — plus any must-include element or constraint.
+  - the shape: one image (the default), a **mini-comic** (2–4 panels in one
+    image — only when the idea itself advances through stages), or several
+    separate images — plus any must-include element or constraint. The shape
+    follows the idea, never the destination (`references/composition.md`).
 
   Keep it to **one short round**, then proceed. **Skip the questions entirely**
   if the user already gave enough, said "just make it" / "single shot" /

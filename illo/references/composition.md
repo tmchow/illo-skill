@@ -41,16 +41,24 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
-## Mini-comic vs. separate images (routing)
+## Picking the shape (single scene vs mini-comic vs separate images)
 
-When an idea moves through stages, pick by where the sequence lives:
+The idea picks the shape; the destination never does — destination sets
+aspect, palette, and watermark only. Default to a **single scene**: one move,
+one moment. A mini-comic must earn its panels — the idea itself advances
+through stages and the sequence *is* the point. A comparison or before/after
+that lands in one beat belongs in a single "change" staging, not panels.
+
+When an idea genuinely moves through stages, pick by where the sequence
+lives:
 
 - The progression sits **in one place** — a process, a before→during→after, a
   fail→fix inside one section or one concept → **one mini-comic image**.
 - The ideas are **spread across the piece** → **separate interleaved images**,
   one per anchor.
-- **Social destination** → prefer the mini-comic: one self-contained image that
-  carries the whole sequence beats a multi-image thread.
+- On a **social destination**, when a sequence is already the right call, one
+  self-contained mini-comic beats a thread of separate images — but a social
+  destination alone never upgrades a single-moment idea into panels.
 
 Panel rules: 2–4 panels, never more; one action per panel; same mascot, same
 key object, same palette in every panel; clear gutters or thin panel borders;
