@@ -57,7 +57,7 @@ directly on the screen. Never boxed.
   faint.
 - One line weight; accent only on the accent part + 1–2 elements.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/examples/styles/phosphor-spike.png — study it
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo-examples/styles/phosphor-spike.png — study it
 for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving a phosphor pack from a riso character, the
