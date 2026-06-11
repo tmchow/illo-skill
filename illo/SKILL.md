@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.7.1
+version: 0.7.2
 author: Trevin Chow
 license: MIT
 metadata:
@@ -119,6 +119,10 @@ Before generating, confirm the engine is ready:
 ```bash
 python3 "$SKILL_DIR/scripts/illo.py" doctor
 ```
+
+Run it standalone — never chained with `&&` — so the displayed exit code is
+the readiness signal itself (0 = ready): a chained neighbor's failure paints
+a healthy check as an error.
 
 It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists, and
