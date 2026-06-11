@@ -44,21 +44,40 @@ metaphor family.
 ## Picking the shape (single scene vs mini-comic vs separate images)
 
 The idea picks the shape; the destination never does — destination sets
-aspect, palette, and watermark only. Default to a **single scene**: one move,
-one moment. A mini-comic must earn its panels — the idea itself advances
-through stages and the sequence *is* the point. A comparison or before/after
-that lands in one beat belongs in a single "change" staging, not panels.
+aspect, palette, and watermark only. Default to a **single scene**: it is
+bolder at every size, and most ideas land in one caught moment.
 
-When an idea genuinely moves through stages, pick by where the sequence
-lives:
+A mini-comic earns its panels only when **the meaning lives between the
+panels** — panels beat one scene when at least one of these holds:
 
-- The progression sits **in one place** — a process, a before→during→after, a
-  fail→fix inside one section or one concept → **one mini-comic image**.
+- **Causality is the claim** — the idea says "X leads to Y", and Y only
+  reads as a consequence if X is seen first (a fail→fix, a
+  before→during→after). One frame can show X and Y; it can't show *because*.
+- **Accumulation is the point** — the idea is about steps compounding
+  (stuck → small slice → shipped); freezing any single moment loses the
+  build.
+- **A turn lands it** — setup, then a deadpan reversal in the last panel.
+  Only panels have comic timing; if the idea is funny because of the turn,
+  the beat structure is the joke.
+- **Rhythm carries it** — the same scene repeated with one change per
+  panel, where the pattern itself is the message (the retry loop, the
+  meeting that never ends).
+
+The negative test: **if the panels could be reordered, or any panel dropped,
+without losing the meaning, it is not a sequence** — collapse it to one
+scene. In particular, a comparison of two states with no journey between
+them is a single "change" staging (one frame holding both states, or one
+state caught mid-action that implies the other), not a comic.
+
+When a sequence IS the right call, pick where it lives:
+
+- The progression sits **in one place** — inside one section or one concept
+  → **one mini-comic image**.
 - The ideas are **spread across the piece** → **separate interleaved images**,
   one per anchor.
-- On a **social destination**, when a sequence is already the right call, one
-  self-contained mini-comic beats a thread of separate images — but a social
-  destination alone never upgrades a single-moment idea into panels.
+- On a **social destination**, one self-contained mini-comic beats a thread
+  of separate images — but a social destination alone never upgrades a
+  single-moment idea into panels.
 
 Panel rules: 2–4 panels, never more; one action per panel; same mascot, same
 key object, same palette in every panel; clear gutters or thin panel borders;
