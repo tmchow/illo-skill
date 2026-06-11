@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.14.3
+version: 0.15.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -45,7 +45,7 @@ infographic, not a flowchart, not a UI mockup.
 
 | The user wants | The path |
 |---|---|
-| **Illustrate an article / post / newsletter** | Steps 0–7: pull the load-bearing moments, shot list, one image per anchor, interleave by placement. |
+| **Illustrate an article / post / newsletter / URL** | Steps 0–7: route the source first (thesis → coverage: hero / hero+set / set / mini-comic — `references/composition.md`, "Source routing"), then shot list (hero row + anchors), one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
@@ -170,10 +170,21 @@ never copy it.
 
 Two kinds of input, handled differently:
 
-- **An article / paste / doc** carries its own context. Read it and pull the
-  **load-bearing moments** — the few places that turn on a judgment, a loop, an
-  input→output, a before/after, or a trap. Don't illustrate every paragraph, and
-  don't interrogate the user; the text already says what it's about.
+- **A URL / article / paste / long post** carries its own context — but
+  never generate from the first vivid detail. Route it first
+  (`references/composition.md`, "Source routing"): classify the source
+  shape, **lock the main thesis in one sentence**, then pick the coverage —
+  hero, hero + per-section set (the full article job), set, mini-comic, or
+  shot list first. Sets need placements: compact sources (a tweet, one
+  concept) never yield a set — their multi-beat form is the mini-comic. Pull the **load-bearing moments** —
+  the few places that turn on a judgment, a loop, an input→output, a
+  before/after, or a trap — never one image per paragraph. The text already
+  says what it's about, so don't interrogate the user, with **one
+  exception**: a materially multi-beat source (long article, postmortem,
+  multi-claim launch) gets a single coverage question before any
+  multi-image spend — unless the user already named the coverage. A lone
+  image from a multi-beat source is a **hero**, delivered saying so — not
+  as coverage of the piece.
 - **A bare concept or one-liner** (e.g. "illustrate 'you are the bottleneck'")
   usually underspecifies the picture. Ask **up to ~3 quick questions — only the
   ones that change the output — then build.** Draw from:
@@ -349,12 +360,17 @@ the review artifact.
 
 ### 7. Deliver — match the session's medium
 
-Copy finals next to the user's work when appropriate
-(`assets/<slug>-illustrations/01-topic.png`, `02-topic.png`, …); never
-overwrite existing assets without being asked. Then report: how many images,
-each one's purpose, the palette used, and which are strongest vs optional —
-plus the images themselves, delivered the way this session can actually
-show them:
+Copy finals next to the user's work when appropriate; never overwrite
+existing assets without being asked. **Filenames carry the role** — they
+are the only metadata that survives a document attachment, so make them
+self-identifying: `00-hero-<slug>.png` for the hero, then
+`01-<section-slug>.png`, `02-<section-slug>.png`, … for anchors in piece
+order (`assets/<slug>-illustrations/`). Then report: how many images, the
+palette used, which are strongest vs optional — and for any multi-image
+job, a **placement map**: one line per image naming the file, its role
+(hero, or after which section), and the one idea it lands, so the user can
+drop each file where it belongs without re-deriving the plan. Deliver the
+images themselves the way this session can actually show them:
 
 - **Filesystem sessions** (IDE/terminal agents — Claude Code, Codex,
   Cursor): report each final's **absolute path** (the engine's JSON `.path`
@@ -396,8 +412,9 @@ Before the final reply in a chat session, check:
   in the reply;
 - `[[as_document]]` is in the reply unless this is explicitly preview-only;
 - rejected/re-rolled candidates are excluded from delivery;
-- the text says what was made — character, palette, strongest final —
-  without implementation noise.
+- the text says what was made — character, palette, strongest final, and
+  for sets the placement map (which file is the hero, which follows which
+  section) — without implementation noise.
 
 ## Output discipline
 

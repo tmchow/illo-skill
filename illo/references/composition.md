@@ -41,6 +41,75 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
+## Source routing (URLs, articles, threads, long posts) — before any prompt
+
+For any URL, pasted article, newsletter, thread, or long post, never
+generate from the first vivid detail — that produces an image of a
+*subclaim* while the piece's actual point goes unillustrated. Route in
+three steps, before writing any prompt:
+
+**1. Classify the source shape** (internally — no need to show the user):
+single-claim short post · multi-claim short post / launch announcement ·
+long article / newsletter · narrative / postmortem · procedural sequence
+or thread.
+
+**2. Lock the thesis.** Write one sentence before any prompt: *"The image
+must communicate: \<main thesis>."* A single image must carry that
+sentence, not a vivid supporting detail. A launch post listing six
+improvements is about the step-change they add up to ("runs farther with
+less steering"), not about whichever list item stages best — illustrating
+a subclaim is a miss unless the user asked for that angle. For multi-beat
+sources, also pull the 3–7 load-bearing moments (criteria in the
+shot-list section below).
+
+**3. Decide coverage — and ask once when it's both ambiguous and costly.**
+Reason in five coverage shapes (users won't name them; map their words):
+
+- **hero** — one image carrying the whole piece's thesis (the opener /
+  og-image job)
+- **set** — one image per load-bearing anchor, interleaved by placement
+- **hero + set** — the full article job: a thesis-carrying hero up top
+  *and* per-section anchor images. The hero is not anchor #1 — anchors
+  land their section's idea; the hero lands the piece's. Generate the
+  hero first: once it passes the quality bar it doubles as the set's
+  **style anchor** (the second `--ref`, step 5 in SKILL.md).
+- **mini-comic** — one canvas, 2–4 panels, when the thesis is itself a
+  progression
+- **shot list** — plan only, render nothing yet
+
+**Sets need placements.** The placement test below gates sets at the
+source level too: separate images are justified by separate places in a
+piece for them to live. A compact source — a tweet, a launch post, one
+concept however complex — has no such places and **never yields a set**;
+its multi-beat form is the mini-comic, or a hero that carries the whole
+thesis. Only a structured piece (an article or newsletter with real
+sections) supports a set.
+
+Routing:
+
+- **Single-claim short post** → hero; no questions.
+- **Compact multi-beat source** (multi-claim tweet/launch, complex
+  one-liner) → hero if one scene can carry the *full* thesis; mini-comic
+  if the thesis is a progression; if genuinely unclear, ask once offering
+  exactly those two — never a set.
+- **Structured multi-beat piece** (article, newsletter, postmortem with
+  sections) → never silently collapse it into one image, and never
+  silently render a set either (each render bills the user). Ask **one**
+  short question — "One hero image, a hero plus per-section set (~N
+  images), or just the section set? (Default: one hero — it won't be full
+  coverage.)" — then proceed with the answer or the stated default. Offer
+  the mini-comic in that question only when the whole piece is one
+  progression. Never ask twice.
+- **The user already named the coverage** ("one hero image", "a 4-image
+  set", "hero plus section images", "make it a comic", "shot list
+  first") → that wins; no questions.
+- A lone image made from a multi-beat source is a **hero for the central
+  lesson** — deliver it saying so, never as if it covered the piece.
+
+**One idea per image never means one image per article.** It means a
+multi-idea piece needs multiple images, a mini-comic, or an explicit
+hero decision. From here, the count and shape rules below take over.
+
 ## Picking the shape (single scene vs mini-comic vs separate images)
 
 For anything multi-image, decide in two passes, in order: **count first,
@@ -126,7 +195,10 @@ thing. The aim is one fresh, memorable, slightly-absurd picture per idea.
 
 Let the count fall out of the anchors actually found — typically 3–6 per
 article, 1–2 for short pieces — and **never pad to hit a number**: a section
-with no load-bearing moment gets no image. Per image:
+with no load-bearing moment gets no image. A full article job
+(hero + set) leads the list with a **hero row** — placement "top of
+piece", idea = the locked thesis — which sits outside the anchor count
+and the never-pad rule. Per image:
 
 - **Placement** — after which section or idea
 - **Idea** — the one sentence it lands
