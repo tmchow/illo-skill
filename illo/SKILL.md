@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.14.2
+version: 0.14.3
 author: Trevin Chow
 license: MIT
 metadata:
@@ -368,21 +368,21 @@ show them:
   the image must land **in the chat**, and a *final* must arrive as the
   **original file**. Platform photo delivery recompresses images — exactly
   what destroys riso grain, halftone texture, ink-layer offset, and fine
-  hand-lettering — so **document delivery is the default for finals**. On
-  Hermes, write each final's bare absolute path and the literal directive
-  `[[as_document]]` in the same reply (the gateway detects bare absolute
-  media paths; the directive makes it send the original files as document
-  attachments instead of recompressed photo bubbles):
+  hand-lettering — so **finals are delivered as document attachments**. On
+  Hermes, tag each final with an explicit `MEDIA:` attachment tag — the tag
+  is `MEDIA:` immediately followed by the absolute path, no space — and the
+  literal directive `[[as_document]]` in the same reply. Do **not** rely on
+  a bare absolute path for a final: bare paths can pass through to the user
+  as literal text instead of being dispatched as an attachment.
 
   ```text
-  /absolute/path/to/final.jpg
+  MEDIA:/absolute/path/to/final.jpg
   [[as_document]]
   ```
 
-  A bare path *without* the directive sends a native photo bubble — preview
-  quality. Use that only for candidate/options rounds or when the user
-  explicitly asks for inline bubbles, and say so ("preview — original file
-  to follow"); it is never the final-artifact delivery. **Skip the HTML
+  Candidate/options rounds may use normal inline photo delivery when quick
+  glances help — say so ("preview — original file to follow") — but a
+  final is never delivered that way. **Skip the HTML
   gallery in chat** — the user has no easy way to open or host it; send the
   labeled finals directly with the recommendation as text, and only build
   `gallery --embed` (one self-contained file) if a portable artifact is
@@ -392,7 +392,8 @@ Before the final reply in a chat session, check:
 
 - every final's path came from the engine's JSON `.path`, not the requested
   `--out` (the actual extension may differ);
-- every final appears as a bare absolute path in the reply;
+- every final appears as an explicit `MEDIA:/absolute/path` attachment tag
+  in the reply;
 - `[[as_document]]` is in the reply unless this is explicitly preview-only;
 - rejected/re-rolled candidates are excluded from delivery;
 - the text says what was made — character, palette, strongest final —
