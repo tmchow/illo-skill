@@ -259,8 +259,8 @@ def do_generate(model, content, key, out_path, want_cost):
     out.write_bytes(img)
     w, h = image_size(img)
     gid = payload.get("id")
-    # Absolute: IDE agents get a clickable path; chat gateways (e.g. Hermes)
-    # auto-detect bare absolute media paths and deliver the file natively.
+    # Absolute: IDE agents get a clickable path; chat delivery (e.g. Hermes
+    # MEDIA: attachment tags) needs the absolute path to build the tag.
     return {"path": str(out.resolve()), "model": model, "id": gid,
             "cost": (fetch_cost(gid, key) if want_cost else None), "width": w, "height": h}
 
