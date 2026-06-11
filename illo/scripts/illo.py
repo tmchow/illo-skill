@@ -491,12 +491,23 @@ figcaption{padding:10px 14px 14px}
 .meta{color:#9aa0a6;font-size:13px;margin:0}
 .pr{margin-top:8px}.pr summary{cursor:pointer;color:#8ab4f8;font-size:12px}
 .pr pre{white-space:pre-wrap;font:12px/1.45 ui-monospace,Menlo,monospace;color:#c0c4c9;background:#0f1115;border:1px solid #232830;border-radius:8px;padding:10px;margin:8px 0 0;max-height:240px;overflow:auto}
+.req{color:#9aa0a6;font-size:13px;margin:-8px 0 20px;max-width:920px;white-space:pre-wrap}
+.req summary{cursor:pointer;list-style:none}.req summary::after{content:" …more";color:#8ab4f8}
+.req[open] summary::after{content:""}
+.req pre{white-space:pre-wrap;font:12px/1.45 ui-monospace,Menlo,monospace;color:#c0c4c9;background:#171a20;border:1px solid #232830;border-radius:8px;padding:10px;margin:8px 0 0;max-height:320px;overflow:auto}
 """
 
 
-def build_gallery_html(recs, embed, base, title=None):
+def build_gallery_html(recs, embed, base, title=None, request=None):
     import html as _html
     heading = _html.escape(title or "Illo gallery")
+    req_html = ""
+    if request:
+        if len(request) > 280:
+            req_html = (f'<details class="req"><summary>{_html.escape(request[:280])}</summary>'
+                        f'<pre>{_html.escape(request)}</pre></details>')
+        else:
+            req_html = f'<p class="req">{_html.escape(request)}</p>'
     total = sum(r["cost"] for r in recs if r.get("cost"))
     cards = []
     for r in recs:
@@ -521,7 +532,7 @@ def build_gallery_html(recs, embed, base, title=None):
             f'<meta name=viewport content="width=device-width,initial-scale=1">'
             f"<title>{heading}</title><style>{GALLERY_CSS}</style></head>"
             f'<body><h1>{heading} <span class="tot">{len(recs)} images'
-            f" · ${total:.4f}</span></h1>"
+            f" · ${total:.4f}</span></h1>{req_html}"
             f'<div class="grid">{"".join(cards)}</div></body></html>')
 
 
@@ -540,8 +551,10 @@ def cmd_gallery(args):
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
+    req = d / "request.txt"
+    request = req.read_text().strip() if req.is_file() else None
     out = d / "index.html"
-    out.write_text(build_gallery_html(recs, args.embed, d, title=args.title))
+    out.write_text(build_gallery_html(recs, args.embed, d, title=args.title, request=request))
     print(str(out))
     if args.open:
         import shutil, subprocess

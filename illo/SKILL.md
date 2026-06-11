@@ -270,6 +270,9 @@ engine's primitives:
 
 ```bash
 RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun)      # -> /tmp/illo/<runid>
+# record the user's VERBATIM request (URL, pasted text, concept) — the
+# gallery shows it as provenance so anyone can tell what the run was for:
+printf '%s' "<the verbatim request>" > "$RUN/request.txt"
 # (a) VARIATIONS — same prompt+model, pick-the-best:
 python3 .../illo.py generate --prompt-file p.txt --ref <ref> --count 4 --label "draft→ship" --out "$RUN/v.png"
 # (b) MODEL COMPARISON — loop the SAME prompt over the chosen models
