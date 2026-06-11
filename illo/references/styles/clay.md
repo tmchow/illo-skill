@@ -58,8 +58,14 @@ on the set backdrop — never modeled as clay letters (sculpted type mangles).
 
 - **The mascot is clay.** A flat/drawn mascot on a clay set = re-roll (the #1
   failure).
+- **Force the accent hue in words next to the hex** ("coral red #e8543f —
+  NOT yellow, NOT brown"): material renders drift accent color toward toy
+  defaults. Wrong-hue accent = re-roll.
 - Matte everywhere: no glossy highlights, no plastic or 3D-render sheen.
 - Small soft contact shadows only — no dramatic lighting, no depth-of-field
   blur.
 - No drawn outlines; fingerprint texture subtle, never sculpted detail creep.
 - Accent clay appears only on the accent part + 1–2 elements.
+
+Calibration example: `assets/examples/styles/clay-rootcause.png` — study it
+for line/texture and restraint; never copy its composition.

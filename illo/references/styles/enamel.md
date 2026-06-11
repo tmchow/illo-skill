@@ -46,15 +46,32 @@ the accent enamel cell.
 Short capitals rendered as the metal itself — stamped-metal lettering in the
 metal color directly on the paper ground, ≤2 labels.
 
+## Staging fit (read before choosing the shot)
+
+Enamel discretizes: continuous structure — a winding path, a flowing curve, a
+long connector — breaks into separate chunky cells (a path becomes floating
+stepping-stones). That is the look working, not failing, so stage for it:
+emblematic single-moment scenes and discrete-station diagrams (steps, gates,
+before/after) render beautifully; continuous-flow metaphors (graphs with
+edges, tangled-vs-straight, one unbroken journey line) belong in a different
+look. Keep busy shots to roughly a dozen cells beyond the character or the
+scene drifts toward a board-game product shot.
+
 ## QA deltas (replace the riso grain checks)
 
 - Every shape is a closed metal-bounded cell — an open stroke or un-outlined
   fill = re-roll.
+- **Force the accent contrast in the prompt** ("vivid magenta-pink #e0356f —
+  must NOT be the body color"): stated plainly, the model drops the accent
+  cell into the body enamel. Accent-less render = re-roll.
 - One metal color only; sheen subtle and uniform — no rainbow speculars, no
   3D bevel drama.
 - **No pin-back, no butterfly clutch, no backing card, no hand holding it** —
   the product-shot cliché.
 - Cells few and large; accent enamel only on the accent part + 1–2 cells.
+
+Calibration example: `assets/examples/styles/enamel-deflect.png` — study it
+for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving an enamel pack from a riso character, the
 original sheet works directly as the `--ref` — the style prompt overrides its
