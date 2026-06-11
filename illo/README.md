@@ -109,25 +109,24 @@ python3 scripts/illo.py init --no-key \
 ## Models & cost
 
 Generation is **pay-per-image through your OpenRouter account** — there's no
-subscription in the skill itself. Expect roughly **$0.06–0.25 per image**
-depending on the model; a typical blog post (3–6 finals plus a few re-rolls)
-lands around **$0.50 or less** on the default. Prices are OpenRouter's and
-drift — check [openrouter.ai/models](https://openrouter.ai/models) for
-current numbers.
+subscription in the skill itself. Typically **under ten cents per image**,
+and a typical blog post (3–6 finals plus a few re-rolls) lands well under a
+dollar on the default model. Prices are OpenRouter's and drift — check
+[openrouter.ai/models](https://openrouter.ai/models) for current numbers.
 
 | Model | Why you'd pick it | Relative cost |
 |---|---|---|
-| **Grok Imagine** (`x-ai/grok-imagine-image-quality`) — *default* | The recommendation comes from testing, not loyalty: boldest riso texture, the strongest character lock from the reference sheet, honors 16:9 — and the cheapest of the set. | $ |
-| Nano Banana 2 (`google/gemini-3.1-flash-image-preview`) | The dependable fallback: fast, the most reliable label text, publicly catalogued. | $ |
-| Nano Banana Pro (`google/gemini-3-pro-image-preview`) | Richest detail — worth it for hero images. | $$ |
-| Microsoft MAI 2.5 (`microsoft/mai-image-2.5`) | Clean look, lighter grain. | $$ |
-| GPT-5.4 Image 2 (`openai/gpt-5.4-image-2`) | Strong instruction-following, but pricey and tends to return square regardless of the requested aspect. | $$$ |
+| **Grok Imagine** — *default* | The recommendation comes from testing, not loyalty: boldest riso texture, the strongest character lock from the reference sheet, honors 16:9 — and the cheapest of the set. | $ |
+| Nano Banana 2 | The dependable fallback: fast, the most reliable label text, publicly catalogued. | $ |
+| Nano Banana Pro | Richest detail — worth it for hero images. | $$ |
+| Microsoft MAI 2.5 | Clean look, lighter grain. | $$ |
+| GPT-5.4 Image 2 | Strong instruction-following, but pricey and tends to return square regardless of the requested aspect. | $$$ |
 
 Worth knowing:
 
 - **The Grok default is API-reachable but not in OpenRouter's public model
   list** — it works for accounts with access. If a render 404s with "no
-  endpoints found", the skill falls back to Nano Banana 2.
+  endpoints found", the skill knows to fall back to Nano Banana 2.
 - Any other OpenRouter **image-output** model works too — name it in the
   request ("use Nano Banana Pro for the hero") and the skill maps it. Ask
   for a model comparison and it renders the same prompt across models into

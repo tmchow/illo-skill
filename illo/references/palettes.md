@@ -3,7 +3,7 @@
 The risograph technique is the constant identity; the palette is a swappable
 parameter. Every palette obeys the same color grammar from `visual-style.md`:
 **structure ink** (darker) + **accent ink** (brighter) on **paper**, with an
-optional secondary accent. Whatever path you take, finish with concrete hex
+optional secondary accent. Whatever the path, finish with concrete hex
 values to put in the prompt.
 
 ## Default resolution (first match wins)
@@ -83,5 +83,5 @@ emerald", a hex), derive the rest by rule instead of picking a preset.
 ### Caveat
 
 The model approximates hexes (close, not pixel-exact). The QA step eyedrops the
-output vs the target and re-rolls if off; for flat riso fills you may also snap
-colors to exact hex in post.
+output vs the target and re-rolls if off; for flat riso fills, snapping
+colors to exact hex in post also works.
