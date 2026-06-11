@@ -27,7 +27,7 @@ its style's file** — everything else here still applies.
   halftone density, and flat-vs-dimensional treatment stay consistent — an
   outlier re-rolls with the set's style anchor (a QA-passed set member) as a
   second `--ref`.
-- A fresh metaphor — not a copy of an `assets/examples/` composition.
+- A fresh metaphor — not a copy of a calibration example's composition.
 - **Mini-comics**: 2–4 panels, one action per panel, the same mascot and key
   object in every panel, clear left-to-right reading, ≤1 short label per panel.
 

@@ -52,7 +52,7 @@ look cut, not typeset.
 - Slight off-register accent is correct — don't "fix" it.
 - ≤2 accent elements beyond the character's accent part.
 
-Calibration example: `assets/examples/styles/woodcut-minicomic.png` — study it for line/texture
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/illo/examples/styles/woodcut-minicomic.png — study it for line/texture
 and restraint; never copy its composition.
 
 Variant note: when deriving a woodcut pack from a riso character, the

@@ -5,12 +5,12 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.8.0
+version: 0.9.0
 author: Trevin Chow
 license: MIT
 metadata:
   hermes:
-    tags: [illustration, riso, image-generation, blog, editorial, mascot]
+    tags: [illustration, riso, image-generation, editorial, mascot, openrouter]
     category: creative
     requires_toolsets: [terminal]
   openclaw:
@@ -19,13 +19,6 @@ metadata:
     os: [macos, linux]
     requires:
       bins: [python3]
-    envVars:
-      - name: OPENROUTER_API_KEY
-        required: true
-        description: >-
-          OpenRouter API key used by scripts/illo.py to call the image model
-          (any OpenRouter image model via --model).
-          May instead be stored in the user config via `illo.py init`.
 ---
 
 # Illo
@@ -66,26 +59,27 @@ infographic, not a flowchart, not a UI mockup.
 ## Prerequisites
 
 - **An OpenRouter API key.** Generation goes straight to OpenRouter's image API
-  via `scripts/illo.py` (stdlib Python, no installs). The key resolves as
-  `--api-key` > `$OPENROUTER_API_KEY` > the user config file. The env var is
-  preferred (runtime-native); the config file is an optional convenience.
+  via `scripts/illo.py` (stdlib Python, no installs). The key lives in the
+  user's config file, written once by `init` (mode 600); resolution is
+  `--api-key` > the config file. The engine never reads secrets from the
+  environment.
 - **`python3`** and network access. Nothing else to install.
 - The engine is **model-selectable** (`--model`); the default renders English
   labels reliably and honors a reference image for character consistency.
 
 ### Setup is the user's job (never enter the key yourself)
 
-Entering an API key is something the **user** does. Do not type, paste, or write
-the user's key — direct them to bootstrap it:
+Entering an API key is something the **user** does. Do not type, paste, print,
+or store the user's key — direct them to bootstrap it:
 
 - **Bootstrap (user runs it):** `python3 "$SKILL_DIR/scripts/illo.py" init` —
-  prompts for the key at a hidden prompt (never echoed) and writes the optional
+  prompts for the key at a hidden prompt (never echoed) and writes the
   YAML config `${XDG_CONFIG_HOME:-~/.config}/illo/config.yaml` (mode 600). It
   can also store non-secret defaults: `--model`, `--palette`, `--aspect`,
-  `--character`, `--watermark`. Use `--no-key` to set only preferences and
-  leave the key to the env var. (The config file is read via
-  PyYAML; without it the file is ignored and the tool runs from env var + flags,
-  so generation stays install-free.)
+  `--character`, `--watermark`. Use `--no-key` to update preferences without
+  touching the stored key. (The config file is read via PyYAML — install it
+  with `python -m pip install 'PyYAML==6.0.2'` if absent; without it the
+  file is ignored and the tool runs from `--api-key` + flags.)
 - **Non-secret prefs may be seeded** for the user with the same command and
   `--no-key`, but the key itself is theirs to enter.
 
@@ -104,11 +98,12 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
 
-`assets/character-reference.png` is the default character's canonical model
+`assets/character-reference.jpg` is the default character's canonical model
 sheet — the consistency anchor (used by the engine, below); a custom pack
-brings its own. `assets/examples/` are style-calibration samples only: study
-line density, negative space, and accent restraint. **Never copy their
-compositions** — invent a fresh metaphor for the current piece.
+brings its own. Style-calibration examples are **not bundled** — each style
+file links its own by URL (fetch when needed): study line density, negative
+space, and accent restraint. **Never copy their compositions** — invent a
+fresh metaphor for the current piece.
 
 ## Workflow
 
@@ -128,8 +123,8 @@ It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists, and
 whether a key is found (without revealing it); exit 0 = ready. If the key is
 **missing**, stop and ask the user to run
-`python3 "$SKILL_DIR/scripts/illo.py" init` themselves (or to export
-`OPENROUTER_API_KEY`) — do not enter the key for them.
+`python3 "$SKILL_DIR/scripts/illo.py" init` themselves — do not enter the
+key for them.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
@@ -165,7 +160,7 @@ wins:
    shipped default when asked for by name, `blot`).
 2. **Config default** — `defaultCharacter` from the user config, if set.
 3. **Shipped default** — **Blot** (spec in `references/character.md`, model
-   sheet `assets/character-reference.png`).
+   sheet `assets/character-reference.jpg`).
 
 Once resolved, read the pack's `character.md` and use its prompt spec, value
 rules, and `reference.png` everywhere the default's would be used.
@@ -217,7 +212,7 @@ always match — no cross-style reference juggling.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/
-REF="$SKILL_DIR/assets/character-reference.png"   # or the active pack's reference.png
+REF="$SKILL_DIR/assets/character-reference.jpg"   # or the active pack's reference.png
 
 python3 "$SKILL_DIR/scripts/illo.py" generate \
   --prompt-file /tmp/shot-01.txt \
