@@ -11,7 +11,6 @@ as `--model`. Don't make the user remember the formal ids. Resolution is
 | "Nano Banana 2", "nano banana", "banana", "nb2" | `google/gemini-3.1-flash-image-preview` | safe catalogued fallback; fast, reliable text; 16:9 |
 | "Nano Banana Pro", "banana pro", "nb pro", "the pro one" | `google/gemini-3-pro-image-preview` | richest detail; honors 16:9 |
 | "GPT Image 2", "GPT image", "GPT-5.4 Image", "GPT-5.4 Image 2", "OpenAI image" | `openai/gpt-5.4-image-2` | strong instructions; pricey; tends square |
-| "Microsoft AI Image", "MAI Image", "Microsoft image", "MAI 2.5" | `microsoft/mai-image-2.5` | clean, lighter grain; honors 16:9 |
 
 Translating:
 
@@ -27,6 +26,12 @@ Translating:
   modality automatically. A 404 on *modalities* even after that retry means the
   id isn't an image model on OpenRouter (e.g. MiniMax M3) — drop it. Ids drift;
   if one 404s, this table is what to update.
+- **Reference-image format:** the bundled model sheet is **WebP**, accepted by
+  every model in the table. Some providers take only JPEG/PNG references —
+  Azure's image API (e.g. Microsoft MAI) rejects WebP, which is why MAI is not
+  in the lineup. If an off-table model errors with "Unsupported image file
+  type", that provider can't take the bundled sheet; tell the user rather
+  than converting the reference.
 - **Default note:** the default `x-ai/grok-imagine-image-quality` is best+cheapest
   in testing but is **not in OpenRouter's public `/models` list** — it works for
   accounts with access. If a generation 404s "no endpoints found", that account

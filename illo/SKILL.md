@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.10.0
+version: 0.11.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -98,7 +98,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
 
-`assets/character-reference.jpg` is the default character's canonical model
+`assets/character-reference.webp` is the default character's canonical model
 sheet — the consistency anchor (used by the engine, below); a custom pack
 brings its own. Style-calibration examples are **not bundled** — each style
 file links its own by URL (fetch when needed): study line density, negative
@@ -160,7 +160,7 @@ wins:
    shipped default when asked for by name, `blot`).
 2. **Config default** — `defaultCharacter` from the user config, if set.
 3. **Shipped default** — **Blot** (spec in `references/character.md`, model
-   sheet `assets/character-reference.jpg`).
+   sheet `assets/character-reference.webp`).
 
 Once resolved, read the pack's `character.md` and use its prompt spec, value
 rules, and `reference.png` everywhere the default's would be used.
@@ -212,7 +212,7 @@ always match — no cross-style reference juggling.
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/
-REF="$SKILL_DIR/assets/character-reference.jpg"   # or the active pack's reference.png
+REF="$SKILL_DIR/assets/character-reference.webp"   # or the active pack's reference.png
 
 python3 "$SKILL_DIR/scripts/illo.py" generate \
   --prompt-file /tmp/shot-01.txt \
