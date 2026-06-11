@@ -358,7 +358,10 @@ show them:
 
 - **Filesystem sessions** (IDE/terminal agents — Claude Code, Codex,
   Cursor): report each final's **absolute path** (the engine's JSON `.path`
-  is already absolute) and present the gallery for multi-image runs.
+  is already absolute) and present the gallery for multi-image runs. The
+  file on disk already *is* the original — never emit `[[as_document]]`
+  here: it's a Hermes gateway token, literal noise in any other runtime.
+  If the runtime has its own in-chat file delivery, use that.
 - **Chat sessions** (the user is on a messaging surface — Hermes over
   Telegram/Discord/WhatsApp, or any chat surface with lossy media delivery —
   and cannot open local files): a path alone is not a complete deliverable;
