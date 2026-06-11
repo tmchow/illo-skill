@@ -5,7 +5,7 @@ description: >-
   character performs the idea, in one of ten bundled print looks. Triggers
   only when the skill is directly invoked or "illo" is requested; never on
   generic illustrate / draw / make-an-image requests.
-version: 0.13.1
+version: 0.14.0
 author: Trevin Chow
 license: MIT
 metadata:
@@ -83,6 +83,24 @@ or store the user's key — direct them to bootstrap it:
   `watermark` need PyYAML: `python -m pip install 'PyYAML==6.0.2'`.)
 - **Non-secret prefs may be seeded** for the user with the same command and
   `--no-key`, but the key itself is theirs to enter.
+
+### Hermes Agent only: binary asset repair preflight
+
+Some Hermes versions corrupt binary files (the bundled character sheets) when
+installing multi-file skills from GitHub — text files survive, binaries don't,
+and a corrupted sheet silently breaks the character lock. **Under Hermes
+Agent**, run this once before first use (and whenever `doctor` reports
+`assets: CORRUPTED`):
+
+```bash
+bash ${HERMES_SKILL_DIR}/scripts/repair-hermes-assets.sh
+```
+
+It verifies every bundled binary against known-good SHA256 hashes
+(`assets/checksums.txt`) and re-downloads only mismatched files from pinned,
+immutable URLs — a no-op when everything checks out. Under Claude Code,
+Codex, OpenClaw, or any runtime that installs faithfully: skip this; `doctor`
+checks asset integrity everywhere and will say if repair is ever needed.
 
 ## Read these references as needed
 
@@ -230,7 +248,9 @@ structure + style + the active character's spec + resolved palette hexes +
 model sheet as `--ref` every time** — that reference conditioning is what
 keeps the mascot on-model; style and palette come from the prompt, so both
 stays swappable. A pack's sheet is born in its own style, so sheet and style
-always match — no cross-style reference juggling.
+always match — no cross-style reference juggling. (Under Hermes Agent, the
+asset-repair preflight above must have run before the first `--ref` use —
+a corrupted sheet conditions every render on garbage.)
 
 ```bash
 SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/

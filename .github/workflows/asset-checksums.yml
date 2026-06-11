@@ -1,0 +1,53 @@
+name: Asset checksums
+
+# Keeps illo/assets/checksums.txt (the manifest behind the Hermes binary-asset
+# repair preflight) in sync automatically: PRs that touch binary assets get a
+# regenerated manifest committed back to their branch; pushes to main verify
+# and fail loudly if anything slipped through.
+
+on:
+  pull_request:
+    paths:
+      - "illo/assets/**"
+      - ".github/scripts/regen_asset_checksums.py"
+  push:
+    branches: [main]
+    paths:
+      - "illo/assets/**"
+      - ".github/scripts/regen_asset_checksums.py"
+
+permissions:
+  contents: write
+
+jobs:
+  regen-on-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Regenerate manifest
+        run: python3 .github/scripts/regen_asset_checksums.py
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- illo/assets/checksums.txt; then
+            echo "manifest already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add illo/assets/checksums.txt
+          git commit -m "ci: regenerate illo asset checksums"
+          git push
+
+  verify-on-main:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify manifest is current
+        run: python3 .github/scripts/regen_asset_checksums.py --check

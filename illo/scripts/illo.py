@@ -319,6 +319,26 @@ def character_packs(cdir):
             if (d / "character.md").is_file()}
 
 
+def corrupted_assets():
+    """Bundled binary assets that no longer match the known-good hashes in
+    assets/checksums.txt — the signature of an installer that decoded
+    binaries as text (some Hermes versions do this on GitHub installs)."""
+    import hashlib
+    skill = pathlib.Path(__file__).resolve().parent.parent
+    manifest = skill / "assets" / "checksums.txt"
+    if not manifest.is_file():
+        return []
+    bad = []
+    for line in manifest.read_text().splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        expected, _pin, rel = line.split()
+        f = skill / rel
+        if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest() != expected:
+            bad.append(f)
+    return bad
+
+
 def cmd_doctor(args):
     """Preflight. Reports readiness without revealing the key; exits non-zero if not ready."""
     cfg = load_config()
@@ -352,12 +372,20 @@ def cmd_doctor(args):
         lines.append(f"styles: {', '.join(user_styles)} (custom looks in {cdir / 'styles'})")
     if (cdir / "palettes.md").exists():
         lines.append(f"palettes: custom file ({cdir / 'palettes.md'})")
+    bad = corrupted_assets()
+    if bad:
+        skill_dir = pathlib.Path(__file__).resolve().parent.parent
+        names = ", ".join(str(f.relative_to(skill_dir)) for f in bad)
+        lines.append(f"assets: CORRUPTED ({names}) — reinstall the skill, or run: "
+                     f"bash {skill_dir / 'scripts/repair-hermes-assets.sh'}")
+    else:
+        lines.append("assets: OK")
     if key_src:
         lines.append(f"api key: found ({key_src})")
     else:
         lines.append(f"api key: MISSING — run: {PROG} init")
     print("\n".join(lines))
-    sys.exit(0 if key_src else 1)
+    sys.exit(0 if key_src and not bad else 1)
 
 
 def cmd_newrun(args):
