@@ -39,9 +39,38 @@ spells out each panel — the model needs the panel structure stated explicitly:
 Composition (mini-comic, {2–4} panels in ONE image, read left to right, separated by clear gutters or thin hand-drawn panel borders): Panel 1 — {the mascot's action}. Panel 2 — {the same mascot and the same key object, one step further}. Panel 3 — {the payoff}. The SAME mascot and the SAME key object appear in every panel, identical design and palette, so it reads as one moment advancing. One action per panel; at most one short label per panel.
 ```
 
+## Explainer variant
+
+When the shot list declared the **explainer register** (`composition.md`,
+"The explainer register"), replace the Composition and LABELS lines with the
+two below — CHARACTER, LINE LANGUAGE, STYLE, and PALETTE are unchanged, so
+the structure is drawn in the active look. Resolve the semantic ink hexes
+(flow, warning) from `palettes.md` first.
+
+Hex values live in the PALETTE line ONLY — extend it with the semantic-role
+sentence shown below. Never put a hex inside the Composition or CALLOUTS
+lines: a hex adjacent to quoted callout text gets hand-lettered into the art
+as if it were a label. Refer to inks by role name ("the flow color"), exactly
+as the editorial LABELS line refers to "the structure-ink color". When the
+structure has a return/exception leg, state its direction twice — where it
+leaves and where it rejoins — or the model may flip the arrowhead.
+
+```text
+Composition (explainer — {structure type from composition.md}): a hand-built sketch-diagram of ONE structure: {the 3–5 stations/beats, each an invented physical object — what each is and what happens at it}. One main flow direction, {e.g. left to right}, drawn as simple hand-drawn arrows in the flow color{, plus one return leg: it leaves from {station}, travels {direction}, and rejoins at {station} — the arrowhead points at {station}}. The mascot is a WORKING PART of the structure — {its station/jam/sorter/hauler move} — never a presenter beside it. No title, no border, no grid, no legend, no formal flowchart boxes. The structure spans ~40–70% of the frame; keep ~35%+ of the canvas empty with one calm region.
+
+PALETTE: {the style's PALETTE line as usual, hexes here only}. Semantic roles: the flow arrows and the one flow note use the accent ink; {warning-role sentence per palettes.md when present}; everything else, including all callout text not named above, uses the structure ink.
+
+CALLOUTS: exactly {3–6} short hand-lettered English callouts — {"…", "…"} — each 1–4 words, each appearing EXACTLY ONCE, placed directly on the bare paper near what they name: station names in the structure-ink color, the one main-flow note in the flow color, at most one warning note in the warning color. Hand-letter ONLY these words — no other text, numbers, or color codes anywhere in the image. Never put callout text on a colored fill. No title bar, no type label, no logo.
+```
+
 ## Notes that keep it on-style
 
 - One idea, one structure. Never combine images.
+- Reference conditioning beats the PALETTE line for the character's accent
+  part: when the resolved accent differs from the hue on the pack's model
+  sheet, say so inside the CHARACTER block — "the {accent part} uses THIS
+  palette's accent, even if the reference sheet shows a different hue" —
+  or the sheet's color wins. Check it at QA either way.
 - Keep labels few and short; long text is where the model misspells.
 - Accent discipline: the character's accent part + 1–2 elements; the body is
   never "colored in" with the accent.

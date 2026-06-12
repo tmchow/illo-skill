@@ -4,6 +4,37 @@ One picture, one idea — turned into a single physical thing the mascot is
 caught doing, in a small slightly-wrong machine-world, with quiet space around
 it.
 
+## Two registers
+
+Every image is made in one of two registers. The methodology — thesis lock,
+shot list, load-bearing mascot, QA loop — is identical in both, and the look
+and palette stay whatever the character pack and `palettes.md` resolve; the
+register only sets which image grammar is allowed.
+
+- **Editorial** (the default) — one caught scene: a physical move on one or
+  two built objects, meaning implied, no diagram machinery. Everything in
+  "Turn the idea into a move" and the stagings below.
+- **Explainer** — a hand-built sketch-diagram: stations, one flow direction,
+  callouts — for when the reader must be able to *trace* the structure, not
+  just feel it. Rules in "The explainer register" below.
+
+Editorial wins every tie. Route an image to explainer only when:
+
+- **(a) the user asks for it** — "show the flow", "diagram the pipeline",
+  "map the steps", "make it traceable", "as an explainer"; or
+- **(b) the unit's locked thesis IS a traceable structure** — its point
+  lives in the stations and their connections (a pipeline with named
+  stages, a fan-out, a timeline, a loop, a layered stack), and one caught
+  moment would force the reader to take the structure on faith.
+
+A process that is merely *evidence* for a different lock stays editorial —
+the lock is the arbiter, exactly as in Source routing step 2. Genres that
+most often qualify: how-to / process and systems / architecture pieces.
+Opinions, quotes, launches, and anecdotes stay editorial: their theses are
+claims, not structures. Like the mini-comic, the explainer is a deliberate
+choice, never a fallback — and a set may mix registers (an editorial hero
+over explainer anchors is a natural article shape).
+
 ## Turn the idea into a move
 
 Start from the one sentence the picture has to land, then find the **physical
@@ -40,6 +71,55 @@ the image:
 Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
+
+## The explainer register
+
+One structure, drawn as a hand-built sketch the mascot is working inside —
+never a presenter beside a chart. The grammar editorial forbids (arrows,
+stations, a path) is the working material here; what stays forbidden is the
+*formal* version of it: no title, no border, no grid, no legend, no
+boxes-and-diamonds flowchart formality. The result must still read as one
+artist's hand-built drawing in the active look.
+
+Structure types — pick ONE (these are the explainer's stagings; an explainer
+shot-list row names one of these in its staging slot):
+
+- **A flow** — 3–5 stations left to right on one flow line; the
+  transformation is visible station to station.
+- **A fan-out / sort** — one source, the mascot routing, 2–4 labeled
+  destinations.
+- **A timeline** — one axis, 3–5 beats with short callouts; the order or
+  the spacing is the message.
+- **A loop / route** — a path with a few stops that visibly returns or
+  arrives; the return leg is drawn, not implied.
+- **A layer stack** — 3–4 informally stacked layers (hand-piled, never a
+  formal pyramid), the mascot building, carrying, or wedged under one.
+- **A system slice** — 3–5 connected parts of a system, the mascot
+  operating the one that matters.
+
+Budget (replaces the Restraint section's editorial numbers for this image):
+
+- **Stations ≤5**, each with a job a reader can name — a station that
+  explains nothing is clutter, and each is an invented physical thing in
+  the scene's world (a drawer cabinet, a press, a well — never a generic
+  rectangle).
+- **One main flow direction**, drawn as simple hand-drawn arrows in the
+  flow ink (semantic roles: `palettes.md`); at most one return or
+  exception leg.
+- **Callouts ≤6**, 1–4 short words each, hand-lettered directly on the bare
+  paper/ground near what they name — semantic ink roles per `palettes.md`,
+  never on a colored fill. Stations may be named; don't also caption them.
+- **The mascot is a working part** of the structure — a station, the jam,
+  the sorter, the hauler between stops — and passes the same load-bearing
+  test (`character.md`).
+- Negative space floor stays (≥ ~35%); the structure may spread wider than
+  an editorial subject (~40–70% of the frame) but keeps one calm region.
+- The fresh-metaphor rule applies unchanged: reinvent the structure's
+  objects per piece; never recycle a previous diagram.
+
+Sequence routing changes inside this register: a progression that would be a
+mini-comic in editorial is drawn as the flow itself here. Panels are
+editorial machinery — never mix panels and flow arrows in one image.
 
 ## Source routing (URLs, articles, threads, long posts) — before any prompt
 
@@ -183,6 +263,11 @@ hero decision. From here, the count and shape rules below take over.
 
 ## Picking the shape (single scene vs mini-comic vs separate images)
 
+Shape is an **editorial-register** decision — an explainer image's shape is
+its structure type (above). The anchor-count rules here apply to both
+registers; each anchor also picks its register by the gate in "Two
+registers" before picking a shape.
+
 For anything multi-image, decide in two passes, in order: **count first,
 shape second.** The count of images is the count of load-bearing anchors in
 the piece (the shot-list section below) — one image per anchor. Then each
@@ -220,10 +305,14 @@ them is a single "change" staging (one frame holding both states, or one
 state caught mid-action that implies the other), not a comic.
 
 Note that almost any sequence *can* be flattened into one frame — with
-arrows, numbered stations, a winding path, ghosted before-states. That
-machinery is exactly this style's forbidden register (the quality bar's
-flowchart/infographic fail). So the question is never "can it be one
-frame?" but what the flattening costs: one caught moment implies the arc
+arrows, numbered stations, a winding path, ghosted before-states. In the
+editorial register that machinery is forbidden (the quality bar's
+flowchart/infographic fail) — it is the explainer register's working
+grammar, but reaching for it does not reroute the image: a sequence whose
+point is a story beat (a turn, an accumulation, a felt build) is editorial
+business and stays panels-or-scene; only a thesis that is itself a
+traceable structure passes the register gate. So within editorial the
+question is never "can it be one frame?" but what the flattening costs: one caught moment implies the arc
 cleanly → single scene; the flattening would need diagram machinery or a
 second instance of the mascot → panels, each panel staying a simple one-move
 scene; the sequence needs more than 4 beats even as panels → depict the one
@@ -252,6 +341,8 @@ at most one short label per panel.
 ## Restraint
 
 - One idea, one staging; ≤3 short labels; leave a calm empty region.
+  (Explainer images swap these numbers for that register's budget, above —
+  everything else here applies to both registers.)
 - A few accent touches — never a colored-in scene.
 - Don't write the staging's name or any diagram-style title on the image.
 
@@ -275,7 +366,10 @@ and the never-pad rule. Per image:
 - **Idea** — the one sentence it lands: *this anchor's* own thesis-lock
   (Source routing step 2), what this section turns on — not a fragment of
   the piece summary. Each row is analyzed on its own terms.
-- **Staging** — which angle above
+- **Register** — editorial unless the row passes the explainer gate ("Two
+  registers"); say which, so the reader can challenge the call.
+- **Staging** — which angle above (editorial), or which structure type
+  (explainer)
 - **The mascot's move** — the physical action
 - **Object(s)** — the one or two built things
 - **Palette** — preset name or derived dominant

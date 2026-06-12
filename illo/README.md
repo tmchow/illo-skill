@@ -47,7 +47,7 @@ the bridge being rebuilt under live traffic:
 ![Zero downtime — rebuilding the bridge under live traffic](../_assets/illo/05-bridgeswap-ink-punch.png)
 
 One idea per image, the mascot *performing* the move rather than decorating
-it, at most three short hand-lettered labels — every render is held to that
+it, a few short hand-lettered labels — every render is held to that
 bar, and off-model results get re-rolled before you see them.
 
 ## Looks
@@ -212,6 +212,13 @@ openclaw skills install illo
 - **Mini-comics** — a process, a before→after, a fail→fix told in 2–4 panels
   inside one image. The best shape when a sequence belongs together — and for
   social, where one self-contained image beats a thread.
+- **Explainer diagrams** — when the point *is* the structure (a pipeline, a
+  fan-out, a timeline, a loop, a layered stack), ask for "the flow" or "an
+  explainer" and the same mascot and look draw it as a hand-built
+  sketch-diagram: stations, one flow direction, short color-coded callouts —
+  traceable, but never a PowerPoint flowchart. The scene stays the default;
+  the diagram register is opt-in or earned by content whose thesis is the
+  structure itself.
 - **Your own mascot** — the character builder interviews you (or starts from
   art you already have), pressure-tests the concept against the house
   guardrails, renders model-sheet candidates, and installs the winner as a

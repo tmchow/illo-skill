@@ -43,6 +43,23 @@ brand color → accent), record them as a named palette, and new art sits next
 to existing content without a hard visual break. If the site rebrands,
 re-extract the tokens; nothing else changes.
 
+## Semantic ink roles (explainer register only)
+
+Explainer images (`composition.md`, "The explainer register") give each ink
+a job on top of the same color grammar. Resolve the palette normally first,
+then map — semantic roles spend the inks the palette already has; they never
+add new ones:
+
+- **Structure** — stations, the mascot, station names: the structure ink.
+- **Flow** — the main direction's arrows + the one flow note: the accent ink.
+- **Warning** — at most ONE trap/failure note: the secondary accent when the
+  palette has one; otherwise reuse the accent **and** drop the flow arrows
+  to structure ink — one ink never carries two jobs in the same image.
+- **Aside** — any remaining secondary note: structure ink.
+
+A style file may remap these in its palette mapping (e.g. blueprint draws
+flow in its accent on the deep ground); the restraint rules are unchanged.
+
 ## Derive a palette from one dominant color
 
 When the user gives an arbitrary dominant color **C** (a brand color, "make it
