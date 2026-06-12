@@ -61,9 +61,18 @@ its style's file** — everything else here still applies.
     instances are where these errors drift in most.
 - **Value matches the palette**: in light palettes the body is light with
   structure-ink (not pure-black) features — not a heavy dark blob.
-- One core idea, one structure. Subject large (~50–70%), ≥35% negative space.
+- One core idea, one structure. Subject large (~50–70%; explainer images may
+  spread ~40–70%), ≥35% negative space.
 - **Labels**: ≤3, short, correctly spelled, structure-ink on bare paper — never
-  on a colored fill.
+  on a colored fill. (Explainer images use that register's callout budget
+  instead — next bullet.)
+- **Explainer register** (only when the shot list declared it): exactly one
+  structure type; ≤5 stations, each with a nameable job; ONE main flow
+  direction plus at most one return/exception leg; ≤6 short callouts,
+  correctly spelled, on bare paper in the semantic ink roles
+  (`palettes.md`); the mascot is a working part of the structure, not a
+  presenter beside it; still hand-built — no title, border, grid, legend,
+  or vector-formal boxes.
 - **Accent discipline**: accent on the character's accent part + 1–2 elements
   only; the body and background are not colored-in with the accent.
 - Unified line language across mascot and props (one artist).
@@ -80,8 +89,21 @@ its style's file** — everything else here still applies.
 - A title bar / type label ("Workflow", "System Diagram", "Roadmap") anywhere → edit it out.
 - Mascot reads as a sticker/cute-cartoon, or shows face details its locked
   design doesn't name (for house-face packs: any mouth/eyebrows/shiny eyes) → re-roll.
-- Looks like a slide, infographic, flowchart, or formal diagram → re-roll simpler.
-- Too many objects/arrows/nodes; text became sentences → cut to one action + ≤3 labels.
+- Looks like a slide, infographic, flowchart, or formal diagram → re-roll
+  simpler. (In the explainer register the fail is *formality* — vector-clean
+  boxes, a legend, a grid, a boxed title — not the presence of arrows and
+  stations; redraw hand-built, don't strip the structure.)
+- Too many objects/arrows/nodes; text became sentences → editorial: cut to
+  one action + ≤3 labels; explainer: cut to ≤5 stations + ≤6 callouts, one
+  flow direction.
+- An explainer's arrows run in multiple directions, or a station has no
+  nameable job → cut legs/stations until the structure traces cleanly.
+- A callout appears twice, stray text/numbers/a hex code is lettered into
+  the art, or a return leg's arrowhead points the wrong way → edit out if
+  small, else re-roll (and check the prompt kept hexes out of the CALLOUTS
+  line). The flow arrows must actually wear the flow ink — reference-sheet
+  conditioning can drag the accent back to the character sheet's hue;
+  off-palette accents re-roll or snap in post.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
 - A line passes through the mascot's body, a limb roots wrong / is
@@ -100,6 +122,9 @@ its style's file** — everything else here still applies.
 - Too cute → strip face details the locked design doesn't name (the house
   deadpan resists this best), not a sticker.
 - Too "diagram" → drop titles/borders/grids; redraw as a hand-built scene.
+  If an editorial image keeps wanting arrows back, re-check the register
+  gate (`composition.md`, "Two registers") before stripping — the thesis
+  may be a structure that belongs in the explainer register.
 - Too similar to an example → keep the idea, swap the object and the action.
 
 ## Delivery test

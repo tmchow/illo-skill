@@ -59,12 +59,16 @@ is crisp, the image fails. Redraw everything in the mascot's line.
 ## Hard don'ts
 
 - No photorealism, no 3D render, no glossy vector, no corporate flat-illustration.
-- No PowerPoint/infographic/flowchart look; no formal diagram grids.
+- No PowerPoint/infographic/flowchart look; no formal diagram grids. (An
+  **explainer-register** image may use hand-drawn arrows and stations —
+  `composition.md`, "The explainer register" — but never the formal look:
+  no titles, borders, grids, legends, or vector boxes in any register.)
 - No cute-cartoon-poster, children's-book, sticker-pack, or emoji vibe.
 - No complex backgrounds, gradients, drop shadows, paper-fold/3D-paper effects.
 - No title bar or type label ("Workflow", "System Diagram", etc.) anywhere on
   the image. Let the scene speak.
-- No dense explanation: one core idea per image, ≤3 short labels.
+- No dense explanation: one core idea per image, ≤3 short labels
+  (explainer register: that register's callout budget instead).
 
 ## Aesthetic target
 

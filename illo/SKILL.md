@@ -2,10 +2,12 @@
 name: illo
 description: >-
   Creates original editorial illustrations where a recurring mascot
-  character performs the idea, in one of ten bundled print looks. Triggers
-  only when the skill is directly invoked or "illo" is requested; never on
-  generic illustrate / draw / make-an-image requests.
-version: 0.18.0
+  character performs the idea — one caught scene by default, or a
+  hand-built explainer diagram (a flow, fan-out, timeline, loop, or stack)
+  when the structure itself is the point — in one of ten bundled print
+  looks. Triggers only when the skill is directly invoked or "illo" is
+  requested; never on generic illustrate / draw / make-an-image requests.
+version: 0.19.0
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
@@ -28,7 +30,12 @@ Make original, distinctive editorial illustrations for written content. One
 image explains one idea: a key judgment, a flow, a before/after, a trap, a
 loop. A **recurring mascot** is the one performing the idea in every scene —
 the subject, never decoration. When one idea advances through stages, it can
-be a **mini-comic**: 2–4 panels inside a single image.
+be a **mini-comic**: 2–4 panels inside a single image. And when the idea is
+itself a traceable structure — a pipeline, a fan-out, a timeline, a loop —
+it can be an **explainer**: the same mascot and look drawing the structure
+as a hand-built sketch-diagram with arrows and callouts
+(`references/composition.md`, "Two registers"; editorial scene is always
+the default).
 
 This is a configurable house style, not a generic image generator. The
 **methodology is the constant**; the **character pack and palette are the
@@ -40,7 +47,7 @@ gouache) or a custom style file. The default mascot is
 **Blot**, a deadpan ink-drop in riso. Palettes come
 from presets, the user's own palette file, or one derived color. Whatever the
 parameters, it is intentionally not a photo, not a logo, not a corporate
-infographic, not a flowchart, not a UI mockup.
+infographic, not a formal flowchart, not a UI mockup.
 
 ## Use cases — route the request
 
@@ -49,6 +56,7 @@ infographic, not a flowchart, not a UI mockup.
 | **Illustrate an article / post / newsletter / URL** | Steps 0–7: route the source first (thesis → coverage: hero / hero+set / set / mini-comic — `references/composition.md`, "Source routing"), then shot list (hero row + anchors), one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
+| **A traceable structure** — "show the flow", "diagram the pipeline", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "The explainer register"): a hand-built flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
 | **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
@@ -113,7 +121,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
-- `references/composition.md` — stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
+- `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
 - `references/models.md` — the model lineup: friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
@@ -234,8 +242,10 @@ install first, then continue here.
 
 If the user wants planning ("where should this be illustrated", "shot list"),
 output a shot list before generating. Per image: placement, the one idea,
-the staging, **what the mascot is doing**, the palette, and the 1–3 short
-English labels. Let the anchor count drive how many (bands and the never-pad
+the register (editorial unless the row passes the explainer gate), the
+staging (or structure type), **what the mascot is doing**, the palette, and
+the short English labels (per-register budgets in
+`references/composition.md`). Let the anchor count drive how many (bands and the never-pad
 rule are in `references/composition.md`). When a stretch of the piece advances
 through stages **in one place**, plan a single mini-comic image there instead
 of several — the mini-comic-vs-separate routing is in
