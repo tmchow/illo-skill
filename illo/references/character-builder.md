@@ -28,14 +28,29 @@ an existing mascot drawing, logo, or sketch — use it: pass it as `--ref` in
 step 4 so the candidates stay close to the original while the prompt
 translates it into the house line language.
 
+**The face is deliberately not an interview question.** The house face — two
+dot eyes, blank deadpan, no mouth, no brows — is the catalog's family look
+and the most render-stable choice: apply it by default without asking. But
+it is a default, not a rule. If the user asks for something else (a mouth,
+brows, a different body plan, a body built from a material), accommodate
+them — `character.md`'s locked-face and locked-treatment rules say how:
+exact render-checkable terms, never moods — and say the trade-offs out loud:
+more facial detail means more drift and harder QA, and designs that diverge
+from the house family face a higher review bar if published to the
+community catalog.
+
 ## 2. Pressure-test the concept before rendering
 
 Work through the anti-complexity guardrails in `character.md` one by one and
 push back early:
 
-- A concept that needs text, patterns, clothing, or multiple distinctive
-  parts to read as itself will drift off-model across renders — simplify it
-  or pick a different object.
+- A concept that needs text or many distinctive parts to read as itself will
+  drift off-model across renders — simplify it or pick a different object.
+  Accessories (a hat, a tool, a pattern) are allowed but each must be locked
+  in the spec and survive every render; every part is a drift liability.
+- A face beyond the deadpan default must be specified in render-checkable
+  terms — exact shapes, not moods. "Smiling warmly" drifts; "a thin flat
+  structure-ink mouth" locks.
 - Does the silhouette stay readable at thumbnail size?
 - Is it distinct from a visual cliché the reader already knows (a generic
   file icon, an emoji, a famous mascot)? Collisions read as borrowed IP.
@@ -57,16 +72,16 @@ Style: **{look name — riso if unset}**
 ## Locked design
 
 - **Body**: {the one silhouette, in concrete geometric language}.
-- **Face**: two simple dot eyes, blank deadpan — no eyebrows, no mouth, ever.
+- **Face**: {the locked face — house default: two simple dot eyes, blank
+  deadpan, no eyebrows, no mouth}.
 - **Accent carrier**: {the one accent part} — the only accent-colored part.
-- Small stubby arms and legs.
+- {limbs — house default: small stubby arms and legs}.
 
 ## Prompt spec (drop into the CHARACTER slot)
 
-> the recurring mascot — {body description}, two simple dot eyes, blank
-> deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
-> accent-colored part is {the accent part}. It MUST perform the move, not
-> decorate. {value rule, from the next section}
+> the recurring mascot — {body description}, {the locked face spec},
+> {limbs}; the ONLY accent-colored part is {the accent part}. It MUST
+> perform the move, not decorate. {value rule, from the next section}
 
 ## Value rules
 
@@ -78,7 +93,8 @@ Style: **{look name — riso if unset}**
 ## Personality
 
 {Default: an earnest, low-key operator doing something slightly absurd with a
-straight face. Adjust wording, never the deadpan.}
+straight face. Adjust freely — keep it consistent with the locked face, and
+let the move, not the expression, carry the idea.}
 ```
 
 ## 4. Generate model-sheet candidates
@@ -94,11 +110,11 @@ editorial mascot, on a plain empty paper background — no scene, no props, no
 labels, no text anywhere.
 
 CHARACTER — "{name}", {what it is}: {the prompt spec paragraph from step 3}.
-Cuteness comes from proportion and roundness only — no extra parts, no
-accessories, no face details beyond the two dot eyes.
+Cuteness comes from proportion and roundness only — no parts, accessories,
+or face details beyond the locked spec.
 
 POSE: one large clean front-facing full-body view, centered, occupying about
-60% of the frame, standing neutral with arms relaxed at the sides.
+60% of the frame, standing neutral, limbs relaxed.
 
 LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (a clean
 vinyl-sticker line), nothing thin or scratchy.
@@ -116,8 +132,9 @@ non-riso look, substitute the style file's LINE LANGUAGE and STYLE blocks and
 its classic-default palette into the template above — the sheet must be born
 in the pack's style.)
 
-QA each candidate against the guardrails in `character.md`: deadpan (no
-mouth/brows), no extra parts, one accent part only, silhouette reads at small
+QA each candidate against the guardrails in `character.md`: the locked face
+exactly (house default: deadpan, no mouth/brows), no unlocked parts, locked
+treatments read in aggregate, one accent part only, silhouette reads at small
 size. Reject before showing, and tell the user why a concept was re-rolled.
 Iterate at most ~2 rounds; if a concept keeps drifting, that is the concept's
 fault — return to step 2.

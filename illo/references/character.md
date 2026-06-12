@@ -10,21 +10,41 @@ shipped default, **Blot**, and the custom-pack format that replaces it.
 ### Anti-complexity guardrails
 
 The fastest way to ruin a recurring character is detail creep. A character is
-exactly four things, and nothing else:
+a small set of **locked** choices, and nothing else:
 
-- **One simple silhouette** — a single soft geometric body, readable at any
-  size. Cuteness comes from proportion and roundness, never from added parts.
-- **Two dot eyes, blank deadpan** — no eyebrows, no mouth, no shiny/anime
-  eyes, ever. The straight face is the house personality.
-- **Stubby arms and legs** — enough to perform a move, no hands or detail.
+- **One simple silhouette** — one body shape that reads at any size (the
+  house default favors a single soft geometric form; cuteness comes from
+  proportion and roundness, never from added parts). Bipedal is the default,
+  not a rule — a quadruped or other body plan is fine if the outline stays
+  simple and the character can still perform a move.
+- **A locked face** — the face is the pack author's choice, but it must be
+  **exactly specified** and identical in every render. The house default —
+  two dot eyes, blank deadpan, no eyebrows, no mouth — is the most
+  drift-resistant face there is; a mouth, brows, or another simple face is
+  fine when the locked design pins it down in render-checkable terms ("a
+  thin flat structure-ink mouth", not "a friendly smile"). Faces are where
+  renders drift first: every extra feature is a consistency cost.
+- **Simple limbs** — enough to perform a move (house default: small stubby
+  arms and legs, no hands or detail).
 - **ONE accent carrier** — a single small part that takes the palette's accent
   color (a tip, a fold, an antenna ball). Everything else is structure ink or
-  paper.
+  paper. Unlike the face and limbs, this is **not a per-pack choice** — the
+  palette system and the accent-discipline QA check depend on exactly one.
 
-Never add: panels, seams, bolts, gauges, UI, text or expressions on the body,
-hats, clothing, accessories, extra appendages. If a render adds any of these,
-re-roll. Simpler is more on-model and more reproducible — and a concept that
-*needs* extra parts or text to read as itself will not survive generation.
+**Nothing unlocked appears.** Panels, seams, bolts, gauges, UI, text on the
+body, hats, clothing, accessories, extra appendages — allowed only when the
+locked design names them explicitly, and then they must appear in every
+render. If a render adds a part the spec doesn't have, re-roll; if renders
+keep dropping or mutating a locked part, the design has too many parts —
+simplify. A concept that *needs* many parts or text to read as itself will
+not survive generation.
+
+A body **material** (built from paperclips, bricks, yarn) is a *treatment*,
+not a part: lock the material and how it reads ("a donkey built of
+interlocking oversized paperclips"), then judge consistency **in aggregate**
+— every render must read as that material at a glance, but individual units
+may shift run to run the way hatching does. Locked parts are checked
+one-by-one; locked treatments are checked as a whole.
 
 ### Value-follows-palette (critical)
 
@@ -49,8 +69,11 @@ it.
 
 ### Personality
 
-An earnest, low-key operator doing something slightly absurd with a straight
-face. Calm, deadpan, competent, never zany or cute-for-cute's-sake.
+The house default: an earnest, low-key operator doing something slightly
+absurd with a straight face — calm, deadpan, competent, never zany or
+cute-for-cute's-sake. A pack may define its own personality; whatever it is,
+keep it consistent, and remember the idea is carried by the **move**, not the
+face — expression is seasoning, never the message.
 
 ### Naming
 

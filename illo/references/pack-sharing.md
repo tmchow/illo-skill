@@ -72,7 +72,11 @@ SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
 3. **Add the pack:** copy `character.md` + `reference.png` from the local
    pack and `preview.png` into `packs/<name>/`; add a `Credit:` line to
    `character.md` if missing. Append an entry to `index.json` (`name`,
-   `author`, `version`, `description`) and a row to the README catalog table.
+   `author`, `version`, `description`, `style` — the pack's look, matching
+   its `Style:` line; catalog packs must use a **bundled** look, a custom
+   style can't ship in a pack) and a row to the README catalog table
+   (copy an existing row's format). The clone's own `AGENTS.md` documents
+   all four edit points — follow it if anything here disagrees.
 4. **Validate:** `python3 .github/validate.py` from the repo root — fix
    anything it flags (CI runs the same check on the PR).
 5. **Commit, push, open the PR** with both images embedded so review takes
@@ -86,6 +90,10 @@ SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
    | Model sheet | In action |
    |---|---|
    | ![model sheet](https://raw.githubusercontent.com/<fork-owner>/illo-characters/add-<name>/packs/<name>/reference.png) | ![preview](https://raw.githubusercontent.com/<fork-owner>/illo-characters/add-<name>/packs/<name>/preview.png) |
+
+   <Only if the design diverges from the house family look (a mouth, a
+   different body plan, a material body): one line naming what diverges
+   and why it is deliberate — divergent packs get the closer review.>
    ```
 
    Write the body to a file and use `gh pr create --title "feat: add <name>
