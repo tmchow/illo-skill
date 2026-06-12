@@ -75,8 +75,8 @@ SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
    `author`, `version`, `description`, `style` — the pack's look, matching
    its `Style:` line; catalog packs must use a **bundled** look, a custom
    style can't ship in a pack) and a row to the README catalog table
-   (copy an existing row's format). The clone's own `AGENTS.md` documents
-   all four edit points — follow it if anything here disagrees.
+   (copy an existing row's format). If the character-pack repository includes
+   contributor instructions, follow those for the current catalog layout.
 4. **Validate:** `python3 .github/validate.py` from the repo root — fix
    anything it flags (CI runs the same check on the PR).
 5. **Commit, push, open the PR** with both images embedded so review takes
