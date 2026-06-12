@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="_assets/illo/logo/illo-logo.png" alt="illo logo — a small screen-faced robot with a pink antenna" width="170" />
+</p>
+
 # illo
 
 Generate original print-style **editorial illustrations** for articles and
@@ -10,12 +14,38 @@ and reference-image character consistency. Calls OpenRouter's image API
 directly (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
 Image 2, …).
 
+Hand it *"we replatform with zero downtime"* and you get the bridge being
+rebuilt under live traffic:
+
+![Zero downtime — rebuilding the bridge under live traffic](_assets/illo/05-bridgeswap-ink-punch.png)
+
 > **🌐 [illo-skill.com](https://illo-skill.com)** — live examples, the
 > character gallery, and copy-paste installs.
 
 The skill itself lives in [`skills/illo/`](skills/illo/) — its
 [README](skills/illo/README.md) is the full developer reference
 (prerequisites, API-key setup, models & cost, everything below in detail).
+
+Same idea, different voice — four of the ten bundled looks:
+
+<table>
+  <tr>
+    <td><img src="_assets/illo/02-funnel-ink-punch.png" alt="riso look" /></td>
+    <td><img src="_assets/illo/styles/clay-rootcause.png" alt="clay look" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>riso</strong> — the house default</td>
+    <td align="center"><strong>clay</strong> — stop-motion plasticine</td>
+  </tr>
+  <tr>
+    <td><img src="_assets/illo/styles/phosphor-spike.png" alt="phosphor look" /></td>
+    <td><img src="_assets/illo/styles/blueprint-crossing.png" alt="blueprint look" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>phosphor</strong> — CRT trace on glass</td>
+    <td align="center"><strong>blueprint</strong> — draftsman linework</td>
+  </tr>
+</table>
 
 ## Install
 
