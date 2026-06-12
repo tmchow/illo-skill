@@ -9,8 +9,8 @@ copies it into every plugin manifest that carries a version field:
   .cursor-plugin/plugin.json   (Cursor)
   gemini-extension.json        (Gemini CLI)
 
-(.claude-plugin/marketplace.json deliberately carries no plugin version —
-the plugin manifest governs.)
+plus the illo entry in .claude-plugin/marketplace.json (Claude Code shows
+and updates against the marketplace entry's version).
 
 Run with --check to verify everything is in lockstep (exit 1 if not).
 The publish workflow tags releases v<version>, which is what Copilot's
@@ -43,17 +43,24 @@ def skill_version():
     sys.exit(f"ERROR: no version: in {SKILL_MD} frontmatter")
 
 
+MARKETPLACE = REPO / ".claude-plugin" / "marketplace.json"
+
+
 def main():
     version = skill_version()
     check = "--check" in sys.argv
     stale = []
-    for path in MANIFESTS:
+    for path in MANIFESTS + [MARKETPLACE]:
         data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("version") == version:
+        if path == MARKETPLACE:
+            target = next(p for p in data["plugins"] if p["name"] == "illo")
+        else:
+            target = data
+        if target.get("version") == version:
             continue
         stale.append(path.relative_to(REPO).as_posix())
         if not check:
-            data["version"] = version
+            target["version"] = version
             path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
                             encoding="utf-8")
     if check and stale:

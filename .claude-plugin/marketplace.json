@@ -11,8 +11,13 @@
   "plugins": [
     {
       "name": "illo",
-      "source": "./",
-      "description": "Original editorial illustrations where a recurring mascot performs the idea — ten bundled print looks, custom characters, palettes from your own site's colors."
+      "source": {
+        "source": "url",
+        "url": "https://github.com/tmchow/illo-skill.git"
+      },
+      "description": "Original editorial illustrations where a recurring mascot performs the idea — ten bundled print looks, custom characters, palettes from your own site's colors.",
+      "version": "0.21.0",
+      "strict": true
     }
   ]
 }

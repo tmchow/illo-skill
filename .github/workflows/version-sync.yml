@@ -10,6 +10,7 @@ on:
     paths:
       - "skills/illo/SKILL.md"
       - ".claude-plugin/plugin.json"
+      - ".claude-plugin/marketplace.json"
       - ".codex-plugin/plugin.json"
       - ".cursor-plugin/plugin.json"
       - "gemini-extension.json"
