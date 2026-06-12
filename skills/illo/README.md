@@ -198,6 +198,15 @@ From an interactive Hermes session:
 openclaw skills install illo
 ```
 
+### Platform plugins
+
+Prefer your platform's own package manager? The repo ships native plugin
+manifests for **Claude Code, Codex, Cursor, and Gemini CLI**, plus
+first-class **Copilot** support via `gh skill` — installs that receive
+managed updates. See the
+[repo README](https://github.com/tmchow/illo-skill#install) for the full
+install matrix.
+
 ## Use it for
 
 - **Article illustrations** — paste a post or doc; it finds the few

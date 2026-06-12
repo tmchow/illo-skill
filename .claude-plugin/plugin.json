@@ -1,0 +1,14 @@
+{
+  "name": "illo",
+  "displayName": "Illo",
+  "version": "0.21.0",
+  "description": "Original editorial illustrations where a recurring mascot performs the idea — ten bundled print looks, custom characters via a built-in character builder, palettes derived from your own site's colors. Ships the illo Agent Skill and its OpenRouter image engine.",
+  "author": {
+    "name": "Trevin Chow",
+    "url": "https://github.com/tmchow"
+  },
+  "homepage": "https://illo-skill.com",
+  "repository": "https://github.com/tmchow/illo-skill",
+  "license": "MIT",
+  "keywords": ["illustration", "editorial", "riso", "image-generation", "mascot"]
+}

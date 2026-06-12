@@ -1,0 +1,6 @@
+{
+  "name": "illo",
+  "version": "0.21.0",
+  "description": "Original editorial illustrations where a recurring mascot performs the idea — ten bundled print looks, custom characters, palettes from your own site's colors. Ships the illo Agent Skill and its OpenRouter image engine.",
+  "skills": "./skills"
+}

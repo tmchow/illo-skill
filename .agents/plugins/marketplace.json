@@ -1,0 +1,13 @@
+{
+  "name": "illo-skill",
+  "plugins": [
+    {
+      "name": "illo",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/tmchow/illo-skill"
+      },
+      "category": "creative"
+    }
+  ]
+}

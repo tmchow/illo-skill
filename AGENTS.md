@@ -186,6 +186,45 @@ consequences:
   `~/.config/illo/styles/<name>.md` works immediately for that user;
   promote it here once it proves out.
 
+## Plugin manifests and version lockstep
+
+The repo doubles as a native plugin/extension for the major runtimes. One
+skill, five manifests, one version:
+
+- `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` — Claude
+  Code. The repo is its own single-plugin marketplace (`illo@illo-skill`);
+  skills are auto-discovered from `skills/`.
+- `.codex-plugin/plugin.json` + `.agents/plugins/marketplace.json` — Codex.
+  Codex prefers `.agents/plugins/marketplace.json` (it can also read the
+  Claude marketplace for compat, but a Claude-style `"source": "./"` entry
+  is invalid there — Codex local sources must be `./<subdir>`, so a
+  repo-root plugin is only expressible as a git `"source": "url"` entry
+  with no `path`, which is exactly what the native file uses).
+- `.cursor-plugin/plugin.json` — Cursor. Native managed installs come only
+  through the review-gated Cursor Marketplace
+  (cursor.com/marketplace/publish); until the listing is approved, Cursor
+  users install via the generic skills CLI.
+- `gemini-extension.json` — Gemini CLI extension; skills auto-discovered
+  from `skills/`. (Google is migrating free-tier Gemini CLI users to
+  Antigravity CLI, which imports extensions as plugins — the manifest
+  remains the right artifact.)
+- Copilot needs **no manifest**: `gh skill` discovers `skills/*/SKILL.md`
+  directly, and the repo carries the `agent-skills` topic so
+  `gh skill search` finds it.
+
+**`skills/illo/SKILL.md` `version:` is the single source of truth.**
+`.github/scripts/sync_plugin_versions.py` copies it into every manifest;
+the `version-sync` workflow auto-syncs on PRs and verifies on main — bump
+the SKILL.md version and let CI fix the manifests (or run the script
+locally). On a successful publish, the ClawHub workflow also creates the
+`v<version>` git tag and GitHub release: that tag is what Copilot's
+`gh skill` resolves versions against and what Gemini CLI's release-based
+update detection watches. Never hand-create version tags.
+
+Before merging layout or manifest changes, validate with the real tools:
+`claude plugin validate .`, `gemini extensions validate .`, and
+`gh skill publish --dry-run`.
+
 ## Publishing to ClawHub
 
 Single-skill repo, so publishing is **unconditional on merge — gated only by

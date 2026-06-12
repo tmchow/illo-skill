@@ -1,0 +1,52 @@
+name: Plugin manifest versions
+
+# skills/illo/SKILL.md `version:` is the single source of truth; every plugin
+# manifest (.claude-plugin, .codex-plugin, .cursor-plugin, gemini-extension)
+# mirrors it. PRs that bump the skill version get the manifests synced
+# automatically; pushes to main verify and fail loudly if anything drifted.
+
+on:
+  pull_request:
+    paths:
+      - "skills/illo/SKILL.md"
+      - ".claude-plugin/plugin.json"
+      - ".codex-plugin/plugin.json"
+      - ".cursor-plugin/plugin.json"
+      - "gemini-extension.json"
+      - ".github/scripts/sync_plugin_versions.py"
+  push:
+    branches: [main]
+
+jobs:
+  sync-on-pr:
+    # Fork PRs can't be pushed to with GITHUB_TOKEN; verify-on-main still
+    # gates anything that slips through a fork.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Sync manifest versions
+        run: python3 .github/scripts/sync_plugin_versions.py
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "manifests already in sync"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "ci: sync plugin manifest versions with SKILL.md"
+          git push
+
+  verify-on-main:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Verify manifests are in sync
+        run: python3 .github/scripts/sync_plugin_versions.py --check

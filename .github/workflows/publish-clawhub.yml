@@ -20,7 +20,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # creates the v<version> tag + GitHub release on publish
 
     steps:
       - name: Checkout
@@ -48,6 +48,7 @@ jobs:
         env:
           MODE: ${{ github.event_name == 'workflow_dispatch' && 'strict' || 'skip-existing' }}
           CHANGELOG: ${{ inputs.changelog }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -90,3 +91,14 @@ jobs:
           npx -y clawhub@0.20.0 --no-input skill publish "$SKILL_DIR" \
             --slug "$SLUG" --version "$VERSION" --changelog "$changelog"
           echo "Published $SLUG@$VERSION"
+
+          # Tag the release: v<version> is what Copilot's `gh skill` resolves
+          # versions against and what Gemini CLI's release-based update
+          # detection watches. Created only when a new version just shipped.
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "::notice::Release v$VERSION already exists — skipping tag."
+          else
+            gh release create "v$VERSION" --target "$GITHUB_SHA" \
+              --title "illo v$VERSION" --notes "$changelog"
+            echo "Tagged and released v$VERSION"
+          fi
