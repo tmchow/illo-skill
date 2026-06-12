@@ -1,0 +1,156 @@
+name: Publish skills to ClawHub
+
+# Opt-in per skill, automatic per merge: pushes to main publish every skill
+# that (a) is listed in .github/clawhub-publishable.txt (the registry) and
+# (b) was touched by the push and (c) has a SKILL.md version that is new on
+# ClawHub. A touched skill without a version bump is skipped quietly so
+# docs-only merges stay green. Manual dispatch publishes one named skill and
+# is strict: an already-published version fails loudly.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: "Skill directory to publish (must be listed in .github/clawhub-publishable.txt)"
+        required: true
+        type: string
+      changelog:
+        description: "Changelog text (default: 'Publish <skill> <version> from <sha>')"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Determine target skills
+        id: targets
+        shell: bash
+        env:
+          INPUT_SKILL: ${{ inputs.skill }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          registry="$(grep -vE '^\s*(#|$)' .github/clawhub-publishable.txt)"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if ! grep -Fxq "$INPUT_SKILL" <<<"$registry"; then
+              echo "::error::'$INPUT_SKILL' is not opted in via .github/clawhub-publishable.txt — add it there (via PR) first."
+              exit 1
+            fi
+            if [ ! -f "$INPUT_SKILL/SKILL.md" ]; then
+              echo "::error::$INPUT_SKILL/SKILL.md not found"
+              exit 1
+            fi
+            echo "targets=$INPUT_SKILL" >> "$GITHUB_OUTPUT"
+            echo "mode=strict" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Push: opted-in skills touched in this push range. Defensive
+          # fallbacks (consider every opted-in skill) when the range can't be
+          # resolved — safe because the version-is-new check makes publishing
+          # idempotent.
+          range_ok=true
+          if [ -z "${BEFORE_SHA:-}" ] || [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            range_ok=false
+          elif ! git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null || ! git cat-file -e "$AFTER_SHA^{commit}" 2>/dev/null; then
+            range_ok=false
+          fi
+
+          targets=""
+          while IFS= read -r skill; do
+            [ -f "$skill/SKILL.md" ] || continue
+            if [ "$range_ok" = "false" ] || ! git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- "$skill"; then
+              targets="$targets $skill"
+            fi
+          done <<<"$registry"
+
+          targets="${targets# }"
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+          echo "mode=skip-existing" >> "$GITHUB_OUTPUT"
+          if [ -z "$targets" ]; then
+            echo "No opted-in skills changed in this push; nothing to publish."
+          else
+            echo "Candidates: $targets"
+          fi
+
+      - name: Set up Node
+        if: steps.targets.outputs.targets != ''
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Authenticate ClawHub CLI
+        if: steps.targets.outputs.targets != ''
+        env:
+          CLAW_TOKEN: ${{ secrets.CLAW_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CLAW_TOKEN:-}" ]; then
+            echo "::error::Missing CLAW_TOKEN repository secret"
+            exit 1
+          fi
+          npx -y clawhub@0.20.0 --no-input login --token "$CLAW_TOKEN"
+          npx -y clawhub@0.20.0 --no-input whoami
+
+      - name: Publish targets
+        if: steps.targets.outputs.targets != ''
+        env:
+          TARGETS: ${{ steps.targets.outputs.targets }}
+          MODE: ${{ steps.targets.outputs.mode }}
+          CHANGELOG: ${{ inputs.changelog }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for SKILL in $TARGETS; do
+            VERSION="$(python3 .github/scripts/skill_frontmatter_version.py "$SKILL")"
+            export VERSION
+
+            set +e
+            npx -y clawhub@0.20.0 --no-input inspect "$SKILL" --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
+            rc=$?
+            set -e
+
+            if [ "$rc" -ne 0 ]; then
+              if grep -qi "Skill not found" /tmp/clawhub-existing.err /tmp/clawhub-existing.json 2>/dev/null; then
+                state="new"
+              else
+                echo "::error::Could not inspect existing ClawHub versions for $SKILL"
+                cat /tmp/clawhub-existing.err || true
+                cat /tmp/clawhub-existing.json || true
+                exit "$rc"
+              fi
+            else
+              state="$(python3 .github/scripts/clawhub_version_state.py /tmp/clawhub-existing.json)"
+            fi
+
+            if [ "$state" = "exists" ]; then
+              if [ "$MODE" = "strict" ]; then
+                echo "::error::ClawHub version $VERSION already exists for $SKILL. Bump version: in $SKILL/SKILL.md before publishing."
+                exit 1
+              fi
+              echo "::notice::$SKILL $VERSION is already on ClawHub — skipping (bump version: in $SKILL/SKILL.md to ship a new release)."
+              continue
+            fi
+
+            changelog="${CHANGELOG:-}"
+            if [ -z "$changelog" ]; then
+              changelog="Publish $SKILL $VERSION from $GITHUB_SHA"
+            fi
+            npx -y clawhub@0.20.0 --no-input skill publish "$SKILL" \
+              --slug "$SKILL" --version "$VERSION" --changelog "$changelog"
+            echo "Published $SKILL@$VERSION"
+          done
