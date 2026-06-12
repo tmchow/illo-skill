@@ -28,13 +28,16 @@ its style's file** — everything else here still applies.
 - **The mascot is present and performs the move** (passes the load-bearing
   test in `character.md`) — not standing beside the idea.
 - **Mascot is on-model**: matches the active character's locked design (the
-  default Blot's in `character.md`, or the custom pack's) — two dot eyes,
-  blank deadpan (no brow, no mouth), one accent carrier, no added parts.
+  default Blot's in `character.md`, or the custom pack's) — the locked face
+  exactly (house default: two dot eyes, blank deadpan, no brow, no mouth),
+  every locked part present, locked treatments reading in aggregate, one
+  accent carrier, nothing the spec doesn't name.
 - **Structural integrity** — a separate axis from "on-model" (a body can be
   perfectly on-model and still be assembled wrong, so the identity check
   above will not catch this; scan for it deliberately). The one rule that
-  covers every case: **only the character's own design parts touch its
-  silhouette** — limbs, the accent carrier, nothing else. Everything else is
+  covers every case: **only the character's own locked design parts touch its
+  silhouette** — limbs, the accent carrier, locked accessories, nothing else.
+  Everything else is
   either *clearly held in a hand with visible separation from the body* or
   *resting in the scene* (on the table, the ground). Trace the outline and
   check the three ways that breaks:
@@ -75,7 +78,8 @@ its style's file** — everything else here still applies.
 ## Fail signals → fix
 
 - A title bar / type label ("Workflow", "System Diagram", "Roadmap") anywhere → edit it out.
-- Mascot reads as a sticker/cute-cartoon, or has a mouth/eyebrows/shiny eyes → re-roll.
+- Mascot reads as a sticker/cute-cartoon, or shows face details its locked
+  design doesn't name (for house-face packs: any mouth/eyebrows/shiny eyes) → re-roll.
 - Looks like a slide, infographic, flowchart, or formal diagram → re-roll simpler.
 - Too many objects/arrows/nodes; text became sentences → cut to one action + ≤3 labels.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
@@ -93,7 +97,8 @@ its style's file** — everything else here still applies.
 
 - Too plain → make the mascot the actor and add one strange-but-valid metaphor.
 - Too busy → delete nodes; keep one action and ≤3 labels.
-- Too cute → emphasize blank deadpan, no mouth, not a sticker.
+- Too cute → strip face details the locked design doesn't name (the house
+  deadpan resists this best), not a sticker.
 - Too "diagram" → drop titles/borders/grids; redraw as a hand-built scene.
 - Too similar to an example → keep the idea, swap the object and the action.
 
