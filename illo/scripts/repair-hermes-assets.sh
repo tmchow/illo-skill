@@ -14,7 +14,7 @@ set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST="$SKILL_DIR/assets/checksums.txt"
-RAW_BASE="https://raw.githubusercontent.com/tmchow/agent-skills"
+RAW_BASE="https://raw.githubusercontent.com/tmchow/illo-skill"
 
 [[ -f "$MANIFEST" ]] || { echo "ERROR: $MANIFEST missing — reinstall the skill." >&2; exit 1; }
 

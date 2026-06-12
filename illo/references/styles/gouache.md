@@ -55,7 +55,7 @@ irregular, confident, never typeset.
   toward riso — re-roll.
 - Accent appears only on the character's accent part + 1–2 elements.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/_assets/illo/styles/gouache-steep.png — study it
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/illo-skill/main/_assets/illo/styles/gouache-steep.png — study it
 for line/texture and restraint; never copy its composition.
 
 Variant note: when deriving a gouache pack from a riso character, the

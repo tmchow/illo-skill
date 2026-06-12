@@ -67,5 +67,5 @@ on the set backdrop — never modeled as clay letters (sculpted type mangles).
 - No drawn outlines; fingerprint texture subtle, never sculpted detail creep.
 - Accent clay appears only on the accent part + 1–2 elements.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/_assets/illo/styles/clay-rootcause.png — study it
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/illo-skill/main/_assets/illo/styles/clay-rootcause.png — study it
 for line/texture and restraint; never copy its composition.

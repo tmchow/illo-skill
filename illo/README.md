@@ -167,7 +167,7 @@ Worth knowing:
 ### Any agent (skills CLI)
 
 ```bash
-npx skills add tmchow/agent-skills --skill illo
+npx skills add tmchow/illo-skill --skill illo
 ```
 
 One command for Claude Code, Cursor, Codex, and the other runtimes the
@@ -177,13 +177,13 @@ and asks which agents to install it into.
 ### Hermes
 
 ```bash
-hermes skills install tmchow/agent-skills/illo
+hermes skills install tmchow/illo-skill/illo
 ```
 
 From an interactive Hermes session:
 
 ```text
-/skills install tmchow/agent-skills/illo
+/skills install tmchow/illo-skill/illo
 /reload-skills
 /skill illo
 ```
@@ -197,9 +197,6 @@ From an interactive Hermes session:
 ```bash
 openclaw skills install illo
 ```
-
-> ClawHub slug is provisional until first publish — update this line and the
-> root catalog once the skill is published.
 
 ## Use it for
 

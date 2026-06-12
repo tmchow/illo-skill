@@ -56,5 +56,5 @@ for duplicated labels — this style has produced the same label twice.
 - Exactly 4 colors; no gradients or soft shadows.
 - No duplicate labels; ≤2 labels total.
 
-Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/agent-skills/main/_assets/illo/styles/pixel-funnel.png — study it for line/texture
+Calibration example (not bundled — fetch the URL): https://raw.githubusercontent.com/tmchow/illo-skill/main/_assets/illo/styles/pixel-funnel.png — study it for line/texture
 and restraint; never copy its composition.
