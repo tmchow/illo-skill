@@ -20,20 +20,27 @@ already-installed copies — but all development and publishing happen here.
 
 ## Repo layout
 
-**The skill lives in the `illo/` subdirectory, deliberately not at the repo
-root.** Installers copy the entire skill directory verbatim, so the skill dir
-must contain only what every install should ship; promoting `SKILL.md` to the
-root would make `_assets/` and repo meta ship with every install and blow the
-size budget.
+**The skill lives in `skills/illo/`, deliberately not at the repo root.**
+The top-level `skills/` folder matches the layout convention of the
+canonical skill repos (anthropics/skills, openai/skills,
+vercel-labs/agent-skills) and keeps a future Claude Code plugin lane
+possible (`.claude-plugin/` + `skills/`). Installers copy the entire skill
+directory verbatim, so the skill dir must contain only what every install
+should ship; promoting `SKILL.md` to the root would make `_assets/` and
+repo meta ship with every install and blow the size budget. Note the
+install identifiers do **not** carry the `skills/` segment — skills.sh
+indexes by skill name (`tmchow/illo-skill/illo`), the same way
+`openai/skills/skill-creator` hides its `skills/` folder.
 
-- `illo/SKILL.md` — required. The agent-facing instructions.
-- `illo/README.md` — required. The human-facing landing page (below).
-- `illo/references/` — deep material loaded on demand, including the ten
-  look definitions in `references/styles/`.
-- `illo/scripts/` — the engine (`illo.py`) and the Hermes asset-repair
-  preflight.
-- `illo/assets/` — bundled binary assets plus `checksums.txt`, a generated
-  manifest (never edit by hand; see Binary assets below).
+- `skills/illo/SKILL.md` — required. The agent-facing instructions.
+- `skills/illo/README.md` — required. The human-facing landing page
+  (below).
+- `skills/illo/references/` — deep material loaded on demand, including
+  the ten look definitions in `references/styles/`.
+- `skills/illo/scripts/` — the engine (`illo.py`) and the Hermes
+  asset-repair preflight.
+- `skills/illo/assets/` — bundled binary assets plus `checksums.txt`, a
+  generated manifest (never edit by hand; see Binary assets below).
 - `_assets/illo/` — docs-only images linked by raw URL (calibration
   examples, README embeds). They live outside the skill directory so they
   never ship with installs.
@@ -74,7 +81,7 @@ guess.
 
 ## Per-skill README.md
 
-`illo/README.md` is the human-facing landing page — what a person reads to
+`skills/illo/README.md` is the human-facing landing page — what a person reads to
 decide whether to install. It is **not** the agent instructions. It covers
 purpose, prerequisites (the OpenRouter key setup), install commands for all
 three lanes, capability bullets, and the explicit "SKILL.md is the
@@ -128,12 +135,12 @@ them:
 Some Hermes versions corrupt binary files when installing multi-file skills
 from GitHub (binaries decoded as text). The defense, all in this repo:
 
-- `illo/assets/checksums.txt` — generated manifest
+- `skills/illo/assets/checksums.txt` — generated manifest
   (`<sha256>  <pin-commit>  <relpath>`), written by
   `.github/scripts/regen_asset_checksums.py` and kept current by the
   `asset-checksums` workflow (PRs touching assets get the regenerated
   manifest committed back to their branch; pushes to main verify).
-- `illo/scripts/repair-hermes-assets.sh` — generic, never edited per-asset:
+- `skills/illo/scripts/repair-hermes-assets.sh` — generic, never edited per-asset:
   verifies each asset and re-downloads mismatches from the immutable
   `raw.githubusercontent.com/tmchow/illo-skill/<pin-commit>/…` URL.
   Checksum-gated, so it's harmless on faithful runtimes.
@@ -159,7 +166,7 @@ skill), `illo`, and the look names (`riso`, `blueprint`, `woodcut`, `pixel`,
 
 Styles split deliberately across the two repos: a character pack carries
 only a style **name** (its `Style:` line); the style **definition** — the
-~3 KB prompt-block file in `illo/references/styles/<name>.md` — lives here,
+~3 KB prompt-block file in `skills/illo/references/styles/<name>.md` — lives here,
 because style files are engine interface (their sections slot into
 `references/prompt-recipe.md` and must evolve with it) and shared
 infrastructure (one fix improves every pack that references the look). The
@@ -198,7 +205,7 @@ mechanism).
 ## License guidance
 
 The repo license is MIT and the skill's frontmatter says `license: MIT`.
-`illo/NOTICE` carries attribution for the Blot character and bundled
+`skills/illo/NOTICE` carries attribution for the Blot character and bundled
 artwork — keep it shipping inside the skill directory.
 
 ## Validate before committing

@@ -38,13 +38,13 @@ named preset, or hand it one brand color and let it derive the rest.
 Same character, different voice — the bundled woodcut style telling a
 three-panel story:
 
-![Woodcut mini-comic example](../_assets/illo/styles/woodcut-minicomic.png)
+![Woodcut mini-comic example](../../_assets/illo/styles/woodcut-minicomic.png)
 
 And the day job — compressing an abstract concept into one scene that lands
 in about a second. Hand it *"we replatform with zero downtime"* and you get
 the bridge being rebuilt under live traffic:
 
-![Zero downtime — rebuilding the bridge under live traffic](../_assets/illo/05-bridgeswap-ink-punch.png)
+![Zero downtime — rebuilding the bridge under live traffic](../../_assets/illo/05-bridgeswap-ink-punch.png)
 
 One idea per image, the mascot *performing* the move rather than decorating
 it, a few short hand-lettered labels — every render is held to that

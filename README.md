@@ -13,9 +13,9 @@ Image 2, …).
 > **🌐 [illo-skill.com](https://illo-skill.com)** — live examples, the
 > character gallery, and copy-paste installs.
 
-The skill itself lives in [`illo/`](illo/) — its
-[README](illo/README.md) is the full developer reference (prerequisites,
-API-key setup, models & cost, everything below in detail).
+The skill itself lives in [`skills/illo/`](skills/illo/) — its
+[README](skills/illo/README.md) is the full developer reference
+(prerequisites, API-key setup, models & cost, everything below in detail).
 
 ## Install
 
@@ -39,9 +39,11 @@ openclaw skills install illo
 
 ## Repo layout
 
-The skill deliberately sits in the `illo/` subdirectory rather than at the
-repo root: installers copy the entire skill directory verbatim, so the skill
-dir holds only what every install should ship. Docs-only images live in
+The skill sits in `skills/illo/`, following the layout of the canonical
+skill repos (anthropics/skills, openai/skills): a top-level `skills/`
+folder, one directory per skill. It is deliberately not at the repo root —
+installers copy the entire skill directory verbatim, so the skill dir holds
+only what every install should ship. Docs-only images live in
 `_assets/illo/` (linked by raw URL), and repo meta stays at the root.
 
 ## Companion repos
@@ -60,5 +62,5 @@ ship only from here.
 ## License
 
 MIT © Trevin Chow — see [`LICENSE`](LICENSE) and
-[`illo/NOTICE`](illo/NOTICE) for attribution of the Blot character and
+[`skills/illo/NOTICE`](skills/illo/NOTICE) for attribution of the Blot character and
 bundled artwork.

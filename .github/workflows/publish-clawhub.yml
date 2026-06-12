@@ -51,12 +51,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SKILL=illo
-          VERSION="$(python3 .github/scripts/skill_frontmatter_version.py "$SKILL")"
+          SKILL_DIR=skills/illo
+          SLUG=illo
+          VERSION="$(python3 .github/scripts/skill_frontmatter_version.py "$SKILL_DIR")"
           export VERSION
 
           set +e
-          npx -y clawhub@0.20.0 --no-input inspect "$SKILL" --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
+          npx -y clawhub@0.20.0 --no-input inspect "$SLUG" --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
           rc=$?
           set -e
 
@@ -64,7 +65,7 @@ jobs:
             if grep -qi "Skill not found" /tmp/clawhub-existing.err /tmp/clawhub-existing.json 2>/dev/null; then
               state="new"
             else
-              echo "::error::Could not inspect existing ClawHub versions for $SKILL"
+              echo "::error::Could not inspect existing ClawHub versions for $SLUG"
               cat /tmp/clawhub-existing.err || true
               cat /tmp/clawhub-existing.json || true
               exit "$rc"
@@ -75,17 +76,17 @@ jobs:
 
           if [ "$state" = "exists" ]; then
             if [ "$MODE" = "strict" ]; then
-              echo "::error::ClawHub version $VERSION already exists for $SKILL. Bump version: in $SKILL/SKILL.md before publishing."
+              echo "::error::ClawHub version $VERSION already exists for $SLUG. Bump version: in $SKILL_DIR/SKILL.md before publishing."
               exit 1
             fi
-            echo "::notice::$SKILL $VERSION is already on ClawHub — skipping (bump version: in $SKILL/SKILL.md to ship a new release)."
+            echo "::notice::$SLUG $VERSION is already on ClawHub — skipping (bump version: in $SKILL_DIR/SKILL.md to ship a new release)."
             exit 0
           fi
 
           changelog="${CHANGELOG:-}"
           if [ -z "$changelog" ]; then
-            changelog="Publish $SKILL $VERSION from $GITHUB_SHA"
+            changelog="Publish $SLUG $VERSION from $GITHUB_SHA"
           fi
-          npx -y clawhub@0.20.0 --no-input skill publish "$SKILL" \
-            --slug "$SKILL" --version "$VERSION" --changelog "$changelog"
-          echo "Published $SKILL@$VERSION"
+          npx -y clawhub@0.20.0 --no-input skill publish "$SKILL_DIR" \
+            --slug "$SLUG" --version "$VERSION" --changelog "$changelog"
+          echo "Published $SLUG@$VERSION"

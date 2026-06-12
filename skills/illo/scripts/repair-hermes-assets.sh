@@ -39,7 +39,7 @@ while read -r expected pin rel || [[ -n "${expected:-}" ]]; do
   else
     echo "Missing — downloading: $rel"
   fi
-  url="$RAW_BASE/$pin/illo/$rel"
+  url="$RAW_BASE/$pin/skills/illo/$rel"
   tmp="$(mktemp)"
   if ! curl -fsSL "$url" -o "$tmp"; then
     echo "ERROR: download failed: $url" >&2
