@@ -44,6 +44,11 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 # user's own CLI. Subprocess to `codex` is the ONE sanctioned exception to the
 # stdlib-over-subprocess rule (a benign CLI call, not a credential read); see AGENTS.md.
 BACKENDS = ("codex", "openrouter")
+# Config schema version. 2 is the first version that has the Codex/OpenRouter
+# backend choice. A config without this key (or below) predates the choice, so
+# the user has never been offered Codex vs OpenRouter — `generate` hard-stops and
+# tells them to re-run `init` to choose (see _config_is_stale); `init` re-stamps it.
+CONFIG_VERSION = 2
 # Where the built-in tool drops images when it ignores the requested path. The
 # spike found Orca relocates CODEX_HOME under Library/Application Support, so the
 # adapter resolves $CODEX_HOME at run time and NEVER hardcodes ~/.codex.
@@ -194,6 +199,8 @@ def dump_config_yaml(cfg):
         "# ~/.config/illo/config.yaml — Illo settings. All keys optional.",
         "# Set the API key once with: illo.py init (stored here, file mode 600).",
         "",
+        f"configVersion: {CONFIG_VERSION}   # schema marker; set by init — do not edit",
+        "",
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
@@ -225,6 +232,37 @@ def resolve_key(cfg):
     if not key:
         sys.exit(f"No OpenRouter key. Run: {PROG} init")
     return key
+
+
+def _config_is_stale(cfg):
+    """True for a config written before the backend choice existed: it has real
+    content but predates CONFIG_VERSION, so the user has never picked Codex vs
+    OpenRouter. An empty/absent config is NOT stale (that is first-run onboarding,
+    not a migration). Keyed on the version stamp, not the backend key's absence —
+    a new user who chose 'auto' also has no backend key but a current version."""
+    if not cfg:
+        return False
+    try:
+        ver = int(cfg.get("configVersion", 1))
+    except (TypeError, ValueError):
+        ver = 1
+    return ver < CONFIG_VERSION
+
+
+def migration_message():
+    """Shown when an existing pre-backends config is used: hard-stop the run and
+    tell the user (and any agent reusing an old playbook) to choose a backend.
+    The Codex branch needs no key; OpenRouter keeps an existing key via --no-key."""
+    return (
+        "illo config is out of date — it predates the image-backend choice, so "
+        "no backend is selected.\n"
+        "illo now has two image backends. Pick one, then re-run:\n"
+        f"  Codex      — free, uses your Codex subscription (draws on your Codex "
+        f"quota):\n      {PROG} init --backend codex --no-key\n"
+        f"  OpenRouter — pick the model (Grok Imagine, Nano Banana, GPT Image, …):\n"
+        f"      {PROG} init --backend openrouter --no-key\n"
+        "Agents: surface this as an interactive Codex-vs-OpenRouter choice to the "
+        "user, then run the matching init.")
 
 
 def resolve_backend(cfg, override=None):
@@ -473,6 +511,11 @@ def place_image(img_bytes, out_path):
 
 def cmd_generate(args):
     cfg = load_config()
+    # An existing pre-backends config has never been offered Codex vs OpenRouter.
+    # Hard-stop rather than silently picking a backend, so a user (or an agent
+    # reusing an old playbook) is forced to choose once after upgrading.
+    if _config_is_stale(cfg):
+        sys.exit(migration_message())
     prompt = args.prompt or (pathlib.Path(args.prompt_file).read_text() if args.prompt_file else None)
     if not prompt:
         sys.exit("Provide --prompt or --prompt-file.")
@@ -717,7 +760,15 @@ def cmd_doctor(args):
     # Resolved backend + transport, and whether it is actually ready (the exit
     # predicate). An OpenRouter-only install stays exit 0: doctor reports
     # the resolved backend's readiness, not a hardwired key check.
-    if backend == "codex":
+    if _config_is_stale(cfg):
+        # Pre-backends config: not ready until the user makes a one-time choice.
+        ready = False
+        lines.append("backend: NEEDS CHOICE — this config predates the image "
+                     "backend choice. Codex (free, your Codex subscription) or "
+                     "OpenRouter (model choice: Grok Imagine, Nano Banana, GPT "
+                     f"Image, …)? Run `{PROG} init --backend codex|openrouter "
+                     "--no-key`. Agents: ask the user interactively, then run that init.")
+    elif backend == "codex":
         ready = codex_ok
         lines.append("backend: codex — transport: `codex exec` (your Codex "
                      "subscription, gpt-image-2; illo stores no token)"

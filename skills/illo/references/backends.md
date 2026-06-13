@@ -35,6 +35,27 @@ stays exit 0. An explicit `--backend`/`backend:` choice is honored as-is;
 readiness is judged separately, so `doctor` can flag a
 chosen-but-unusable backend.
 
+### Migration: existing configs choose once
+
+The config carries a `configVersion` stamp (current: `2`, the version that
+introduced the backend choice). A config written by an **older install** lacks
+it — that user has never been offered Codex vs OpenRouter, and silently picking
+either one (flipping them to Codex, or quietly keeping OpenRouter so they never
+learn Codex exists) is the wrong call. So an out-of-date config is **not
+auto-resolved**:
+
+- `generate` **hard-stops** with a message to choose a backend (an agent reusing
+  an old playbook learns its config is stale rather than rendering on a guess).
+- `doctor` reports `backend: NEEDS CHOICE` and exits non-zero.
+
+The choice is surfaced **interactively** (the agent asks Codex vs OpenRouter; see
+SKILL.md "Config migration") and persisted with
+`init --backend <codex|openrouter> --no-key`, which stamps `configVersion` and
+keeps any existing key. A brand-new install (no config) is ordinary onboarding,
+not a migration — it resolves capability-aware as above. The stamp, not the
+`backend` key's absence, is the signal: a current-version user who chose "auto"
+also has no `backend` key but is not re-prompted.
+
 ## Codex backend
 
 ### The Codex-CLI requirement (detection)

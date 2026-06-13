@@ -167,7 +167,23 @@ whether a **custom character pack** or **custom palettes file** exists,
 OpenRouter key is found (without revealing it); exit 0 = the resolved backend
 is ready. An OpenRouter-only install (no Codex CLI) stays exit 0 — readiness
 follows the resolved backend, not a hardwired key check
-(`references/backends.md`). Read the printed **config path** before concluding
+(`references/backends.md`).
+
+**Config migration — surface the backend choice interactively.** If `doctor`
+reports `backend: NEEDS CHOICE` (or `generate` hard-stops saying the config "is
+out of date"), this user's config predates the backend choice — they have an
+older install and have never been offered Codex. Do **not** pick for them
+silently. Surface an **interactive choice** using the platform's blocking
+question tool (`AskUserQuestion` in Claude Code, the equivalent elsewhere):
+"illo now has two image backends — which would you like?" with two options —
+**Codex** (free, uses your Codex subscription; draws on your Codex quota) and
+**OpenRouter** (pick the model: Grok Imagine, Nano Banana, GPT Image, and
+others). Persist the answer without touching any existing key:
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|openrouter> --no-key`,
+then continue. A brand-new install (no config at all) is ordinary onboarding,
+not this migration — it does not fire.
+
+Read the printed **config path** before concluding
 the key is missing: under Hermes,
 multi-profile setups can resolve `HOME`/`XDG_CONFIG_HOME` to *another*
 profile's home (e.g. `…/profiles/<name>/home/.config/illo/…`), so a key
