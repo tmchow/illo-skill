@@ -22,7 +22,7 @@ flat string keys (apiKey, model, …), so generation stays install-free.
 The engine never reads secrets from the environment.
 The agent must NOT enter the key: `init` is run by the user.
 """
-import argparse, base64, getpass, json, mimetypes, os, pathlib, re, sys, time
+import argparse, base64, getpass, json, mimetypes, os, pathlib, re, shutil, subprocess, sys, time
 import urllib.error, urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
@@ -35,6 +35,91 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 DEFAULT_MODEL = "x-ai/grok-imagine-image-quality"
 PROG = pathlib.Path(__file__).name
 SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
+
+# Codex backend: illo drives the user's already-installed,
+# already-logged-in Codex CLI via `codex exec` to reach its built-in
+# image_generation tool (gpt-image-2, billed to the user's Codex subscription,
+# no API key). illo handles NO token: it runs no OAuth, reads no ~/.codex/auth.json,
+# and hits no endpoint — the only privileged action is a subprocess call to the
+# user's own CLI. Subprocess to `codex` is the ONE sanctioned exception to the
+# stdlib-over-subprocess rule (a benign CLI call, not a credential read); see AGENTS.md.
+BACKENDS = ("codex", "openrouter")
+# Where the built-in tool drops images when it ignores the requested path. The
+# spike found Orca relocates CODEX_HOME under Library/Application Support, so the
+# adapter resolves $CODEX_HOME at run time and NEVER hardcodes ~/.codex.
+CODEX_GENERATED_SUBDIR = "generated_images"
+# Detection commands are short; generation is an agent turn that fires an image
+# tool, so it needs a generous ceiling (seconds).
+CODEX_DETECT_TIMEOUT = 20
+CODEX_EXEC_TIMEOUT = 600
+# Slack on the "file must postdate this exec" floor, for filesystem mtime
+# granularity / clock skew between the wall clock and the file's mtime source.
+CODEX_MTIME_SKEW = 2.0
+# `codex features list` row that means the built-in image tool is reachable.
+CODEX_IMAGE_FEATURE = "image_generation"
+# Secret-shaped tokens we strip from any captured subprocess output before it
+# could reach a terminal (redact, never print raw stdout/stderr).
+SECRET_RE = re.compile(r"\b(sk-[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_.-]+)")
+
+
+class BackendUnavailable(Exception):
+    """A backend could not produce an image for a non-fatal reason (Codex CLI
+    missing/logged-out, `codex exec` errored or timed out, unsupported platform,
+    or OpenRouter returned no image after a retry). cmd_generate catches this and
+    falls back to another configured backend; it is NOT a hard caller error
+    (those stay `sys.exit`)."""
+
+
+def redact(text):
+    """Mask secret-shaped substrings in captured subprocess output. Codex output
+    should never carry a token, but redact defensively so a stray bearer/key in a
+    diagnostic line cannot be echoed to the terminal or a transcript."""
+    return SECRET_RE.sub("<redacted>", text or "")
+
+
+def _codex_run(args):
+    """Run a short `codex` subcommand and return (rc, combined-output). Any
+    failure mode — missing binary, non-zero exit, timeout — collapses to a
+    non-zero rc so callers can treat detection failures as soft (return False),
+    never crash. Output is captured (text) for parsing; callers redact before
+    printing. Reads no env var and no credential file."""
+    try:
+        proc = subprocess.run(
+            ["codex"] + args, capture_output=True, text=True,
+            timeout=CODEX_DETECT_TIMEOUT)
+    except (FileNotFoundError, OSError, subprocess.SubprocessError):
+        return 1, ""
+    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+_CODEX_AVAILABLE = None  # per-process cache so detection's subprocesses run once
+
+
+def codex_available():
+    """True iff the host has a USABLE Codex CLI: `codex` on PATH, logged in, and
+    the built-in image_generation feature available. Eligibility is a
+    property of the execution host, detected — never assumed. Soft-fails to False
+    on any non-zero exit, timeout, or unparseable output (→ OpenRouter); reads NO
+    credential file and NO secret-shaped env var. Cached per process."""
+    global _CODEX_AVAILABLE
+    if _CODEX_AVAILABLE is not None:
+        return _CODEX_AVAILABLE
+    _CODEX_AVAILABLE = _detect_codex()
+    return _CODEX_AVAILABLE
+
+
+def _detect_codex():
+    if not shutil.which("codex"):
+        return False
+    # Logged in? `codex login status` exits 0 and says so when authenticated.
+    rc, out = _codex_run(["login", "status"])
+    if rc != 0 or "logged in" not in out.lower():
+        return False
+    # Built-in image tool reachable? It shows up as a row in `codex features list`.
+    rc, out = _codex_run(["features", "list"])
+    if rc != 0 or CODEX_IMAGE_FEATURE not in out.lower():
+        return False
+    return True
 
 
 def config_dir():
@@ -112,7 +197,9 @@ def dump_config_yaml(cfg):
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
-        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id",
+        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex backend ignores it)",
+        f"backend: {val(cfg['backend'])}" if cfg.get("backend")
+        else "# backend: codex            # codex (your Codex subscription) or openrouter; default: auto",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
@@ -138,6 +225,28 @@ def resolve_key(cfg):
     if not key:
         sys.exit(f"No OpenRouter key. Run: {PROG} init")
     return key
+
+
+def resolve_backend(cfg, override=None):
+    """Capability-aware backend resolution, the single source of truth for
+    `generate` and `doctor`. Precedence:
+
+      --backend  >  config `backend:`  >  capability-aware default
+
+    The default never silently breaks an existing OpenRouter-only install on
+    upgrade: a usable Codex CLI picks codex; otherwise a configured OpenRouter key
+    picks openrouter; otherwise the host has neither and onboarding is needed
+    (returned as None so doctor/generate can route to the right setup). An
+    explicit choice is honored as-is — readiness is judged separately so doctor
+    can flag a chosen-but-unusable backend without re-resolving."""
+    choice = override or cfg.get("backend")
+    if choice in BACKENDS:
+        return choice
+    if codex_available():
+        return "codex"
+    if cfg.get("apiKey"):
+        return "openrouter"
+    return None  # neither configured → caller routes to onboarding
 
 
 def data_url(path):
@@ -227,8 +336,12 @@ def run_base():
     return pathlib.Path(os.environ.get("ILLO_TMP") or "/tmp/illo")
 
 
-def do_generate(model, content, key, out_path, want_cost):
-    """Render one image to out_path; return a manifest record."""
+def openrouter_generate(model, content, key):
+    """OpenRouter backend (the dispatch seam). Returns (img_bytes, partial_record) for
+    cmd_generate to place; the wire payload is byte-identical to the pre-refactor
+    path. Hard caller errors (no usable response, fatal HTTP) stay `sys.exit`; a
+    "no image after retry" outcome raises BackendUnavailable so it can fall
+    through to another backend instead of killing the run."""
     try:
         payload = post_chat(model, content, key, ["image", "text"])
     except urllib.error.HTTPError as e:
@@ -247,22 +360,115 @@ def do_generate(model, content, key, out_path, want_cost):
     message = choices[0].get("message") or {}
     img = extract_image(message)
     if not img:
-        sys.exit(f"No image in response. message keys: {list(message.keys())}; "
-                 f"text: {message.get('content', '')[:300]}")
+        # Fallable: the model answered but produced no image — let the caller try
+        # another backend rather than ending the run here.
+        raise BackendUnavailable(
+            f"OpenRouter returned no image. message keys: {list(message.keys())}; "
+            f"text: {message.get('content', '')[:300]}")
+    gid = payload.get("id")
+    return img, {"model": model, "id": gid}
+
+
+def _freshest_generated_image(since):
+    """Newest file under $CODEX_HOME/generated_images/ that postdates `since`
+    (a wall-clock float captured just before this exec ran), or None. The
+    recency floor is mandatory: the dir is shared across renders and across
+    concurrent codex sessions, so without it the agent failing to produce a new
+    image (a non-deterministic miss) would silently return a leftover from
+    a previous render or a foreign session — a duplicate in a --count batch, or
+    the wrong illustration tagged success. A small CODEX_MTIME_SKEW slack
+    tolerates mtime granularity / clock skew. Resolves CODEX_HOME (env, default
+    ~/.codex) at run time and NEVER hardcodes ~/.codex — the spike found Orca
+    relocates it. CODEX_HOME is a path, not secret-shaped, so reading it
+    is allowed."""
+    home = os.environ.get("CODEX_HOME") or os.path.expanduser("~/.codex")
+    gen = pathlib.Path(home) / CODEX_GENERATED_SUBDIR
+    if not gen.is_dir():
+        return None
+    floor = since - CODEX_MTIME_SKEW
+    recent = [(f.stat().st_mtime, f) for f in gen.iterdir() if f.is_file()]
+    recent = [(m, f) for m, f in recent if m >= floor]
+    if not recent:
+        return None
+    return max(recent, key=lambda mf: mf[0])[1]
+
+
+def codex_exec_generate(prompt, refs, out_path):
+    """Codex backend: drive the user's `codex exec` against
+    its built-in image_generation tool (gpt-image-2, no API key, no per-image
+    charge). Returns (produced_file_path, partial_record). Sends NO model id —
+    gpt-image-2 is automatic on the free built-in tool, so --model never
+    applies here. Every failure (CLI unusable, exec non-zero, timeout, no image)
+    raises BackendUnavailable for fallback. illo handles no token; the only
+    privileged action is this subprocess to the user's own CLI."""
+    if not codex_available():
+        raise BackendUnavailable("Codex CLI not usable (not installed, logged out, "
+                                 "or image_generation feature unavailable).")
+    out = pathlib.Path(out_path).resolve()
+    run_dir = out.parent
+    run_dir.mkdir(parents=True, exist_ok=True)
+    # The free built-in tool takes no size argument, so aspect must live in the
+    # prompt text — illo already states it. The spike proved positional prompts
+    # break in loops, so feed the FULL prompt via STDIN ('-' mode) and instruct
+    # the agent to save to a path inside run_dir.
+    stdin_prompt = (f"{prompt}\n\n"
+                    f"Use your built-in image generation tool to render this, "
+                    f"then save the resulting image to {out} "
+                    f"(overwrite if it exists). Do not ask for confirmation.")
+    cmd = ["codex", "exec", "--cd", str(run_dir),
+           "--sandbox", "workspace-write", "--skip-git-repo-check"]
+    # Attach every reference: the active character sheet, plus any finished-look
+    # style anchor illo passes for within-set consistency. codex exec -i
+    # repeats, so a second --ref is no longer silently dropped.
+    for r in refs:
+        cmd += ["-i", str(r)]
+    cmd.append("-")
+    # Clear any prior file at the target so the verify-first branch below cannot
+    # accept a stale render (e.g. a re-roll into the same --out) as this run's
+    # output — only a file this exec actually creates counts.
+    try:
+        out.unlink()
+    except FileNotFoundError:
+        pass
+    # Wall-clock floor for the fetch-fallback: any image this exec produced must
+    # postdate this moment, so a stale prior render or a concurrent session's
+    # file in the shared generated_images dir can't pass as our result.
+    started = time.time()
+    try:
+        proc = subprocess.run(cmd, input=stdin_prompt, capture_output=True,
+                              text=True, timeout=CODEX_EXEC_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise BackendUnavailable("codex exec timed out before producing an image.")
+    except (FileNotFoundError, OSError, subprocess.SubprocessError) as e:
+        # Includes the unsupported-platform case (Windows/WSL exec breakage).
+        raise BackendUnavailable(f"codex exec could not run: {e}")
+    if proc.returncode != 0:
+        # Redact before this string can reach a terminal — never echo raw output.
+        raise BackendUnavailable(
+            f"codex exec exited {proc.returncode}: {redact(proc.stderr)[:300]}")
+    # Verify-first (the agent's save-to-path works under workspace-write), then
+    # fall back to fetching the freshest file the built-in tool dropped under
+    # $CODEX_HOME/generated_images/.
+    if out.is_file() and out.stat().st_size > 0:
+        produced = out
+    else:
+        produced = _freshest_generated_image(started)
+        if produced is None:
+            raise BackendUnavailable("codex exec produced no retrievable image.")
+    return produced, {"model": None, "id": None}
+
+
+def place_image(img_bytes, out_path):
+    """Write image bytes to out_path, renaming by the real encoding (callers read
+    .path from the JSON line), and return (resolved_path, width, height)."""
     out = pathlib.Path(out_path)
-    # Models return whichever encoding they like; name the file by what the
-    # bytes actually are (callers read .path from the JSON line).
-    actual = sniff_ext(img) or out.suffix
+    actual = sniff_ext(img_bytes) or out.suffix
     if actual != out.suffix:
         out = out.with_suffix(actual)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(img)
-    w, h = image_size(img)
-    gid = payload.get("id")
-    # Absolute: IDE agents get a clickable path; chat delivery (e.g. Hermes
-    # MEDIA: attachment tags) needs the absolute path to build the tag.
-    return {"path": str(out.resolve()), "model": model, "id": gid,
-            "cost": (fetch_cost(gid, key) if want_cost else None), "width": w, "height": h}
+    out.write_bytes(img_bytes)
+    w, h = image_size(img_bytes)
+    return out.resolve(), w, h
 
 
 def cmd_generate(args):
@@ -274,25 +480,86 @@ def cmd_generate(args):
     if aspect:
         prompt = f"{prompt}\n\nAspect ratio: {aspect}."
 
-    content = [{"type": "text", "text": prompt}]
-    for r in args.ref:
-        content.append({"type": "image_url", "image_url": {"url": data_url(r)}})
+    backend = resolve_backend(cfg, args.backend)
+    if backend is None:
+        # Neither backend configured — name both fixes.
+        sys.exit(f"No image backend ready. Either install + `codex login` to use "
+                 f"your Codex subscription, or run `{PROG} init` to set an "
+                 f"OpenRouter key.")
 
     model = args.model or cfg.get("model") or DEFAULT_MODEL
-    key = resolve_key(cfg)
 
     out = pathlib.Path(args.out)
     n = max(1, args.count)
     paths = [out] if n == 1 else [out.with_name(f"{out.stem}-{k + 1}{out.suffix}") for k in range(n)]
-    manifest = out.parent / "manifest.jsonl"  # parent dir is created by do_generate
+    manifest = out.parent / "manifest.jsonl"  # parent dir is created by place_image
     # Serial renders: a partial batch still leaves a valid manifest behind.
     for p in paths:
-        rec = do_generate(model, content, key, p, args.cost)
+        rec = _render_one(backend, cfg, prompt, model, args.ref, args.cost, p)
         rec["label"] = args.label or ""
         rec["prompt"] = prompt
         with manifest.open("a") as f:
             f.write(json.dumps(rec) + "\n")
         print(json.dumps(rec))
+
+
+def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path):
+    """Render one image through the resolved backend and place it, returning the
+    manifest record. Codex failures raise BackendUnavailable and fall back to a
+    configured OpenRouter key (record tagged backend=openrouter); a Codex-only
+    host with no key exits with both fixes named. The single file placement,
+    sniff_ext, and the additive `backend` field live here, never in a backend."""
+    if backend == "codex":
+        try:
+            produced, meta = codex_exec_generate(prompt, _codex_refs(refs, cfg), out_path)
+        except BackendUnavailable as e:
+            if cfg.get("apiKey"):
+                sys.stderr.write(f"note: Codex backend unavailable ({e}); "
+                                 f"falling back to OpenRouter.\n")
+                return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path)
+            sys.exit(f"Codex backend failed and no OpenRouter key is set: {e}\n"
+                     f"Fix: ensure Codex CLI is installed + `codex login`, or run "
+                     f"`{PROG} init` to set an OpenRouter key.")
+        img = produced.read_bytes()
+        path, w, h = place_image(img, out_path)
+        # gpt-image-2 on the free built-in tool: no model id, no per-image cost,
+        # so never fetch_cost a codex-served record.
+        return {"path": str(path), "model": meta["model"], "id": meta["id"],
+                "backend": "codex", "cost": None, "width": w, "height": h}
+    return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path)
+
+
+def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path):
+    # OpenRouter takes the references inline as base64 data-URLs; build that here
+    # so a Codex-only render never pays to encode a sheet codex exec sends via -i.
+    content = [{"type": "text", "text": prompt}]
+    for r in refs:
+        content.append({"type": "image_url", "image_url": {"url": data_url(r)}})
+    key = resolve_key(cfg)
+    img, meta = openrouter_generate(model, content, key)
+    path, w, h = place_image(img, out_path)
+    # Absolute: IDE agents get a clickable path; chat delivery (e.g. Hermes
+    # MEDIA: attachment tags) needs the absolute path to build the tag.
+    return {"path": str(path), "model": meta["model"], "id": meta["id"],
+            "backend": "openrouter",
+            "cost": (fetch_cost(meta["id"], key) if want_cost else None),
+            "width": w, "height": h}
+
+
+def _codex_refs(refs, cfg):
+    """Reference image(s) to attach with `codex exec -i` for character lock. Passes every --ref the caller gives (the active character sheet, plus
+    any finished-look style anchor illo adds for set consistency); else falls
+    back to a configured default character's reference.png so the mascot still
+    locks if --ref was omitted."""
+    if refs:
+        return list(refs)
+    default_char = cfg.get("defaultCharacter")
+    if default_char:
+        ref = config_dir() / "characters" / default_char / "reference.png"
+        if ref.is_file():
+            return [str(ref)]
+    raise BackendUnavailable("Codex backend needs a character reference image "
+                             "(pass --ref <sheet>) for character lock.")
 
 
 def cmd_init(args):
@@ -318,19 +585,52 @@ def cmd_init(args):
         cfg["defaultCharacter"] = args.character
     if args.aspect:
         cfg["aspect"] = args.aspect
+    if args.backend:
+        cfg["backend"] = args.backend
     for pair in args.watermark:
         if "=" in pair:
             dest, text = pair.split("=", 1)
             cfg.setdefault("watermark", {})[dest.strip()] = text.strip()
-    if not args.no_key:
+    # Codex preflight: only when a usable Codex CLI is detected, and
+    # only as a user-run, consented choice — the agent never auto-enables Codex.
+    # No secret is entered on this branch (the Codex path needs none). If declined
+    # or unavailable, fall through to the existing hidden-prompt OpenRouter flow.
+    chose_codex = (not args.no_key and not args.backend
+                   and _maybe_offer_codex(cfg))
+    if not chose_codex and not args.no_key:
         entered = getpass.getpass("OpenRouter API key (blank to skip): ").strip()
         if entered:
             cfg["apiKey"] = entered
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(dump_config_yaml(cfg))
     os.chmod(p, 0o600)
-    print(f"wrote {p} (key: {'set' if cfg.get('apiKey') else 'not set — run init again to set it'}; "
+    backend_note = cfg.get("backend") or "auto"
+    print(f"wrote {p} (backend: {backend_note}; "
+          f"key: {'set' if cfg.get('apiKey') else 'not set — run init again to set it'}; "
           f"model: {cfg.get('model', DEFAULT_MODEL)})")
+
+
+def _maybe_offer_codex(cfg):
+    """If a usable Codex CLI is present, offer to generate through the user's
+    Codex subscription (free, but it draws on their Codex usage quota) and to set
+    it as the default. Returns True iff the user opted into Codex (so the caller
+    skips the OpenRouter key prompt). Writes `backend: codex` into cfg on accept;
+    enables nothing without an explicit yes."""
+    if not codex_available():
+        return False
+    print("Detected a usable Codex CLI (logged in, image_generation available).")
+    print("illo can generate images through your Codex subscription — free, but it "
+          "draws on your Codex usage quota (image turns consume it faster than text).")
+    ans = input("Use your Codex subscription for image generation? [y/N] ").strip().lower()
+    if ans not in ("y", "yes"):
+        return False
+    default = input("Set Codex as the default backend? [Y/n] ").strip().lower()
+    if default not in ("n", "no"):
+        cfg["backend"] = "codex"
+    else:
+        # Opted into Codex but not as default — leave resolution capability-aware.
+        cfg.pop("backend", None)
+    return True
 
 
 def character_packs(cdir):
@@ -363,11 +663,14 @@ def cmd_doctor(args):
     cfg = load_config()
     cdir = config_dir()
     p = cdir / "config.yaml"
-    key_src = "config" if cfg.get("apiKey") else None
+    has_key = bool(cfg.get("apiKey"))
+    codex_ok = codex_available()
+    backend = resolve_backend(cfg)  # capability-aware; honors config `backend:`
     lines = [
         f"python:  {sys.version.split()[0]}",
         f"config:  {p} ({'present' if p.exists() else 'absent'})",
-        f"model:   {cfg.get('model') or DEFAULT_MODEL}",
+        f"model:   {cfg.get('model') or DEFAULT_MODEL}"
+        + ("  (openrouter only — codex uses gpt-image-2 automatically)" if backend == "codex" else ""),
     ]
     if cfg.get("defaultPalette"):
         lines.append(f"palette: {cfg['defaultPalette']} (default)")
@@ -398,12 +701,44 @@ def cmd_doctor(args):
                      f"bash {SKILL_DIR / 'scripts/repair-hermes-assets.sh'}")
     else:
         lines.append("assets: OK")
-    if key_src:
-        lines.append(f"api key: found ({key_src})")
+    # Codex CLI detection — present / logged-in / image_generation, or why not.
+    # codex_available() short-circuits at the first failure, so report by stage.
+    # Only fall back to a fresh PATH walk when the cached check already said not-usable.
+    if codex_ok:
+        lines.append("codex cli: usable (logged in, image_generation available)")
+    elif shutil.which("codex"):
+        lines.append("codex cli: present but not usable — run `codex login`, "
+                     "or this host lacks the image_generation feature")
     else:
-        lines.append(f"api key: MISSING — run: {PROG} init")
+        lines.append("codex cli: not installed (optional — enables free Codex-subscription images)")
+    # OpenRouter key (no value ever printed).
+    lines.append("api key: found (config)" if has_key
+                 else f"api key: not set — run `{PROG} init` to use OpenRouter")
+    # Resolved backend + transport, and whether it is actually ready (the exit
+    # predicate). An OpenRouter-only install stays exit 0: doctor reports
+    # the resolved backend's readiness, not a hardwired key check.
+    if backend == "codex":
+        ready = codex_ok
+        lines.append("backend: codex — transport: `codex exec` (your Codex "
+                     "subscription, gpt-image-2; illo stores no token)"
+                     if ready else
+                     "backend: codex (configured) — NOT ready: Codex CLI unusable; "
+                     f"run `codex login` or set backend: openrouter / run `{PROG} init`")
+    elif backend == "openrouter":
+        ready = has_key
+        lines.append("backend: openrouter — transport: OpenRouter API"
+                     if ready else
+                     f"backend: openrouter (configured) — NOT ready: no key; run `{PROG} init`")
+    else:
+        ready = False
+        lines.append(f"backend: none ready — install + `codex login`, or run `{PROG} init` "
+                     f"to set an OpenRouter key")
+    # Hermes caveat: the path above is illo's default; a managed runtime may
+    # resolve config elsewhere. Preserve this note for that environment.
+    lines.append(f"note: config resolved at {p} (a managed runtime e.g. Hermes "
+                 f"may use a different path).")
     print("\n".join(lines))
-    sys.exit(0 if key_src and not bad else 1)
+    sys.exit(0 if ready and not bad else 1)
 
 
 def cmd_newrun(args):
@@ -612,6 +947,10 @@ def cmd_gallery(args):
             sys.exit("every manifest record excluded — nothing to build")
     key = load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
+        # Codex-served records are free (no model id, no OpenRouter cost) — never
+        # query OpenRouter for them, even if a stray id is ever present.
+        if r.get("backend") == "codex":
+            continue
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
     req = d / "request.txt"
@@ -632,7 +971,11 @@ def main():
     g.add_argument("--prompt")
     g.add_argument("--prompt-file")
     g.add_argument("--out", required=True)
-    g.add_argument("--model", help="OpenRouter image model id (overrides config/default)")
+    g.add_argument("--model", help="OpenRouter image model id (overrides config/default; "
+                   "ignored by the codex backend, which uses gpt-image-2 automatically)")
+    g.add_argument("--backend", choices=BACKENDS,
+                   help="image backend (overrides config/default): codex (your Codex "
+                        "subscription) or openrouter; default resolves by host capability")
     g.add_argument("--ref", action="append", default=[], help="reference image path (repeatable)")
     g.add_argument("--aspect", help="aspect ratio hint, e.g. 16:9")
     g.add_argument("--label", help="short caption recorded in the manifest / gallery")
@@ -642,6 +985,8 @@ def main():
 
     i = sub.add_parser("init", help="create/update user config (run this yourself)")
     i.add_argument("--model", help="default model id")
+    i.add_argument("--backend", choices=BACKENDS,
+                   help="default image backend: codex or openrouter (skips the Codex questionnaire)")
     i.add_argument("--palette", help="default palette preset name")
     i.add_argument("--character", help="default character pack name (characters/<name>/)")
     i.add_argument("--aspect", help="default aspect ratio")

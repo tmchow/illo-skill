@@ -10,9 +10,11 @@ pack carries one of ten bundled looks (riso, blueprint, woodcut, pixel, clay,
 manila, chalk, phosphor, enamel, gouache) or a custom style — default
 **Blot** (a deadpan ink-drop), or design your own with the built-in character
 builder. One-metaphor-per-image scenes with named + custom + derived palettes
-and reference-image character consistency. Calls OpenRouter's image API
-directly (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
-Image 2, …).
+and reference-image character consistency. Renders through **two backends**:
+your **Codex CLI** (gpt-image-2 on your Codex subscription — free for
+subscribers, no API key) when one is installed and logged in, or
+**OpenRouter** (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
+Image 2, …) as the universal fallback.
 
 Hand it *"we replatform with zero downtime"* and you get the bridge being
 rebuilt under live traffic:

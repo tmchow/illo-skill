@@ -1,0 +1,7 @@
+# Python build artifacts
+__pycache__/
+*.pyc
+
+# Local planning artifacts (not shipped, not reviewed in PRs)
+docs/plans/
+docs/brainstorms/
