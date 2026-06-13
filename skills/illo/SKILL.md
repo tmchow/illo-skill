@@ -7,13 +7,13 @@ description: >-
   when the structure itself is the point — in one of ten bundled print
   looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.21.0
+version: 0.22.0
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
 metadata:
   hermes:
-    tags: [illustration, riso, image-generation, editorial, mascot, openrouter]
+    tags: [illustration, riso, image-generation, editorial, mascot, codex, openrouter]
     category: creative
     requires_toolsets: [terminal]
   openclaw:
@@ -67,14 +67,27 @@ infographic, not a formal flowchart, not a UI mockup.
 
 ## Prerequisites
 
-- **An OpenRouter API key.** Generation goes straight to OpenRouter's image API
-  via `scripts/illo.py` (stdlib Python, no installs). The key lives in the
-  user's config file — the **single credential channel** — written once by the
-  user-run `init` (mode 600). The engine never reads secrets from the
-  environment and never accepts them as command-line arguments.
-- **`python3`** and network access. Nothing else to install.
-- The engine is **model-selectable** (`--model`); the default renders English
-  labels reliably and honors a reference image for character consistency.
+The engine (`scripts/illo.py`, stdlib Python, no installs) renders through one
+of **two backends**; `python3` and network access are the only hard
+requirements.
+
+- **Codex backend (free for Codex subscribers).** When the host has a usable
+  **Codex CLI** — installed, `codex login`-ed, with the `image_generation`
+  feature — illo can generate through the user's Codex subscription at no
+  per-image charge (it draws on their Codex quota). No API key, no token: illo
+  only shells out to the user's own CLI. Detected, not assumed; gpt-image-2 is
+  automatic; unsupported on Windows/WSL.
+- **OpenRouter backend (the universal fallback).** Needs an **OpenRouter API
+  key** in the user's config file — the **single credential channel** —
+  written once by the user-run `init` (mode 600). The engine never reads
+  secrets from the environment and never accepts them as command-line
+  arguments. This is the path on any host without Codex, and the fallback when
+  Codex fails. It is **model-selectable** (`--model`).
+
+Capsule of the backend model (resolution, the Codex-CLI requirement,
+gpt-image-2 automatic, quota vs. charge, Windows/WSL, fallback): **read
+`references/backends.md` in full before choosing or explaining a backend** —
+the mechanics live there, once.
 
 ### Setup is the user's job (never enter the key yourself)
 
@@ -122,7 +135,8 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
-- `references/models.md` — the model lineup: friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
+- `references/backends.md` — the dual image engine: how the backend resolves, the Codex-CLI requirement, gpt-image-2 being automatic (no model selection), quota-vs-charge, Windows/WSL, and OpenRouter as the universal fallback. Read before choosing or explaining a backend.
+- `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
 
@@ -148,9 +162,29 @@ the readiness signal itself (0 = ready): a chained neighbor's failure paints
 a healthy check as an error.
 
 It reports python, the config path, the resolved model/palette defaults,
-whether a **custom character pack** or **custom palettes file** exists, and
-whether a key is found (without revealing it); exit 0 = ready. Read the
-printed **config path** before concluding the key is missing: under Hermes,
+whether a **custom character pack** or **custom palettes file** exists,
+**Codex CLI detection and the resolved backend/transport**, and whether an
+OpenRouter key is found (without revealing it); exit 0 = the resolved backend
+is ready. An OpenRouter-only install (no Codex CLI) stays exit 0 — readiness
+follows the resolved backend, not a hardwired key check
+(`references/backends.md`).
+
+**Config migration — surface the backend choice interactively.** If `doctor`
+reports `backend: NEEDS CHOICE` (or `generate` hard-stops saying the config "is
+out of date"), this user's config predates the backend choice — they have an
+older install and have never been offered Codex. Do **not** pick for them
+silently. Surface an **interactive choice** using the platform's blocking
+question tool (`AskUserQuestion` in Claude Code, the equivalent elsewhere):
+"illo now has two image backends — which would you like?" with two options —
+**Codex** (free, uses your Codex subscription; draws on your Codex quota) and
+**OpenRouter** (pick the model: Grok Imagine, Nano Banana, GPT Image, and
+others). Persist the answer without touching any existing key:
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|openrouter> --no-key`,
+then continue. A brand-new install (no config at all) is ordinary onboarding,
+not this migration — it does not fire.
+
+Read the printed **config path** before concluding
+the key is missing: under Hermes,
 multi-profile setups can resolve `HOME`/`XDG_CONFIG_HOME` to *another*
 profile's home (e.g. `…/profiles/<name>/home/.config/illo/…`), so a key
 that exists looks absent. If the path points at the wrong profile, re-run
@@ -294,10 +328,11 @@ python3 "$SKILL_DIR/scripts/illo.py" generate \
   # --model <id> to override the config/default model for this image
 ```
 
-`illo.py generate` prints a **JSON line per image** (`{path, model, id, cost,
-width, height, label, prompt}`; `cost` is null unless `--cost` is passed —
-`gallery` backfills it) and appends the same record to
-`<out-dir>/manifest.jsonl`.
+`illo.py generate` prints a **JSON line per image** (`{path, backend, model,
+id, cost, width, height, label, prompt}`; `backend` is `codex` or
+`openrouter`, and `model`/`id`/`cost` are OpenRouter-only — they are null on a
+Codex-served record. `cost` is null unless `--cost` is passed — `gallery`
+backfills it) and appends the same record to `<out-dir>/manifest.jsonl`.
 Read `.path` — it may differ from `--out`: the engine names the file by the
 actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
@@ -315,7 +350,10 @@ line weight, halftone density, and flat-vs-dimensional treatment stay
 consistent throughout. The same trick locks style for a one-off: add any
 finished example as a second `--ref`.
 
-**Model choice.** Read `references/models.md` in full before passing any
+**Model choice (OpenRouter backend only).** `--model` and config `model:` are
+an **OpenRouter-only** axis — on the Codex backend the model is automatic
+(gpt-image-2) and `--model` does not apply (`references/backends.md`). For the
+OpenRouter path, read `references/models.md` in full before passing any
 `--model` (or whenever the user names a model in plain language or asks for
 "best quality" / "cheapest"): it holds the friendly-name → OpenRouter id
 map, per-model traits, the aspect-ratio caveat, and the 404/fallback
@@ -330,10 +368,11 @@ append, and the two-render caveat are in `references/prompt-recipe.md`.
 ### 5b. Batches & comparison (only when it helps)
 
 **Default to ONE image.** Fan out only when the user asks for options/comparison
-or the piece is important enough to be worth it — and **say first that it
-bills the user's OpenRouter account** (typically under ten cents per image,
-varying by model). Keep N small (2–4). Orchestrate the loop with the
-engine's primitives:
+or the piece is important enough to be worth it — and **say first what each
+image costs**: on the Codex backend it draws on the user's Codex quota (no
+per-image charge); on the OpenRouter backend it bills their OpenRouter account
+(typically under ten cents per image, varying by model). Keep N small (2–4).
+Orchestrate the loop with the engine's primitives:
 
 ```bash
 RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun)      # -> /tmp/illo/<runid>

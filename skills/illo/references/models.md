@@ -1,5 +1,11 @@
 # Models — friendly names, ids, traits
 
+**This table is the OpenRouter backend only.** `--model` (and config `model:`)
+is an **OpenRouter-only axis** — it is orthogonal to `--backend`, and the
+**Codex backend ignores it entirely**: there the model is automatic
+(gpt-image-2) with no selector (`references/backends.md`). So only translate
+model names / honor `--model` when the OpenRouter backend is in play.
+
 `illo.py` takes a full OpenRouter id only — do the friendly-name translation:
 when the user names a model in plain language, map it to the id and pass it
 as `--model`. Don't make the user remember the formal ids. Resolution is
@@ -11,6 +17,14 @@ as `--model`. Don't make the user remember the formal ids. Resolution is
 | "Nano Banana 2", "nano banana", "banana", "nb2" | `google/gemini-3.1-flash-image-preview` | safe catalogued fallback; fast, reliable text; 16:9 |
 | "Nano Banana Pro", "banana pro", "nb pro", "the pro one" | `google/gemini-3-pro-image-preview` | richest detail; honors 16:9 |
 | "GPT Image 2", "GPT image", "GPT-5.4 Image", "GPT-5.4 Image 2", "OpenAI image" | `openai/gpt-5.4-image-2` | strong instructions; pricey; tends square |
+
+> **Don't confuse the OpenRouter "OpenAI image" model with the Codex
+> backend.** The row above is the *billed* `openai/gpt-5.4-image-2` model on
+> **OpenRouter**, selected with `--model`. The **Codex backend** renders with
+> **gpt-image-2 on the user's Codex subscription** (free, automatic, no
+> `--model`) — a different thing reached by `--backend codex`, not by a model
+> id. If the user wants free OpenAI-family generation, that's the Codex
+> backend (`references/backends.md`), not this row.
 
 Translating:
 
@@ -37,6 +51,7 @@ Translating:
   accounts with access. If a generation 404s "no endpoints found", that account
   can't reach it; fall back to `google/gemini-3.1-flash-image-preview` (catalogued).
 
-Cost: generation bills the user's OpenRouter account per image — typically
-under ten cents on the default model, varying by model; prices are
-OpenRouter's and drift.
+Cost (OpenRouter backend): generation bills the user's OpenRouter account per
+image — typically under ten cents on the default model, varying by model;
+prices are OpenRouter's and drift. The Codex backend has no per-image charge
+(it draws on the Codex quota) — see `references/backends.md`.

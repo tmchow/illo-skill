@@ -126,7 +126,15 @@ them:
   make the real call against each supported provider and inspect the
   output.
 - **Prefer stdlib over subprocess** (`webbrowser.open`, not shelling out to
-  `open`/`xdg-open`).
+  `open`/`xdg-open`). **One sanctioned exception: the Codex image backend
+  shells out to the user's own `codex` CLI** — `codex login status` /
+  `codex features list` for detection and `codex exec` for generation. This is
+  a benign call to a known CLI, not a credential read: illo never sees the
+  token the CLI holds, reads no `~/.codex/auth.json`, runs no OAuth, and hits
+  no endpoint. Do **not** "fix" these subprocess calls back to env-free purity
+  or replace them with a credential/network path — the subprocess *is* the
+  scanner-clean design. (Detection still reads no secret-shaped env var;
+  `$CODEX_HOME` is a path, not a secret, so resolving it is allowed.)
 - **Pin every install command** quoted in docs or code
   (`pip install 'PyYAML==6.0.2'`, `npx -y tool@1.2.3`).
 
