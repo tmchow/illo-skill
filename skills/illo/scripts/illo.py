@@ -42,7 +42,7 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 # no API key). illo handles NO token: it runs no OAuth, reads no ~/.codex/auth.json,
 # and hits no endpoint — the only privileged action is a subprocess call to the
 # user's own CLI. Subprocess to `codex` is the ONE sanctioned exception to the
-# stdlib-over-subprocess rule (a benign CLI call, not a credential read); see AGENTS.md.
+# stdlib-over-subprocess rule — a benign call to a known CLI, not a credential read.
 BACKENDS = ("codex", "openrouter")
 # Config schema version. 2 is the first version that has the Codex/OpenRouter
 # backend choice. A config without this key (or below) predates the choice, so

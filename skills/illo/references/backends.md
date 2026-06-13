@@ -104,8 +104,9 @@ character's reference sheet (`-i <sheet>`) so the mascot stays on-model, and
 asks the agent to save the result to the run-dir path. illo handles **no
 token**: it runs no OAuth, reads no `~/.codex/auth.json`, hits no endpoint —
 the only privileged action is the subprocess call to the user's own CLI
-(the one sanctioned exception to the stdlib-over-subprocess rule; see
-`AGENTS.md`). The adapter verifies the file landed, otherwise fetches the
+(the one sanctioned exception to the stdlib-over-subprocess rule — a benign
+call to a known CLI, not a credential read). The adapter verifies the file
+landed, otherwise fetches the
 freshest image the tool dropped under `$CODEX_HOME/generated_images/`
 (`$CODEX_HOME` resolved at run time — relocatable, never hardcoded).
 

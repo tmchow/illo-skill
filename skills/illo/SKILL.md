@@ -7,7 +7,7 @@ description: >-
   when the structure itself is the point — in one of ten bundled print
   looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.22.0
+version: 0.22.1
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
