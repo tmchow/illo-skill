@@ -7,7 +7,7 @@ description: >-
   when the structure itself is the point — in one of ten bundled print
   looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.23.1
+version: 0.23.2
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
@@ -274,6 +274,11 @@ wins:
 Once resolved, read the pack's `character.md` and use its prompt spec, value
 rules, and `reference.png` everywhere the default's would be used.
 
+When rerouting an article set to a new character — especially after a weak
+attempt, or for a technical/platform essay — read
+`references/article-set-character-reroute.md` in full before planning or
+rendering. Do the legibility preflight there before spending renders.
+
 If the user wants a *new* character, that is the character builder
 (`references/character-builder.md`); if they want someone else's, packs
 install from the community repo (`references/pack-sharing.md`). Either way,
@@ -291,6 +296,11 @@ rule are in `references/composition.md`). When a stretch of the piece advances
 through stages **in one place**, plan a single mini-comic image there instead
 of several — the mini-comic-vs-separate routing is in
 `references/composition.md`.
+
+For article-set character reroutes, add the mandatory preflight fields from
+`references/article-set-character-reroute.md` before any render: section claim,
+visual object/action, and reader mapping. Reject rows that need a private
+metaphor glossary or more than one conceptual substitution.
 
 ### 4. Resolve the palette (the style is the character's)
 
@@ -349,13 +359,15 @@ aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. Pass `--label`
 for a caption that shows in the gallery.
 
 **Sets read as one artist.** For any multi-image set, the first image that
-**passes the full quality bar** (never an unvetted render — a failed anchor,
-e.g. an off-palette ground, would propagate its failure set-wide) becomes the
-set's **style anchor**: pass it as a second `--ref` after the character sheet
-for every later image in the set and for every re-roll of a set member, so
-line weight, halftone density, and flat-vs-dimensional treatment stay
-consistent throughout. The same trick locks style for a one-off: add any
-finished example as a second `--ref`.
+**passes the full quality bar** (and, for a hero in a rerouted article set,
+passes the thesis-legibility gate in
+`references/article-set-character-reroute.md`; never anchor on an unvetted
+render — a failed anchor, e.g. an off-palette ground or illegible metaphor,
+would propagate its failure set-wide) becomes the set's **style anchor**: pass
+it as a second `--ref` after the character sheet for every later image in the
+set and for every re-roll of a set member, so line weight, halftone density,
+and flat-vs-dimensional treatment stay consistent throughout. The same trick
+locks style for a one-off: add any finished example as a second `--ref`.
 
 **Model choice (OpenRouter backend only).** `--model` and config `model:` are
 an **OpenRouter-only** axis — on the Codex backend the model is automatic
