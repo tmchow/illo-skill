@@ -82,6 +82,20 @@ image models render the description, not the proper noun. Use the name in
 human-facing copy, captions, and shot lists. A good name reads off the design
 (an ink drop is a *blot*).
 
+When a name *doesn't* read literally off the subject (an ox named `yoke`, a
+mole named `mole` is fine but a robot named `blip` is not), give the pack an
+optional **`Aliases:` line** so users can summon it by what it is — "use ox"
+→ `yoke`. List the subject and common synonyms, comma-separated:
+
+```markdown
+Aliases: ox, zebu, oxen
+```
+
+Aliases are selection keys like the name, so the same global-uniqueness rule
+applies: an alias must not collide with another pack's name or alias, the
+shipped `blot`, or any look name. Absent line = name-only selection (the
+agent can still match on the subject prose, just less reliably).
+
 ## Blot — the shipped default
 
 **Blot** is the default mascot: a small ink drop. Style: riso. The model
@@ -124,9 +138,10 @@ the pack name, and the `doctor` subcommand lists what's installed:
 
 - `character.md` — the written spec: name, locked design, a **prompt spec**
   paragraph for the CHARACTER slot, value rules, a `Style: <name>` line (the
-  pack's one look — a bundled or custom style; absent = riso), and
-  (optionally) personality notes. Everything in "Rules for any character"
-  above still applies.
+  pack's one look — a bundled or custom style; absent = riso), an optional
+  `Aliases:` line (subject synonyms for "use ox"-style selection; see
+  Naming above), and (optionally) personality notes. Everything in "Rules
+  for any character" above still applies.
 - `reference.png` — the character's model sheet, passed as `--ref` in place
   of the default's. It is rendered **in the pack's style**, so sheet and
   scenes always match.

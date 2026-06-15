@@ -28,6 +28,7 @@ import urllib.error, urllib.request
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_PACKS_REPO = "https://raw.githubusercontent.com/tmchow/illo-characters/main"
 PACK_NAME_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
+ALIASES_RE = re.compile(r"^Aliases:\s*(.+)$", re.M)
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # Grok Imagine: best riso quality + cheapest in testing. Note: it is reachable via
 # the API but not in OpenRouter's public /models list, so an account without access
@@ -692,6 +693,22 @@ def character_packs(cdir):
             if (d / "character.md").is_file()}
 
 
+def pack_aliases(pack_dir):
+    """The pack's Aliases: line as a list (subject synonyms for "use ox"-style
+    selection), or [] when absent — lets the agent resolve a character by what
+    it is, not just its pack name."""
+    spec = pack_dir / "character.md"
+    if not spec.is_file():
+        return []
+    m = ALIASES_RE.search(spec.read_text(encoding="utf-8", errors="replace"))
+    return [a.strip() for a in m.group(1).split(",") if a.strip()] if m else []
+
+
+def aka_suffix(aliases):
+    """Display suffix ' (aka a, b)' for an alias list, '' when empty."""
+    return f" (aka {', '.join(aliases)})" if aliases else ""
+
+
 def corrupted_assets():
     """Bundled binary assets that no longer match the known-good hashes in
     assets/checksums.txt — the signature of an installer that decoded
@@ -733,8 +750,10 @@ def cmd_doctor(args):
         lines.append(f"watermark: {', '.join(sorted(cfg['watermark']))} (configured)")
     packs = character_packs(cdir)
     if packs:
-        notes = [n + ("" if (d / "reference.png").is_file() else " (reference.png MISSING)")
-                 for n, d in packs.items()]
+        notes = []
+        for n, d in packs.items():
+            note = n + aka_suffix(pack_aliases(d))
+            notes.append(note + ("" if (d / "reference.png").is_file() else " (reference.png MISSING)"))
         lines.append(f"characters: {', '.join(notes)} (packs in {cdir / 'characters'})")
     default_char = cfg.get("defaultCharacter")
     if default_char:
@@ -885,7 +904,7 @@ def cmd_packs_list(args):
             else:
                 mark = "  [installed]"
         print(f"{name} {p.get('version', '')}  {p.get('author', '')} — "
-              f"{p.get('description', '')}{mark}")
+              f"{p.get('description', '')}{aka_suffix(p.get('aliases') or [])}{mark}")
 
 
 def cmd_packs_show(args):

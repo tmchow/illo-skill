@@ -7,7 +7,7 @@ description: >-
   when the structure itself is the point — in one of ten bundled print
   looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.22.2
+version: 0.23.0
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
@@ -259,7 +259,14 @@ what's installed. A user can keep several and pick per run. First match
 wins:
 
 1. **Explicit request** — "use <pack name>", "as <name>": that pack (or the
-   shipped default when asked for by name, `blot`).
+   shipped default when asked for by name, `blot`). When the word matches no
+   pack name, resolve by **approximation**: match it against each installed
+   pack's `Aliases:` line and subject (the `character.md` opening line and
+   Locked design **Body**) — `doctor` prints names + aliases, so this needs
+   no file reads in the common case — and against catalog `description`s
+   (`packs list`). So "use ox" finds a pack subtitled an ox (e.g. `yoke`).
+   On one clear match, use it and name it; on several, ask which; on none,
+   say so before falling through.
 2. **Config default** — `defaultCharacter` from the user config, if set.
 3. **Shipped default** — **Blot** (spec in `references/character.md`, model
    sheet `assets/character-reference.webp`).
