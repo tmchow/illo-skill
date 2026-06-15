@@ -102,7 +102,9 @@ let the move, not the expression, carry the idea.}
 Render each concept as a clean reference sheet — no scene, no labels. Use the
 prompt template below per concept, `--count 2`, aspect `1:1`, into a fresh
 `newrun` dir; build a `gallery` and let the user pick (or iterate). No `--ref`
-on the first round — there is nothing to lock to yet.
+on the first round — there is nothing to lock to yet (both backends render this
+first sheet ref-less; once it exists, every later scene render passes it as
+`--ref`).
 
 ```text
 A 1:1 square character reference sheet (model sheet) for a recurring

@@ -593,7 +593,15 @@ def _codex_refs(refs, cfg):
     """Reference image(s) to attach with `codex exec -i` for character lock. Passes every --ref the caller gives (the active character sheet, plus
     any finished-look style anchor illo adds for set consistency); else falls
     back to a configured default character's reference.png so the mascot still
-    locks if --ref was omitted."""
+    locks if --ref was omitted.
+
+    With neither a --ref nor a default character there is nothing to lock to —
+    a ref-less render, exactly what bootstrapping a brand-new character's first
+    model sheet needs (character-builder step 4). gpt-image-2 via `codex exec`
+    does text-to-image fine with no -i, and OpenRouter already renders ref-less
+    without complaint, so Codex matches it rather than refusing (which had left
+    Codex-only users unable to create a character). A one-line note marks the
+    lockless render so a genuinely-forgotten --ref on a scene is still visible."""
     if refs:
         return list(refs)
     default_char = cfg.get("defaultCharacter")
@@ -601,8 +609,10 @@ def _codex_refs(refs, cfg):
         ref = config_dir() / "characters" / default_char / "reference.png"
         if ref.is_file():
             return [str(ref)]
-    raise BackendUnavailable("Codex backend needs a character reference image "
-                             "(pass --ref <sheet>) for character lock.")
+    sys.stderr.write("note: rendering with no character reference (no --ref, no "
+                     "default character) — expected when bootstrapping a new "
+                     "character's model sheet.\n")
+    return []
 
 
 def cmd_init(args):
