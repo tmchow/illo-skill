@@ -74,7 +74,9 @@ SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
    `character.md` if missing. Append an entry to `index.json` (`name`,
    `author`, `version`, `description`, `style` — the pack's look, matching
    its `Style:` line; catalog packs must use a **bundled** look, a custom
-   style can't ship in a pack) and a row to the README catalog table
+   style can't ship in a pack — plus an optional `aliases` array mirroring
+   the spec's `Aliases:` line, so `packs list` matches "use ox" to the pack)
+   and a row to the README catalog table
    (copy an existing row's format). If the character-pack repository includes
    contributor instructions, follow those for the current catalog layout.
 4. **Validate:** `python3 .github/validate.py` from the repo root — fix

@@ -20,7 +20,10 @@ Ask only what changes the design:
 - **Where is the accent?** One small part that will carry the palette accent
   in every image (a tip, a fold, a tail, a topknot).
 - **A name?** Optional — the best names read off the design. Offer one if the
-  user doesn't have one.
+  user doesn't have one. If the chosen name *doesn't* read off the subject
+  (an ox named `yoke`), ask for **aliases** — the words people would summon
+  it by ("ox", "zebu") — and record them in the spec's `Aliases:` line so
+  "use ox" resolves to the pack.
 - **Any must/never elements?** (e.g. "no corporate logo shapes").
 
 Skip questions already answered by context. If the user **already has art** —
@@ -68,6 +71,7 @@ Fill this template (it becomes `character.md` in the pack):
 {One sentence: what it is, and why the name reads off the design.}
 
 Style: **{look name — riso if unset}**
+Aliases: {subject + synonyms, comma-separated — omit this line if the name already reads off the subject}
 
 ## Locked design
 
