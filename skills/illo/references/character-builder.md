@@ -167,7 +167,13 @@ python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <name>
 
 Per-run selection ("use <name>") beats the default — SKILL.md step 2. Offer a
 quick proof render: one simple scene with the new mascot performing a move,
-so the user sees it on-model in action.
+**rendered with the pack's `reference.png` passed as `--ref`**, so the user
+sees it on-model in action. The locked sheet is the **single source of
+truth**: derive the preview — and every later scene — by conditioning on it,
+never from the bare prompt or a sketch/seed alone. A sheet and a scene
+generated independently drift into two *different* characters; only
+`--ref`-ing the sheet keeps them the same mascot (the same rule SKILL.md
+step 5 states for generation — it applies to the very first preview too).
 
 Packs are folders: remove one to retire it, copy it to another machine to
 install the character there. If the user wants to share it with everyone,
