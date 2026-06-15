@@ -101,8 +101,12 @@ enabling Codex.
 
 illo invokes `codex exec` against the built-in tool, attaching the active
 character's reference sheet (`-i <sheet>`) so the mascot stays on-model, and
-asks the agent to save the result to the run-dir path. illo handles **no
-token**: it runs no OAuth, reads no `~/.codex/auth.json`, hits no endpoint —
+asks the agent to save the result to the run-dir path. With no `--ref` and no
+default character there is nothing to lock to, so illo renders ref-less (a
+one-line note marks it) — matching OpenRouter, and exactly what bootstrapping a
+brand-new character's first model sheet needs (`references/character-builder.md`
+step 4). illo handles **no token**: it runs no OAuth, reads no
+`~/.codex/auth.json`, hits no endpoint —
 the only privileged action is the subprocess call to the user's own CLI
 (the one sanctioned exception to the stdlib-over-subprocess rule — a benign
 call to a known CLI, not a credential read). The adapter verifies the file
