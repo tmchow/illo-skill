@@ -50,7 +50,10 @@ its style's file** — everything else here still applies.
   - **Anatomy / attachment** — trace each limb to where it joins: exactly
     the character's limb count (no extra, floating, doubled, or merged
     arms/legs), each rooted at a sensible point on the body, not emerging
-    from mid-torso or an accent band.
+    from mid-torso or an accent band. Limb **proportions** must match the
+    character sheet: a stubby arm cannot become a long bar, cable, lever, or
+    bridge across the scene. For one-arm / handle characters, the handle is
+    never a second hand and the working arm must stay visually short.
   - **No fused props** — a tool/object is held in a hand (separated from the
     torso) or sits in the scene; it is never pressed flat against the body
     or sprouting from it. Watch the case where the mascot is given more
