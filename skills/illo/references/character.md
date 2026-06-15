@@ -46,6 +46,21 @@ interlocking oversized paperclips"), then judge consistency **in aggregate**
 may shift run to run the way hatching does. Locked parts are checked
 one-by-one; locked treatments are checked as a whole.
 
+### A style may own a richer profile
+
+The guardrails above are the house defaults, tuned for the minimalist bundled
+looks. A **style/look file may deliberately loosen them** for its medium, as
+long as the structural invariants still hold: one readable silhouette, exactly
+ONE focal accent, a load-bearing performance, and an exactly-locked,
+reproducible design. A layered-craft look like `felt`, for example, builds the
+body from many stacked felt pieces in several colors and pins a fuller cute
+face (dot eyes + a small stitched mouth + cheeks) — the richness lives in a
+**locked layer treatment judged in aggregate** plus a **multi-color body with
+one focal accent**, never in loose extra parts. When a pack's `Style:` names
+such a look, that look file's "Character treatment" section governs: read it,
+and judge the pack by the structural invariants plus the look's own QA deltas,
+not by the house minimalism.
+
 ### Value-follows-palette (critical)
 
 The character is built with the same value logic as the rest of the scene, so
