@@ -98,7 +98,10 @@ Aliases: {subject + synonyms, comma-separated — omit this line if the name alr
 
 {Default: an earnest, low-key operator doing something slightly absurd with a
 straight face. Adjust freely — keep it consistent with the locked face, and
-let the move, not the expression, carry the idea.}
+let the move, not the expression, carry the idea. Lead with what the character
+*is and does*; if you name a use-case, keep any engineering use as one lens at
+the end, never the headline — the catalog is a cast of mascots, not a devops
+icon set.}
 ```
 
 ## 4. Generate model-sheet candidates

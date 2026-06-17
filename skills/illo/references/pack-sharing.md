@@ -77,8 +77,11 @@ SKILL.md step 5); convert before publishing (`sips -s format png in.jpg
    style can't ship in a pack — plus an optional `aliases` array mirroring
    the spec's `Aliases:` line, so `packs list` matches "use ox" to the pack)
    and a row to the README catalog table
-   (copy an existing row's format). If the character-pack repository includes
-   contributor instructions, follow those for the current catalog layout.
+   (copy an existing row's format). Lead the `description` (and the README row)
+   with what the character *is and does*; keep any engineering use as one lens
+   at the end, not the headline — match the catalog's voice, not a devops icon
+   set. If the character-pack repository includes contributor instructions,
+   follow those for the current catalog layout.
 4. **Validate:** `python3 .github/validate.py` from the repo root — fix
    anything it flags (CI runs the same check on the PR).
 5. **Commit, push, open the PR** with both images embedded so review takes
