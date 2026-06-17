@@ -59,7 +59,13 @@ Required: `name`, `description`, `version`.
   bundled print looks") — bump the number when adding a look, never
   enumerate names there.
 - `version` — semver; bump on meaningful change. **Publishing is gated on
-  this** (see Publishing below).
+  this** (see Publishing below). "Meaningful change" includes **any edit to
+  shipped skill content** — `SKILL.md`, `references/**`, `scripts/**`,
+  `assets/**` — because those install onto the user's machine and change how
+  the skill behaves. Editing a reference doc is *not* a docs-only change: only
+  repo-meta files (`README.md`, `AGENTS.md`, `CONTRIBUTING`, `.github/**`) are
+  docs-only and skip the bump. When in doubt, bump — an unchanged version is
+  skipped silently at publish, so the fix never reaches installed skills.
 
 Per-runtime metadata (`metadata.hermes`, `metadata.openclaw`) is optional
 and additive — unknown fields are ignored by other runtimes. **Verify every
