@@ -14,7 +14,7 @@ The methodology is the constant; **the character pack and palette are yours
 to set** — and every character pack carries its own print style. Out of the
 box the mascot is **Blot**, a deadpan ink-drop in **risograph**. A built-in
 **character builder** designs your own mascot with you (interview — including
-picking its look from the bundled library of ten ([below](#looks)) — then
+picking its look from the bundled library of twelve ([below](#looks)) — then
 model-sheet candidates → pick → install). Want the same
 character in another look? Build a *style variant pack* (`blot-woodcut`):
 one pack, one look, so a catalog of characters never turns into a grid of
@@ -66,6 +66,8 @@ Every character pack picks exactly one look from the bundled library:
 | **phosphor** | Glowing CRT trace on near-black glass |
 | **enamel** | Hard-enamel pin cells with raised metal lines |
 | **gouache** | Flat matte mid-century poster paint |
+| **felt** | Layered hand-cut wool-felt craft |
+| **diorama** | Watercolor-and-ink storybook tabletop diorama |
 
 Looks are shared infrastructure, deliberately separate from characters: the
 definitions live in this skill (`references/styles/`), and a character pack

@@ -4,10 +4,10 @@ description: >-
   Creates original editorial illustrations where a recurring mascot
   character performs the idea — one caught scene by default, or a
   hand-built explainer diagram (a flow, fan-out, timeline, loop, or stack)
-  when the structure itself is the point — in one of ten bundled print
+  when the structure itself is the point — in one of twelve bundled print
   looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.23.3
+version: 0.23.4
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
@@ -43,7 +43,7 @@ parameters** — and a character pack carries its **style** with it: one look
 per pack, chosen from the bundled look library (riso — grainy halftone,
 ink-layer offset, paper grain, one bold softly-rounded outline — plus
 blueprint, woodcut, pixel, clay, manila, chalk, phosphor, enamel,
-gouache, and felt) or a custom style file. The default mascot is
+gouache, felt, and diorama) or a custom style file. The default mascot is
 **Blot**, a deadpan ink-drop in riso. Palettes come
 from presets, the user's own palette file, or one derived color. Whatever the
 parameters, it is intentionally not a photo, not a logo, not a corporate
@@ -129,7 +129,7 @@ checks asset integrity everywhere and will say if repair is ever needed.
 Do not load everything at once. Pull the file that matches the step:
 
 - `references/visual-style.md` — riso, the house default look: the risograph technique, line language, paper/ink, hard do/don'ts.
-- `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`, `clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`, `felt`), consumed by character packs. Read the active character's style file in full before generating.
+- `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`, `clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`, `felt`, `diorama`), consumed by character packs. Read the active character's style file in full before generating.
 - `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
