@@ -2,7 +2,7 @@
   <img src="_assets/illo/logo/illo-logo.png" alt="illo logo — a small screen-faced robot with a pink antenna" width="170" />
 </p>
 
-# illo
+# illo skill
 
 Generate original print-style **editorial illustrations** for articles and
 blogs, starring a recurring mascot that performs each idea. Each character
@@ -94,14 +94,6 @@ as a native plugin on each platform.
 
 - [tmchow/illo-characters](https://github.com/tmchow/illo-characters) —
   community character packs ("install the blip character").
-
-## Provenance
-
-illo started life inside
-[tmchow/agent-skills](https://github.com/tmchow/agent-skills); it moved here
-with full git history. The old location keeps a frozen copy so existing
-installs don't break, but this repo is the canonical home — new versions
-ship only from here.
 
 ## License
 
