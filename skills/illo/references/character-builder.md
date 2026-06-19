@@ -15,7 +15,7 @@ Ask only what changes the design:
   simple silhouette.
 - **What look?** The pack's one style: riso (house default) or another from
   the look library — blueprint, woodcut, pixel, clay, manila, chalk,
-  phosphor, enamel, gouache, felt, diorama — or a custom style file. The model sheet and
+  phosphor, enamel, gouache, felt, diorama, sketchbook — or a custom style file. The model sheet and
   every scene render in this style.
 - **Where is the accent?** One small part that will carry the palette accent
   in every image (a tip, a fold, a tail, a topknot).
