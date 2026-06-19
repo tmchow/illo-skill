@@ -15,8 +15,8 @@
         "source": "url",
         "url": "https://github.com/tmchow/illo-skill.git"
       },
-      "description": "Original editorial illustrations where a recurring mascot performs the idea — ten bundled print looks, custom characters, palettes from your own site's colors.",
-      "version": "0.24.0",
+      "description": "Original editorial illustrations where a recurring mascot performs the idea — fourteen bundled looks, custom characters, palettes from your own site's colors.",
+      "version": "0.25.0",
       "strict": true
     }
   ]
