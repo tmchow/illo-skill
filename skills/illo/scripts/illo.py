@@ -4,6 +4,8 @@
 Subcommands:
   generate   Render image(s) from a prompt (+ refs); prints a JSON line per image
              and appends to <out-dir>/manifest.jsonl. --count N for variations.
+             --cutout best-effort transparent PNG for character cutouts (native
+             alpha, chroma key, or opaque fallback; see cutout_alpha in JSON).
   newrun     Make + print a fresh batch dir: $ILLO_TMP (or /tmp/illo) / <runid>.
   gallery    Build a self-contained index.html from a run dir's manifest.jsonl.
   init       Create/update the user config (run by the user; prompts for the key).
@@ -22,18 +24,37 @@ flat string keys (apiKey, model, …), so generation stays install-free.
 The engine never reads secrets from the environment.
 The agent must NOT enter the key: `init` is run by the user.
 """
-import argparse, base64, getpass, json, mimetypes, os, pathlib, re, shutil, subprocess, sys, time
+import argparse, base64, getpass, json, mimetypes, os, pathlib, re, shutil, struct, subprocess, sys, time
 import urllib.error, urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_PACKS_REPO = "https://raw.githubusercontent.com/tmchow/illo-characters/main"
 PACK_NAME_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 ALIASES_RE = re.compile(r"^Aliases:\s*(.+)$", re.M)
+CUTOUT_CHROMA_RE = re.compile(r"^Cutout chroma:\s*\*?\*?(green|magenta)\*?\*?\s*$", re.M | re.I)
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+# Chroma key for --cutout: flat screen outside the character cluster; removed
+# in post with spill suppression. Default magenta; green for forged/wrought-metal
+# silhouettes (Wick). Registration-locked cutout prompts keep riso grain inside
+# fills — misregistration halos read as fringe at QA.
+CHROMA_MAGENTA = (255, 0, 255)
+CHROMA_GREEN = (0, 255, 0)
+CHROMA_KEY = CHROMA_MAGENTA
+CHROMA_TOLERANCE = 40
+CHROMA_SOFT = 20
+CHROMA_SPILL_MIN = 18   # channel dominance over the other two → spill candidate
+CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
+CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
+# Cutout QA hints on a clean-alpha output (warnings, never gate cutout_alpha):
+CUTOUT_FRINGE_WARN = 20   # fringe px below the clean-alpha gate but worth a QA look
+CUTOUT_EDGE_FRAC = 0.02   # opaque px along the bottom row over this frac of width →
+                          # character likely touches/crops the frame (no foot margin)
 # Grok Imagine: best riso quality + cheapest in testing. Note: it is reachable via
 # the API but not in OpenRouter's public /models list, so an account without access
 # 404s — fall back to a catalogued model like google/gemini-3.1-flash-image-preview.
 DEFAULT_MODEL = "x-ai/grok-imagine-image-quality"
+# OpenRouter cutouts: Grok returns JPEG (no alpha/chroma); GPT Image 2 + chroma works.
+CUTOUT_OPENROUTER_MODEL = "openai/gpt-5.4-image-2"
 PROG = pathlib.Path(__file__).name
 SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 
@@ -320,14 +341,16 @@ def extract_image(message):
     return None
 
 
-def post_chat(model, content, key, modalities):
-    body = json.dumps({
+def post_chat(model, content, key, modalities, image_config=None):
+    body = {
         "model": model,
         "messages": [{"role": "user", "content": content}],
         "modalities": modalities,
-    }).encode()
+    }
+    if image_config:
+        body["image_config"] = image_config
     req = urllib.request.Request(
-        ENDPOINT, data=body, method="POST",
+        ENDPOINT, data=json.dumps(body).encode(), method="POST",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
     )
     with urllib.request.urlopen(req, timeout=300) as resp:
@@ -365,6 +388,446 @@ def image_size(b):
     return None, None
 
 
+def _paeth(a, b, c):
+    p = a + b - c
+    pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+    if pa <= pb and pa <= pc:
+        return a
+    if pb <= pc:
+        return b
+    return c
+
+
+def _png_crc(chunk_type, chunk_data):
+    import binascii
+    return binascii.crc32(chunk_type + chunk_data) & 0xFFFFFFFF
+
+
+def _unfilter_png(raw, width, height, bpp):
+    """Reverse PNG scanline filters → contiguous pixel bytes (no filter bytes)."""
+    stride = width * bpp
+    out = bytearray(height * stride)
+    prev = bytearray(stride)
+    pos = 0
+    for _y in range(height):
+        ftype = raw[pos]
+        pos += 1
+        row = bytearray(raw[pos:pos + stride])
+        pos += stride
+        if ftype == 1:  # Sub
+            for i in range(stride):
+                left = row[i - bpp] if i >= bpp else 0
+                row[i] = (row[i] + left) & 0xFF
+        elif ftype == 2:  # Up
+            for i in range(stride):
+                row[i] = (row[i] + prev[i]) & 0xFF
+        elif ftype == 3:  # Average
+            for i in range(stride):
+                left = row[i - bpp] if i >= bpp else 0
+                row[i] = (row[i] + ((left + prev[i]) // 2)) & 0xFF
+        elif ftype == 4:  # Paeth
+            for i in range(stride):
+                left = row[i - bpp] if i >= bpp else 0
+                up = prev[i]
+                up_left = prev[i - bpp] if i >= bpp else 0
+                row[i] = (row[i] + _paeth(left, up, up_left)) & 0xFF
+        out[_y * stride:(_y + 1) * stride] = row
+        prev = row
+    return bytes(out)
+
+
+def _parse_png_rgb_or_rgba(data):
+    """Return (width, height, rgba_bytes) from a PNG, or None if unsupported."""
+    import zlib
+    if data[:8] != PNG_MAGIC:
+        return None
+    pos = 8
+    width = height = None
+    color_type = None
+    idat = []
+    while pos + 12 <= len(data):
+        length = int.from_bytes(data[pos:pos + 4], "big")
+        ctype = data[pos + 4:pos + 8]
+        cdata = data[pos + 8:pos + 8 + length]
+        pos += 12 + length
+        if ctype == b"IHDR":
+            width = int.from_bytes(cdata[0:4], "big")
+            height = int.from_bytes(cdata[4:8], "big")
+            color_type = cdata[9]
+        elif ctype == b"IDAT":
+            idat.append(cdata)
+        elif ctype == b"IEND":
+            break
+    if not width or not height or color_type not in (2, 6):
+        return None
+    bpp = 4 if color_type == 6 else 3
+    raw = zlib.decompress(b"".join(idat))
+    pixels = _unfilter_png(raw, width, height, bpp)
+    rgba = bytearray(width * height * 4)
+    if color_type == 6:
+        rgba[:] = pixels
+    else:
+        for i in range(width * height):
+            rgba[i * 4:(i + 1) * 4] = pixels[i * 3:(i + 1) * 3] + b"\xff"
+    return width, height, bytes(rgba)
+
+
+def _spill_dominance(r, g, b):
+    """How much one channel exceeds the other two — screen-color halo on edges."""
+    return max(g - max(r, b), r - max(g, b), b - max(r, g))
+
+
+def _is_green_screen(r, g, b):
+    """Flat green-screen background (even when the prompt asked for magenta)."""
+    return g > 150 and r < 90 and b < 90 and g - max(r, b) > 35
+
+
+def _is_spill_halo(r, g, b):
+    """Screen-color anti-aliasing halo on silhouette edges — not normal palette fills."""
+    gb = g - max(r, b)
+    # Green-screen bleed — including dark halos like (17,63,17) on black ink.
+    if gb >= CHROMA_SPILL_MIN and (g > CHROMA_SPILL_FLOOR or gb >= CHROMA_SPILL_STRONG):
+        return True
+    # Magenta-screen bleed: R and B both high, G suppressed, similar R/B.
+    if (r > g + CHROMA_SPILL_MIN and b > g + CHROMA_SPILL_MIN
+            and min(r, b) > 120 and abs(r - b) < 60):
+        return True
+    return False
+
+
+def _is_accent_halo(r, g, b, a):
+    """Riso misregistration / accent ink tracing the outer silhouette."""
+    if a == 0:
+        return False
+    return r > 150 and g < 110 and b > 80 and r > g + 35
+
+
+def _despill_rgb(r, g, b, a):
+    """Pull excess screen-channel tint off pixels we keep opaque."""
+    if a == 0:
+        return r, g, b
+    gb = g - max(r, b)
+    if gb >= CHROMA_SPILL_MIN and (g > CHROMA_SPILL_FLOOR or gb >= CHROMA_SPILL_STRONG):
+        g = max(r, b)
+    if (r > g + CHROMA_SPILL_MIN and b > g + CHROMA_SPILL_MIN
+            and min(r, b) > 120 and abs(r - b) < 60):
+        cap = max(g, (r + b) // 4)
+        r = min(r, cap + max(g, b) + CHROMA_SPILL_MIN)
+        b = min(b, cap + max(g, r) + CHROMA_SPILL_MIN)
+    return r, g, b
+
+
+def _chroma_alpha(r, g, b, key=CHROMA_KEY, tolerance=CHROMA_TOLERANCE, soft=CHROMA_SOFT):
+    d = max(abs(r - key[0]), abs(g - key[1]), abs(b - key[2]))
+    if d <= tolerance:
+        return 0
+    if _is_green_screen(r, g, b):
+        return 0
+    if _is_spill_halo(r, g, b):
+        return 0
+    if d >= tolerance + soft:
+        return 255
+    return min(255, max(0, int(255 * (d - tolerance) / soft)))
+
+
+def chroma_key_to_png(data, key=CHROMA_KEY):
+    """Replace chroma background + screen spill with transparency; return PNG bytes."""
+    import zlib
+    parsed = _parse_png_rgb_or_rgba(data)
+    if not parsed:
+        return None
+    width, height, rgba = parsed
+    out = bytearray(len(rgba))
+    for i in range(0, len(rgba), 4):
+        r, g, b = rgba[i], rgba[i + 1], rgba[i + 2]
+        a = _chroma_alpha(r, g, b, key)
+        if a:
+            r, g, b = _despill_rgb(r, g, b, a)
+        out[i:i + 3] = bytes((r, g, b))
+        out[i + 3] = a
+    # Encode RGBA PNG (filter type 0 per scanline).
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)
+    raw_rows = bytearray()
+    row_len = width * 4
+    for y in range(height):
+        raw_rows.append(0)
+        start = y * row_len
+        raw_rows.extend(out[start:start + row_len])
+    compressed = zlib.compress(bytes(raw_rows), 9)
+
+    def _chunk(ctype, cdata):
+        return (struct.pack(">I", len(cdata)) + ctype + cdata
+                + struct.pack(">I", _png_crc(ctype, cdata)))
+
+    return (PNG_MAGIC + _chunk(b"IHDR", ihdr) + _chunk(b"IDAT", compressed)
+            + _chunk(b"IEND", b""))
+
+
+def analyze_cutout_alpha(img_bytes):
+    """Return transparency metrics for cutout QA and routing."""
+    ext = sniff_ext(img_bytes)
+    w, h = image_size(img_bytes)
+    out = {"ext": ext, "width": w, "height": h, "transparent": 0, "opaque": 0,
+           "semi": 0, "green_fringe": 0, "magenta_fringe": 0, "accent_halo": 0,
+           "fringe": 0, "bottom_edge_opaque": 0, "corner_alpha": [],
+           "has_alpha": False, "clean_alpha": False}
+    if ext != ".png" or not img_bytes.startswith(PNG_MAGIC):
+        return out
+    parsed = _parse_png_rgb_or_rgba(img_bytes)
+    if not parsed:
+        return out
+    w, h, rgba = parsed
+    for i in range(0, len(rgba), 4):
+        r, g, b, a = rgba[i:i + 4]
+        if a == 0:
+            out["transparent"] += 1
+        elif a == 255:
+            out["opaque"] += 1
+        else:
+            out["semi"] += 1
+        if a and g > max(r, b) + 10 and g > 45:
+            out["green_fringe"] += 1
+        if a and r > 120 and b > 120 and r > g + 15 and b > g + 15 and abs(r - b) < 60:
+            out["magenta_fringe"] += 1
+        if a and _is_accent_halo(r, g, b, a):
+            out["accent_halo"] += 1
+    corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+    out["corner_alpha"] = [rgba[(y * w + x) * 4 + 3] for x, y in corners]
+    bottom = (h - 1) * w
+    out["bottom_edge_opaque"] = sum(1 for x in range(w) if rgba[(bottom + x) * 4 + 3])
+    out["has_alpha"] = out["transparent"] > 0 or out["semi"] > 0
+    out["fringe"] = out["green_fringe"] + out["magenta_fringe"] + out["accent_halo"]
+    out["clean_alpha"] = (out["transparent"] > 1000 and all(a == 0 for a in out["corner_alpha"])
+                          and out["fringe"] < 50)
+    return out
+
+
+def aspect_to_image_config(aspect):
+    """Map illo --aspect hints to OpenRouter image_config.aspect_ratio."""
+    if not aspect:
+        return {}
+    a = aspect.lower().replace(" horizontal", "").replace(" vertical", "").strip()
+    allowed = {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9",
+               "1:4", "4:1", "1:8", "8:1"}
+    return {"aspect_ratio": a} if a in allowed else {}
+
+
+def merge_image_config(aspect, image_config_json):
+    """Merge --aspect and optional --image-config JSON for OpenRouter."""
+    cfg = aspect_to_image_config(aspect)
+    if image_config_json:
+        try:
+            extra = json.loads(image_config_json)
+        except json.JSONDecodeError as e:
+            sys.exit(f"--image-config is not valid JSON: {e}")
+        if not isinstance(extra, dict):
+            sys.exit("--image-config must be a JSON object.")
+        cfg.update(extra)
+    return cfg or None
+
+
+def resolve_generate_model(cfg, args_model, backend, cutout):
+    """Resolve the OpenRouter model id for this render.
+
+    Explicit --model wins. Cutouts on OpenRouter default to CUTOUT_OPENROUTER_MODEL
+    (Grok/JPEG cannot produce compositing-ready cutouts). Editorial and Codex keep
+    config/default resolution."""
+    if args_model:
+        return args_model
+    if cutout and backend == "openrouter":
+        return CUTOUT_OPENROUTER_MODEL
+    return cfg.get("model") or DEFAULT_MODEL
+
+
+def _prompt_non_prohibition_lines(prompt):
+    for line in prompt.splitlines():
+        low = line.lower()
+        if "do not" in low or "never " in low:
+            continue
+        yield line
+
+
+def _prompt_background_line(prompt):
+    for line in prompt.splitlines():
+        if line.strip().upper().startswith("BACKGROUND:"):
+            return line
+    return ""
+
+
+def _prompt_suggests_green_screen(prompt):
+    body = "\n".join(_prompt_non_prohibition_lines(prompt)).lower()
+    return any(t in body for t in ("forged-metal", "forged metal", "wrought-iron",
+                                   "wrought iron"))
+
+
+def parse_cutout_chroma(spec_text):
+    """Return 'green'|'magenta' from a character.md Cutout chroma: line, or None."""
+    m = CUTOUT_CHROMA_RE.search(spec_text or "")
+    return m.group(1).lower() if m else None
+
+
+def pack_dir_for_ref(ref_path):
+    """Pack directory when ref_path is a pack's reference image, else None."""
+    rp = pathlib.Path(ref_path).expanduser().resolve()
+    if not rp.name.lower().startswith("reference"):
+        return None
+    pack = rp.parent
+    return pack if (pack / "character.md").is_file() else None
+
+
+def bundled_blot_ref_paths():
+    assets = SKILL_DIR / "assets"
+    return {p.resolve() for p in assets.glob("character-reference*") if p.is_file()}
+
+
+def shipped_blot_cutout_chroma():
+    spec = SKILL_DIR / "references" / "character.md"
+    if spec.is_file():
+        return parse_cutout_chroma(spec.read_text(encoding="utf-8", errors="replace"))
+    return None
+
+
+def resolve_cutout_chroma_from_context(refs, cfg):
+    """Pack-declared cutout chroma from --ref or the configured default character."""
+    for ref in refs or []:
+        pack = pack_dir_for_ref(ref)
+        if pack:
+            chroma = parse_cutout_chroma((pack / "character.md").read_text(
+                encoding="utf-8", errors="replace"))
+            if chroma:
+                return chroma
+    for ref in refs or []:
+        if pathlib.Path(ref).expanduser().resolve() in bundled_blot_ref_paths():
+            return shipped_blot_cutout_chroma() or "magenta"
+    default_char = (cfg or {}).get("defaultCharacter")
+    if default_char and not refs:
+        pack = config_dir() / "characters" / default_char
+        spec = pack / "character.md"
+        if spec.is_file():
+            chroma = parse_cutout_chroma(spec.read_text(encoding="utf-8", errors="replace"))
+            if chroma:
+                return chroma
+    return None
+
+
+def resolve_chroma_key(prompt, override=None, pack_chroma=None):
+    """Pick the chroma screen color for this cutout prompt."""
+    if override == "green":
+        return CHROMA_GREEN
+    if override == "magenta":
+        return CHROMA_MAGENTA
+    if pack_chroma == "green":
+        return CHROMA_GREEN
+    if pack_chroma == "magenta":
+        return CHROMA_MAGENTA
+    bg = _prompt_background_line(prompt).upper()
+    if "#00FF00" in bg:
+        return CHROMA_GREEN
+    if "#FF00FF" in bg:
+        return CHROMA_MAGENTA
+    if _prompt_suggests_green_screen(prompt):
+        return CHROMA_GREEN
+    return CHROMA_MAGENTA
+
+
+def chroma_background_line(key):
+    if key == CHROMA_GREEN:
+        return ("BACKGROUND: solid flat chroma green exactly #00FF00 everywhere outside "
+                "the character and its contact cluster — perfectly uniform, no paper grain, "
+                "no gradient, no cast shadow on the green, no vignette. The green exists only "
+                "for transparency extraction; it must not bleed onto the mascot outline.")
+    return ("BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside "
+            "the character and its contact cluster — perfectly uniform, no paper grain, "
+            "no gradient, no cast shadow on the magenta, no vignette. The magenta exists only "
+            "for transparency extraction; it must not bleed onto the mascot outline.")
+
+
+def _prompt_has_chroma_background(prompt):
+    return bool(_prompt_background_line(prompt))
+
+
+def apply_cutout_postprocess(img_bytes, out_path, key=CHROMA_MAGENTA):
+    """Chroma-key to transparent PNG; return (bytes, resolved_path) or None."""
+    keyed = chroma_key_to_png(img_bytes, key=key)
+    if keyed is None:
+        return None
+    out = pathlib.Path(out_path).with_suffix(".png")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(keyed)
+    return keyed, out.resolve()
+
+
+def _place_opaque(img_bytes, out_path):
+    """Write image bytes without cutout processing."""
+    out = pathlib.Path(out_path)
+    actual = sniff_ext(img_bytes) or out.suffix
+    if actual != out.suffix:
+        out = out.with_suffix(actual)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(img_bytes)
+    w, h = image_size(img_bytes)
+    return out.resolve(), w, h
+
+
+def _cutout_quality_note(analysis):
+    """QA warnings for a clean-alpha cutout. These never gate cutout_alpha —
+    transparency is real; the agent re-rolls on framing/fringe at QA."""
+    notes = []
+    w = analysis.get("width") or 0
+    if w and analysis.get("bottom_edge_opaque", 0) > max(4, int(w * CUTOUT_EDGE_FRAC)):
+        notes.append("character touches the bottom frame edge — verify feet aren't "
+                     "cropped and a transparent margin sits below them")
+    fringe = analysis.get("fringe", 0)
+    if fringe >= CUTOUT_FRINGE_WARN:
+        if analysis.get("accent_halo", 0) >= CUTOUT_FRINGE_WARN:
+            notes.append("accent-colored halo on the silhouette — use registration-locked "
+                         "STYLE (no ink-layer offset) and re-roll")
+        else:
+            notes.append("residual screen-color fringe near the silhouette — check edges "
+                         "or try the other chroma screen")
+    return ("QA: " + "; ".join(notes) + ".") if notes else None
+
+
+def place_cutout_image(img_bytes, out_path, chroma_key=CHROMA_MAGENTA):
+    """Best-effort cutout placement: native alpha → chroma → opaque fallback."""
+    meta = {"cutout": True, "cutout_alpha": False, "cutout_method": None,
+            "cutout_note": None,
+            "cutout_chroma": "green" if chroma_key == CHROMA_GREEN else "magenta"}
+    analysis = analyze_cutout_alpha(img_bytes)
+    if analysis["clean_alpha"]:
+        out = pathlib.Path(out_path).with_suffix(".png")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(img_bytes)
+        w, h = image_size(img_bytes)
+        meta.update({"cutout_alpha": True, "cutout_method": "native",
+                     "cutout_note": _cutout_quality_note(analysis)})
+        return out.resolve(), w, h, meta
+    keyed = apply_cutout_postprocess(img_bytes, out_path, key=chroma_key)
+    if keyed:
+        keyed_bytes, out = keyed
+        post = analyze_cutout_alpha(keyed_bytes)
+        if post["clean_alpha"]:
+            w, h = image_size(keyed_bytes)
+            meta.update({"cutout_alpha": True, "cutout_method": "chroma",
+                         "cutout_note": _cutout_quality_note(post)})
+            return out, w, h, meta
+        if post["has_alpha"]:
+            meta["cutout_note"] = ("Chroma key produced weak alpha (corners or "
+                                   "background not fully transparent).")
+    sys.stderr.write("note: cutout transparency unavailable — delivering opaque image "
+                     "(see cutout_alpha in JSON).\n")
+    path, w, h = _place_opaque(img_bytes, out_path)
+    meta["cutout_method"] = "opaque_fallback"
+    if analysis["ext"] == ".jpg":
+        meta["cutout_note"] = "Model returned JPEG; chroma key skipped."
+    elif analysis["ext"] == ".png" and not analysis["has_alpha"]:
+        meta["cutout_note"] = ("Model returned opaque PNG; chroma key failed "
+                               "(background may be missing or not a flat chroma screen).")
+    else:
+        meta["cutout_note"] = "Could not extract transparency from this output."
+    return path, w, h, meta
+
+
 def fetch_cost(gen_id, key, tries=3, delay=1.5):
     """Best-effort total_cost (USD) for a generation id; None if not ready/unknown."""
     if not gen_id or not key:
@@ -388,20 +851,20 @@ def run_base():
     return pathlib.Path(os.environ.get("ILLO_TMP") or "/tmp/illo")
 
 
-def openrouter_generate(model, content, key):
+def openrouter_generate(model, content, key, image_config=None):
     """OpenRouter backend (the dispatch seam). Returns (img_bytes, partial_record) for
     cmd_generate to place; the wire payload is byte-identical to the pre-refactor
     path. Hard caller errors (no usable response, fatal HTTP) stay `sys.exit`; a
     "no image after retry" outcome raises BackendUnavailable so it can fall
     through to another backend instead of killing the run."""
     try:
-        payload = post_chat(model, content, key, ["image", "text"])
+        payload = post_chat(model, content, key, ["image", "text"], image_config)
     except urllib.error.HTTPError as e:
         detail = e.read().decode()
         # Some models are image-only and 404 on ["image","text"] — retry image-only.
         if e.code == 404 and "modalit" in detail.lower():
             try:
-                payload = post_chat(model, content, key, ["image"])
+                payload = post_chat(model, content, key, ["image"], image_config)
             except urllib.error.HTTPError as e2:
                 sys.exit(f"OpenRouter HTTP {e2.code}: {e2.read().decode()[:600]}")
         else:
@@ -518,17 +981,13 @@ def codex_exec_generate(prompt, refs, out_path):
     return produced, {"model": None, "id": None}
 
 
-def place_image(img_bytes, out_path):
+def place_image(img_bytes, out_path, cutout=False, chroma_key=CHROMA_MAGENTA):
     """Write image bytes to out_path, renaming by the real encoding (callers read
-    .path from the JSON line), and return (resolved_path, width, height)."""
-    out = pathlib.Path(out_path)
-    actual = sniff_ext(img_bytes) or out.suffix
-    if actual != out.suffix:
-        out = out.with_suffix(actual)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(img_bytes)
-    w, h = image_size(img_bytes)
-    return out.resolve(), w, h
+    .path from the JSON line), and return (resolved_path, width, height, cutout_meta)."""
+    if cutout:
+        return place_cutout_image(img_bytes, out_path, chroma_key=chroma_key)
+    path, w, h = _place_opaque(img_bytes, out_path)
+    return path, w, h, {}
 
 
 def cmd_generate(args):
@@ -541,9 +1000,6 @@ def cmd_generate(args):
     prompt = args.prompt or (pathlib.Path(args.prompt_file).read_text() if args.prompt_file else None)
     if not prompt:
         sys.exit("Provide --prompt or --prompt-file.")
-    aspect = args.aspect or cfg.get("aspect")
-    if aspect:
-        prompt = f"{prompt}\n\nAspect ratio: {aspect}."
 
     backend = resolve_backend(cfg, args.backend)
     if backend is None:
@@ -552,7 +1008,19 @@ def cmd_generate(args):
                  f"your Codex subscription, or run `{PROG} init` to set an "
                  f"OpenRouter key.")
 
-    model = args.model or cfg.get("model") or DEFAULT_MODEL
+    model = resolve_generate_model(cfg, args.model, backend, args.cutout)
+    aspect = args.aspect or cfg.get("aspect")
+    if args.cutout and not args.aspect:
+        aspect = "1:1"
+    image_config = merge_image_config(aspect if backend == "openrouter" else None,
+                                      getattr(args, "image_config", None))
+    pack_chroma = resolve_cutout_chroma_from_context(args.ref, cfg) if args.cutout else None
+    chroma_key = resolve_chroma_key(prompt, getattr(args, "chroma", None),
+                                    pack_chroma=pack_chroma) if args.cutout else None
+    if aspect:
+        prompt = f"{prompt}\n\nAspect ratio: {aspect}."
+    if args.cutout and not _prompt_has_chroma_background(prompt):
+        prompt = f"{prompt}\n\n{chroma_background_line(chroma_key)}"
 
     out = pathlib.Path(args.out)
     n = max(1, args.count)
@@ -560,7 +1028,9 @@ def cmd_generate(args):
     manifest = out.parent / "manifest.jsonl"  # parent dir is created by place_image
     # Serial renders: a partial batch still leaves a valid manifest behind.
     for p in paths:
-        rec = _render_one(backend, cfg, prompt, model, args.ref, args.cost, p)
+        rec = _render_one(backend, cfg, prompt, model, args.ref, args.cost, p,
+                          cutout=args.cutout, image_config=image_config,
+                          chroma_key=chroma_key)
         rec["label"] = args.label or ""
         rec["prompt"] = prompt
         with manifest.open("a") as f:
@@ -568,7 +1038,18 @@ def cmd_generate(args):
         print(json.dumps(rec))
 
 
-def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path):
+def _apply_cutout_meta(rec, cutout_meta):
+    """Merge cutout placement metadata into a manifest record."""
+    if not cutout_meta:
+        return rec
+    for key in ("cutout", "cutout_alpha", "cutout_method", "cutout_note", "cutout_chroma"):
+        if key in cutout_meta and cutout_meta[key] is not None:
+            rec[key] = cutout_meta[key]
+    return rec
+
+
+def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
+                cutout=False, image_config=None, chroma_key=CHROMA_MAGENTA):
     """Render one image through the resolved backend and place it, returning the
     manifest record. Codex failures raise BackendUnavailable and fall back to a
     configured OpenRouter key (record tagged backend=openrouter); a Codex-only
@@ -581,34 +1062,43 @@ def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path):
             if cfg.get("apiKey"):
                 sys.stderr.write(f"note: Codex backend unavailable ({e}); "
                                  f"falling back to OpenRouter.\n")
-                return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path)
+                return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
+                                          cutout=cutout, image_config=image_config,
+                                          chroma_key=chroma_key)
             sys.exit(f"Codex backend failed and no OpenRouter key is set: {e}\n"
                      f"Fix: ensure Codex CLI is installed + `codex login`, or run "
                      f"`{PROG} init` to set an OpenRouter key.")
         img = produced.read_bytes()
-        path, w, h = place_image(img, out_path)
+        path, w, h, cutout_meta = place_image(img, out_path, cutout=cutout,
+                                              chroma_key=chroma_key)
         # gpt-image-2 on the free built-in tool: no model id, no per-image cost,
         # so never fetch_cost a codex-served record.
-        return {"path": str(path), "model": meta["model"], "id": meta["id"],
-                "backend": "codex", "cost": None, "width": w, "height": h}
-    return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path)
+        rec = {"path": str(path), "model": meta["model"], "id": meta["id"],
+               "backend": "codex", "cost": None, "width": w, "height": h}
+        return _apply_cutout_meta(rec, cutout_meta)
+    return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
+                              cutout=cutout, image_config=image_config,
+                              chroma_key=chroma_key)
 
 
-def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path):
+def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
+                       cutout=False, image_config=None, chroma_key=CHROMA_MAGENTA):
     # OpenRouter takes the references inline as base64 data-URLs; build that here
     # so a Codex-only render never pays to encode a sheet codex exec sends via -i.
     content = [{"type": "text", "text": prompt}]
     for r in refs:
         content.append({"type": "image_url", "image_url": {"url": data_url(r)}})
     key = resolve_key(cfg)
-    img, meta = openrouter_generate(model, content, key)
-    path, w, h = place_image(img, out_path)
+    img, meta = openrouter_generate(model, content, key, image_config)
+    path, w, h, cutout_meta = place_image(img, out_path, cutout=cutout,
+                                          chroma_key=chroma_key)
     # Absolute: IDE agents get a clickable path; chat delivery (e.g. Hermes
     # MEDIA: attachment tags) needs the absolute path to build the tag.
-    return {"path": str(path), "model": meta["model"], "id": meta["id"],
-            "backend": "openrouter",
-            "cost": (fetch_cost(meta["id"], key) if want_cost else None),
-            "width": w, "height": h}
+    rec = {"path": str(path), "model": meta["model"], "id": meta["id"],
+           "backend": "openrouter",
+           "cost": (fetch_cost(meta["id"], key) if want_cost else None),
+           "width": w, "height": h}
+    return _apply_cutout_meta(rec, cutout_meta)
 
 
 def _codex_refs(refs, cfg):
@@ -1080,8 +1570,17 @@ def main():
                         "subscription) or openrouter; default resolves by host capability")
     g.add_argument("--ref", action="append", default=[], help="reference image path (repeatable)")
     g.add_argument("--aspect", help="aspect ratio hint, e.g. 16:9")
+    g.add_argument("--image-config",
+                   help="OpenRouter image_config JSON object (merged with --aspect); "
+                        "e.g. '{\"aspect_ratio\":\"1:1\"}'")
+    g.add_argument("--chroma", choices=("magenta", "green"),
+                   help="cutout chroma screen color (default: pack Cutout chroma line, "
+                        "then prompt BACKGROUND:, then heuristics)")
     g.add_argument("--label", help="short caption recorded in the manifest / gallery")
     g.add_argument("--count", type=int, default=1, help="render N variations (out-1, out-2, …)")
+    g.add_argument("--cutout", action="store_true",
+                   help="character cutout: best-effort transparent PNG (native alpha, "
+                        "chroma key, or opaque fallback with cutout_alpha in JSON)")
     g.add_argument("--cost", action="store_true", help="fetch each render's cost inline (adds latency)")
     g.set_defaults(func=cmd_generate)
 

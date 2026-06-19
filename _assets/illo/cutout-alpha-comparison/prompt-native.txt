@@ -1,0 +1,21 @@
+A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+OUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel — pixels outside
+the character must have alpha=0. No solid white, gray, black, green, or checkerboard background.
+No baked-in transparency pattern — true alpha only. The file must composite cleanly on any color.

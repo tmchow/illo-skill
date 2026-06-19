@@ -113,11 +113,13 @@ agent can still match on the subject prose, just less reliably).
 
 ## Blot — the shipped default
 
-**Blot** is the default mascot: a small ink drop. Style: riso. The model
-sheet is `assets/character-reference.webp` — the engine conditions on it (see
+**Blot** is the default mascot: a small ink drop. Style: riso. The model sheet
+is `assets/character-reference.webp` — the engine conditions on it (see
 SKILL.md). (`assets/character-reference-pixel.png` is the sheet behind the
 pixel look's calibration example — a ready-made base for a `blot-pixel`
 variant pack.)
+
+Cutout chroma: **magenta**
 
 ### Locked design
 
@@ -154,9 +156,11 @@ the pack name, and the `doctor` subcommand lists what's installed:
 - `character.md` — the written spec: name, locked design, a **prompt spec**
   paragraph for the CHARACTER slot, value rules, a `Style: <name>` line (the
   pack's one look — a bundled or custom style; absent = riso), an optional
-  `Aliases:` line (subject synonyms for "use ox"-style selection; see
-  Naming above), and (optionally) personality notes. Everything in "Rules
-  for any character" above still applies.
+  **`Cutout chroma: green|magenta`** line (the pack's cutout screen color —
+  absent = magenta; see `references/cutout.md`), an optional `Aliases:` line
+  (subject synonyms for "use ox"-style selection; see Naming above), and
+  (optionally) personality notes. Everything in "Rules for any character"
+  above still applies.
 - `reference.png` — the character's model sheet, passed as `--ref` in place
   of the default's. It is rendered **in the pack's style**, so sheet and
   scenes always match.

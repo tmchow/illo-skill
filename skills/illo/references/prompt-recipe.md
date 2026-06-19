@@ -30,6 +30,47 @@ PALETTE: paper {paper hex}. Structure ink {structure hex} for all linework, form
 LABELS: exactly {1–3} short hand-lettered English labels — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper. Never put label text on a colored fill. No title bar, no type label, no logo.
 ```
 
+## Cutout variant
+
+When the request is a **character cutout** (`references/cutout.md`), use this
+template instead of the editorial one — no idea line, no labels, no paper
+ground. Default aspect **1:1**. Pass `--cutout` on `generate`. Always include a
+flat chroma `BACKGROUND:` line — **green `#00FF00` or magenta `#FF00FF`** matching
+the active character's **`Cutout chroma:`** line in `character.md` (default
+magenta). **Registration-locked silhouette** — cutouts must NOT use editorial
+ink-layer offset; see the SILHOUETTE block below.
+Do **not** add a separate "real alpha channel / OUTPUT FORMAT" block — transparency
+is extracted by illo's `--cutout` script, not from the model on Codex.
+
+Do **not** append a WATERMARK line. Do **not** pass a finished editorial image
+as a style anchor — only the character model sheet as `--ref`.
+
+```text
+A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot{, plus minimal contact surfaces or held objects in direct touch/support/grip with the body — {describe pose, facing direction, and any contacted fragment or held prop; show only the part touched, not a whole room or separate nearby objects}}. The character is large and centered, ~60–80% of the frame height, with the **full body visible** — both feet (or base) fully drawn and not cropped, and a **clear transparent margin below the feet**. NO environment — no horizon, no wide floor, no scene furniture, no objects nearby without contact, no diagram arrows, no text anywhere.
+
+POSE: {neutral standing / waving / pointing left / sitting on {minimal seat fragment} / hand on table edge / holding {object} / etc.}.
+
+CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. Only the character's own locked parts touch its silhouette; held objects connect through the hand. Preserve the character sheet's limb proportions — stubby limbs stay stubby, never stretched across the frame.
+
+LINE LANGUAGE: draw the mascot and any contact objects in ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line), not thin scratchy sketch lines.
+
+SILHOUETTE (cutout — registration-locked): ONE locked outer contour only. All inks aligned on the same edge — NO ink-layer offset, NO misregistration, NO ghost plate, NO second copy of the body outline, NO accent-colored halo or fringe tracing the silhouette. Accent ink ONLY on the designated accent part, never bleeding along the outer edge.
+
+STYLE: risograph print — grainy halftone texture on fills, registration-locked single-plate silhouette, flat fills on the character and contact cluster only — NOT on the background.
+
+PALETTE: structure ink {structure hex} for all linework and forms. Accent {accent hex} ONLY on the character's accent part{, plus at most one small accent on a held contact object if needed}. Do not use chroma screen colors anywhere on the character or props.
+
+BACKGROUND: {match the active character's Cutout chroma: line — green #00FF00 or magenta #FF00FF; default magenta}. Solid flat chroma screen everywhere outside the character and its contact cluster — perfectly uniform, no paper grain, no gradient, no cast shadow on the screen, no vignette. The screen color exists only for transparency extraction; it must not bleed onto the mascot outline.
+```
+
+For non-riso looks, substitute LINE LANGUAGE, STYLE, and PALETTE from the active
+style file as usual — keep the SILHOUETTE block and swap "slight ink-layer offset"
+for **registration-locked single-plate silhouette** in the style's STYLE line.
+Style-internal shadows (e.g. felt layer depth on the body) stay on the character
+cluster; cast shadows onto the chroma screen do not.
+
 ## Mini-comic variant
 
 When the staging is a mini-comic, replace the Composition line with one that

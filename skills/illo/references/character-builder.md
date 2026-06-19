@@ -71,6 +71,7 @@ Fill this template (it becomes `character.md` in the pack):
 {One sentence: what it is, and why the name reads off the design.}
 
 Style: **{look name — riso if unset}**
+Cutout chroma: **{magenta — or green when forged/wrought-metal or a cutout test needs it}**
 Aliases: {subject + synonyms, comma-separated — omit this line if the name already reads off the subject}
 
 ## Locked design
@@ -103,6 +104,23 @@ let the move, not the expression, carry the idea. Lead with what the character
 the end, never the headline — the catalog is a cast of mascots, not a devops
 icon set.}
 ```
+
+### Cutout chroma (pick once at pack design)
+
+Cutouts key a flat screen color to alpha in post. Set **`Cutout chroma:`**
+in the pack spec so agents and the engine do not re-decide every cutout.
+
+1. Collect every hex in the palette (structure, accent, fills).
+2. Default **`magenta`** when the cutout uses a **registration-locked
+   silhouette** (no ink-layer offset — see `references/cutout.md`).
+3. Use **`green`** only when the character is forged/wrought-metal (e.g.
+   Wick) or a cutout proof (below) shows persistent magenta fringe on fine
+   edges with magenta.
+4. The screen color must stay **absent from the character palette** — never
+   use `#FF00FF` or `#00FF00` on the mascot itself.
+
+Write the line in step 3 as a **working default**; finalize it only after the
+cutout proof in step 5 passes.
 
 ## 4. Generate model-sheet candidates
 
@@ -182,6 +200,41 @@ generated independently drift into two *different* characters; only
 `--ref`-ing the sheet keeps them the same mascot (the same rule SKILL.md
 step 5 states for generation — it applies to the very first preview too).
 
+### Cutout chroma proof (before publish or sharing)
+
+After `reference.png` is installed, prove the **`Cutout chroma:`** default
+works — read `references/cutout.md` in full and build one prompt from
+`references/prompt-recipe.md`, "Cutout variant" (not the editorial template).
+Use a neutral front-facing wave pose, the pack's style blocks with a
+**registration-locked silhouette** (SILHOUETTE block — no ink-layer offset),
+and a `BACKGROUND:` line matching the working `Cutout chroma:` value.
+
+```bash
+SKILL_DIR="<path to this skill>"
+PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>"
+
+python3 "$SKILL_DIR/scripts/illo.py" generate \
+  --prompt-file /tmp/<name>-cutout-proof.txt \
+  --ref "$PACK/reference.png" \
+  --aspect 1:1 \
+  --cutout \
+  --out /tmp/<name>-cutout-proof.png
+```
+
+Read the JSON line: **`cutout_alpha`** must be true; **`cutout_note`** must
+not warn of foot crop, screen fringe, or accent halos (`references/quality-bar.md`,
+cutout section). When `cutout_alpha` is false or QA fails:
+
+1. Re-roll once with `--chroma green` or `--chroma magenta` (the other screen).
+2. If the alternate screen passes, update **`Cutout chroma:`** in
+   `$PACK/character.md` to match and re-run the proof without `--chroma`.
+3. If both fail, fix the prompt (SILHOUETTE / STYLE / feet margin) before
+   changing chroma again.
+
+Do not publish or share the pack until this proof passes with the declared
+`Cutout chroma:` line. Community packs also mirror the value in
+`index.json` as `"cutout_chroma"` (see `references/pack-sharing.md`).
+
 Packs are folders: remove one to retire it, copy it to another machine to
 install the character there. If the user wants to share it with everyone,
 offer to publish it to the community repo — `references/pack-sharing.md`.
@@ -193,7 +246,8 @@ style is a **sibling pack**, built deliberately, never a runtime restyle:
 
 1. Name it `<name>-<style>` (e.g. `blot-woodcut`). Identity is unchanged:
    copy the locked spec and prompt spec verbatim; set the `Style:` line to
-   the new look.
+   the new look. Copy **`Cutout chroma:`** unless the new palette forces a
+   re-test.
 2. Regenerate the model sheet in the new style (step 4, substituting the
    style file's blocks), passing the **original pack's** `reference.png` as
    `--ref` so proportions carry over. Far looks fight the original sheet's
