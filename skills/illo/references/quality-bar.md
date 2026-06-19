@@ -87,6 +87,54 @@ its style's file** — everything else here still applies.
 - **Mini-comics**: 2–4 panels, one action per panel, the same mascot and key
   object in every panel, clear left-to-right reading, ≤1 short label per panel.
 
+## Cutout register (only when the request was a character cutout)
+
+Read `references/cutout.md` for routing. These checks replace the thesis,
+load-bearing, label, and negative-space editorial tests — everything else
+(on-model, structural integrity, value-follows-palette, accent discipline,
+style QA deltas) still applies to the character cluster.
+
+### Must pass
+
+- **Transparent output** — manifest `cutout_alpha` is true (engine requires clean
+  alpha: transparent corners and sufficient background removal). No visible
+  magenta/green screen fringing at the silhouette edge. When `cutout_alpha` is false,
+  do not deliver as a compositing sticker — re-roll, switch backend/model, or
+  disclose honestly (see `cutout_note`).
+- **Full body framing** — feet/base fully visible, not cropped by the frame; clear
+  margin below the feet (same structural-integrity bar as editorial limbs). The
+  engine flags likely crops in `cutout_note` ("character touches the bottom frame
+  edge") even when `cutout_alpha` is true — treat that as a re-roll signal.
+- **No text** — no labels, captions, watermarks, numbers, or hand-lettering
+  anywhere.
+- **Contact continuity** — every opaque pixel is the character or in direct
+  contact (held, sat on, stood on, leaned on/touched); no orphaned objects at
+  a distance; no horizon, wide floor, or full-room furniture.
+- **Minimal contact fragments** — table/sofa/wall shows only the touched part,
+  not a whole scene prop extending into empty space.
+- **On-model** — same locked-design checks as editorial.
+- **Structural integrity** — same limb/prop attachment checks, scoped to the
+  cutout cluster.
+- **One compositing unit** — reads as one sticker, not a cropped illustration.
+- **Pose matches the ask** — gesture, facing, and attitude match what was
+  requested (or the agent's inferred pose when the prompt was thin).
+
+### Fail signals → fix
+
+- Green or magenta bleed on the silhouette → re-roll with the **other** chroma
+  screen (see `references/cutout.md`); check `--cutout` was passed and the
+  BACKGROUND line matches the character.
+- Accent-colored halo tracing the outer contour (riso misregistration) → re-roll
+  with the **registration-locked SILHOUETTE** block — no ink-layer offset on
+  cutouts (`references/prompt-recipe.md`, "Cutout variant").
+- Feet or base cropped by the frame → re-roll; check the Composition line names
+  full body and margin below the feet.
+- A separate object sits near but not touching the character → re-roll
+  pose-only or rebuild contact.
+- Full table, sofa, or floor plane → re-roll with "only the contacted fragment."
+- Any text → edit out if tiny; else re-roll.
+- Ask clearly needs a scene or idea → not a cutout failure — reroute to editorial.
+
 ## Fail signals → fix
 
 - A title bar / type label ("Workflow", "System Diagram", "Roadmap") anywhere → edit it out.

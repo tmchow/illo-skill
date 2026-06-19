@@ -5,3 +5,8 @@ __pycache__/
 # Local planning artifacts (not shipped, not reviewed in PRs)
 docs/plans/
 docs/brainstorms/
+
+# ht-ml publish artifacts: write key (secret) and local publish mirror.
+# The committed gallery is the top-level cutout-eval-*/ files, not these.
+ht-ml-publish.json
+**/ht-ml/

@@ -2,12 +2,13 @@
 name: illo
 description: >-
   Creates original editorial illustrations where a recurring mascot
-  character performs the idea — one caught scene by default, or a
-  hand-built explainer diagram (a flow, fan-out, timeline, loop, or stack)
-  when the structure itself is the point — in one of twelve bundled print
-  looks. Triggers only when the skill is directly invoked or "illo" is
+  character performs the idea — one caught scene by default, a hand-built
+  explainer diagram (a flow, fan-out, timeline, loop, or stack) when the
+  structure itself is the point, or a transparent character cutout
+  (pose-only compositing asset, no scene or text) — in one of twelve bundled
+  print looks. Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.23.5
+version: 0.24.0
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
@@ -35,7 +36,9 @@ itself a traceable structure — a pipeline, a fan-out, a timeline, a loop —
 it can be an **explainer**: the same mascot and look drawing the structure
 as a hand-built sketch-diagram with arrows and callouts
 (`references/composition.md`, "Two registers"; editorial scene is always
-the default).
+the default). Or a **character cutout**: the mascot alone on a transparent
+PNG for downstream overlay — pose and contact continuity only, no idea, no
+text, no environment (`references/cutout.md`).
 
 This is a configurable house style, not a generic image generator. The
 **methodology is the constant**; the **character pack and palette are the
@@ -64,6 +67,7 @@ infographic, not a formal flowchart, not a UI mockup.
 | **A different look** — "in blueprint", "woodcut style", "pixel version of blip" | Styles travel with character packs: build a **style variant pack** via `references/character-builder.md`, "Style variants". |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
+| **Character cutout / transparent PNG / overlay sticker** — "just the mascot", "no background", "paste on something else" | The **cutout register** (`references/cutout.md`): read in full, prompt from `references/prompt-recipe.md` "Cutout variant", generate with `--cutout` and `--aspect 1:1`. OpenRouter cutouts default to GPT Image 2 (not Grok). Not for explaining an idea — reroute to editorial if the ask needs a scene. |
 
 ## Prerequisites
 
@@ -135,6 +139,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
+- `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
 - `references/backends.md` — the dual image engine: how the backend resolves, the Codex-CLI requirement, gpt-image-2 being automatic (no model selection), quota-vs-charge, Windows/WSL, and OpenRouter as the universal fallback. Read before choosing or explaining a backend.
 - `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
@@ -272,7 +277,8 @@ wins:
    sheet `assets/character-reference.webp`).
 
 Once resolved, read the pack's `character.md` and use its prompt spec, value
-rules, and `reference.png` everywhere the default's would be used.
+rules, **`Cutout chroma:`** (for cutouts), and `reference.png` everywhere the
+default's would be used.
 
 When rerouting an article set to a new character — especially after a weak
 attempt, or for a technical/platform essay — read
@@ -323,7 +329,22 @@ through that style's palette mapping.
 
 ### 5. Generate — reference-locked, one metaphor per image
 
-Build a full prompt per image from `references/prompt-recipe.md` (scene +
+**Cutout branch.** When the request routed to the cutout register, read
+`references/cutout.md` in full first — it covers prompt shape (chroma
+`BACKGROUND:` from the pack's **`Cutout chroma:`** line — green for forged
+metal, magenta default), **registration-locked silhouette** (no ink-layer
+offset), **`--cutout`** /**`--aspect 1:1`**, OpenRouter **`--image-config`**,
+and manifest **`cutout_alpha`** disclosure. Read the active character's
+`Cutout chroma:` in `character.md` before building the prompt; pass `--chroma`
+only when re-rolling with the other screen. Codex does not emit native alpha —
+transparency is chroma-keyed by the engine. Build the prompt from
+`references/prompt-recipe.md`, "Cutout variant" — not the editorial template.
+Only the character model sheet as `--ref` (no editorial style anchor, no
+watermark). QA against the cutout section of `references/quality-bar.md`. Skip
+the editorial shot-list / thesis steps.
+
+**Editorial and explainer.** Build a full prompt per image from
+`references/prompt-recipe.md` (scene +
 structure + style + the active character's spec + resolved palette hexes +
 ≤3 labels), write it to a file, and render it. **Pass the active character's
 model sheet as `--ref` every time** — that reference conditioning is what

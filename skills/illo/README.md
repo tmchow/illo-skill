@@ -242,6 +242,9 @@ install matrix.
   traceable, but never a PowerPoint flowchart. The scene stays the default;
   the diagram register is opt-in or earned by content whose thesis is the
   structure itself.
+- **Character cutouts** — transparent PNG of the mascot alone (pose, optional
+  contact objects in touch with the body) for slides, compositing, or handing
+  off to another tool. Not for explaining an idea — that stays editorial.
 - **Your own mascot** — the character builder interviews you (or starts from
   art you already have), pressure-tests the concept against the house
   guardrails, renders model-sheet candidates, and installs the winner as a

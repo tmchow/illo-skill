@@ -1,0 +1,206 @@
+[
+  {
+    "name": "Codex CLI (gpt-image-2)",
+    "native": {
+      "path": "/private/tmp/illo/20260618-003852-5271/codex-native.png",
+      "model": null,
+      "id": null,
+      "backend": "codex",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "label": "codex-native",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nOUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel \u2014 pixels outside\nthe character must have alpha=0. No solid white, gray, black, green, or checkerboard background.\nNo baked-in transparency pattern \u2014 true alpha only. The file must composite cleanly on any color.\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/codex-native.png",
+        "ext": ".png",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 26149,
+        "has_alpha": true,
+        "transparent": 776976,
+        "opaque": 269627,
+        "semi": 1973,
+        "green_fringe": 0,
+        "magenta_fringe": 0,
+        "corner_alpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "verdict": "clean alpha"
+      },
+      "approach": "prompt-native"
+    },
+    "chroma": {
+      "path": "/private/tmp/illo/20260618-003852-5271/codex-chroma.png",
+      "model": null,
+      "id": null,
+      "backend": "codex",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "cutout": true,
+      "label": "codex-chroma",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nBACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character \u2014 perfectly\nuniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color\nonto the mascot outline. (The engine will chroma-key this to transparency.)\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/codex-chroma.png",
+        "ext": ".png",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 28453,
+        "has_alpha": true,
+        "transparent": 778130,
+        "opaque": 270446,
+        "semi": 0,
+        "green_fringe": 0,
+        "magenta_fringe": 0,
+        "corner_alpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "verdict": "clean alpha"
+      },
+      "approach": "chroma+script"
+    }
+  },
+  {
+    "name": "OpenRouter \u00b7 grok-imagine",
+    "native": {
+      "path": "/private/tmp/illo/20260618-003852-5271/grok-imagine-native.jpg",
+      "model": "x-ai/grok-imagine-image-quality",
+      "id": "gen-1781768946-oSdc7PrunmWKpHMEyP24",
+      "backend": "openrouter",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "label": "grok-imagine-native",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nOUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel \u2014 pixels outside\nthe character must have alpha=0. No solid white, gray, black, green, or checkerboard background.\nNo baked-in transparency pattern \u2014 true alpha only. The file must composite cleanly on any color.\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/grok-imagine-native.jpg",
+        "ext": ".jpg",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 200085,
+        "has_alpha": false,
+        "transparent": 0,
+        "opaque": 0,
+        "semi": 0,
+        "green_fringe": 0,
+        "magenta_fringe": 0,
+        "corner_alpha": [],
+        "verdict": "no PNG alpha (JPEG or opaque PNG)"
+      },
+      "approach": "prompt-native"
+    },
+    "chroma": {
+      "error": "note: PyYAML not installed \u2014 reading only /Users/tmchow/.config/illo/config.yaml's flat keys (nested keys like watermark need: python -m pip install 'PyYAML==6.0.2').\nCutout post-process failed: expected a PNG from the model. Re-roll with the cutout BACKGROUND line (#FF00FF).\n",
+      "label": "grok-imagine-chroma"
+    }
+  },
+  {
+    "name": "OpenRouter \u00b7 gemini-flash",
+    "native": {
+      "path": "/private/tmp/illo/20260618-003852-5271/gemini-flash-native.jpg",
+      "model": "google/gemini-3.1-flash-image-preview",
+      "id": "gen-1781768969-VwpxbhkN4c7BkWFqSg8F",
+      "backend": "openrouter",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "label": "gemini-flash-native",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nOUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel \u2014 pixels outside\nthe character must have alpha=0. No solid white, gray, black, green, or checkerboard background.\nNo baked-in transparency pattern \u2014 true alpha only. The file must composite cleanly on any color.\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/gemini-flash-native.jpg",
+        "ext": ".jpg",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 429214,
+        "has_alpha": false,
+        "transparent": 0,
+        "opaque": 0,
+        "semi": 0,
+        "green_fringe": 0,
+        "magenta_fringe": 0,
+        "corner_alpha": [],
+        "verdict": "no PNG alpha (JPEG or opaque PNG)"
+      },
+      "approach": "prompt-native"
+    },
+    "chroma": {
+      "error": "note: PyYAML not installed \u2014 reading only /Users/tmchow/.config/illo/config.yaml's flat keys (nested keys like watermark need: python -m pip install 'PyYAML==6.0.2').\nCutout post-process failed: expected a PNG from the model. Re-roll with the cutout BACKGROUND line (#FF00FF).\n",
+      "label": "gemini-flash-chroma"
+    }
+  },
+  {
+    "name": "OpenRouter \u00b7 gpt-image-2-or",
+    "native": {
+      "path": "/private/tmp/illo/20260618-003852-5271/gpt-image-2-or-native.png",
+      "model": "openai/gpt-5.4-image-2",
+      "id": "gen-1781768991-yULq6ZXXmnZ1ePUbbF2x",
+      "backend": "openrouter",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "label": "gpt-image-2-or-native",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nOUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel \u2014 pixels outside\nthe character must have alpha=0. No solid white, gray, black, green, or checkerboard background.\nNo baked-in transparency pattern \u2014 true alpha only. The file must composite cleanly on any color.\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/gpt-image-2-or-native.png",
+        "ext": ".png",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1487409,
+        "has_alpha": false,
+        "transparent": 0,
+        "opaque": 1048576,
+        "semi": 0,
+        "green_fringe": 0,
+        "magenta_fringe": 808,
+        "corner_alpha": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "verdict": "fully opaque \u2014 no transparency"
+      },
+      "approach": "prompt-native"
+    },
+    "chroma": {
+      "path": "/private/tmp/illo/20260618-003852-5271/gpt-image-2-or-chroma.png",
+      "model": "openai/gpt-5.4-image-2",
+      "id": "gen-1781769149-pFxJpFt4TskodRTOGnYD",
+      "backend": "openrouter",
+      "cost": null,
+      "width": 1024,
+      "height": 1024,
+      "cutout": true,
+      "label": "gpt-image-2-or-chroma",
+      "prompt": "A 1:1 square character cutout \u2014 transparent compositing asset, NOT an editorial scene.\n\nComposition (cutout \u2014 contact continuity): ONLY the mascot, waving with one stubby arm raised.\nLarge and centered, ~70% of the frame. NO environment, no props, no text anywhere.\n\nPOSE: front-facing, friendly wave, limbs matching the reference sheet proportions.\n\nCHARACTER (locked, keep exactly on the reference model): the recurring mascot \u2014 a plump rounded\nink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),\ntwo simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY\naccent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.\n\nLINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).\n\nSTYLE: risograph print \u2014 grainy halftone texture, slight ink-layer offset, flat fills on the character only.\n\nPALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.\n\nBACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character \u2014 perfectly\nuniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color\nonto the mascot outline. (The engine will chroma-key this to transparency.)\n\n\nAspect ratio: 1:1.",
+      "analysis": {
+        "path": "/private/tmp/illo/20260618-003852-5271/gpt-image-2-or-chroma.png",
+        "ext": ".png",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1177552,
+        "has_alpha": true,
+        "transparent": 733365,
+        "opaque": 315211,
+        "semi": 0,
+        "green_fringe": 1,
+        "magenta_fringe": 28,
+        "corner_alpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "verdict": "clean alpha"
+      },
+      "approach": "chroma+script"
+    }
+  }
+]

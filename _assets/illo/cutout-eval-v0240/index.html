@@ -1,0 +1,157 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Cutout eval — illo v0.24.0</title><style>
+    body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+         margin:0;padding:28px 32px 56px;background:#0b0d10;color:#e8eaed}
+    h1{font-size:1.45rem;font-weight:650;margin:0 0 6px;letter-spacing:-.02em}
+    h2{font-size:1.05rem;font-weight:600;margin:0 0 10px;color:#c0c4c9}
+    .sub{color:#9aa0a6;margin:0 0 28px;max-width:980px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+    .card{background:#141820;border:1px solid #2a3140;border-radius:12px;padding:16px 16px 18px}
+    .card h3{font-size:.98rem;margin:0 0 4px;font-weight:600}
+    .card .method{color:#9aa0a6;font-size:13px;margin:0 0 12px;line-height:1.4}
+    .checker{background:repeating-conic-gradient(#808080 0% 25%, #c0c0c0 0% 50%) 50% / 16px 16px;
+             border-radius:8px;padding:8px;display:inline-block}
+    .on-blue{background:#2563eb;border-radius:8px;padding:8px;display:inline-block;margin-top:8px}
+    .on-blue img,.checker img{display:block;max-width:100%;max-height:260px;height:auto;width:auto}
+    .verdict{font-weight:600;margin:10px 0 6px;font-size:14px}
+    .good{color:#81c995}.warn{color:#fdd663}.bad{color:#f28b82}
+    .meta{font:12px/1.5 ui-monospace,Menlo,monospace;color:#9aa0a6;margin:6px 0 0}
+    .summary{background:#141820;border:1px solid #2a3140;border-radius:12px;padding:18px 20px;max-width:980px;margin-bottom:28px}
+    .summary ul{margin:8px 0 0;padding-left:1.2rem;color:#c0c4c9}
+    .summary li{margin:6px 0}
+    details{margin-top:12px}
+    summary{cursor:pointer;color:#c0c4c9;font-size:13px}
+    pre.prompt,pre.cmd{white-space:pre-wrap;word-break:break-word;font:11px/1.45 ui-monospace,Menlo,monospace;
+         background:#0b0d10;border:1px solid #2a3140;border-radius:8px;padding:10px 12px;color:#c0c4c9;
+         margin:8px 0 0;max-height:220px;overflow:auto}
+    pre.fail{color:#f28b82}
+    .legend{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 20px;font-size:13px;color:#9aa0a6}
+    .swatch{width:14px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
+    .pill{display:inline-block;font:11px/1.4 ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:999px;
+          background:#1e2430;color:#c0c4c9;margin-right:6px}
+    </style></head><body><h1>Cutout eval — illo v0.24.0</h1><p class=sub>illo v0.24.0 cutout eval — every case uses <code>--cutout</code>. OpenRouter cases also pass <code>--image-config</code> (aspect_ratio). Checkerboard + blue reveal real alpha vs baked backgrounds. Manifest fields <code>cutout_alpha</code>, <code>cutout_method</code>, <code>cutout_note</code> drive agent disclosure.</p><div class=legend><span><span class=swatch style="background:repeating-conic-gradient(#808080 0% 25%,#c0c0c0 0% 50%) 50%/8px 8px"></span>checker</span><span><span class=swatch style="background:#2563eb"></span>blue halo test</span></div><div class=summary><h2>Results</h2><p class=meta>5 compositing-ready · 1 opaque fallback · 0 hard failures</p><ul><li>Codex · agent workflow: compositing-ready (native)</li><li>Codex · chroma fallback: compositing-ready (chroma)</li><li>OpenRouter · GPT Image 2 · agent workflow: compositing-ready (chroma)</li><li>OpenRouter · GPT Image 2 · native ask: compositing-ready (chroma)</li><li>OpenRouter · Grok Imagine · agent workflow: not compositing-ready (opaque fallback)</li><li>OpenRouter · Gemini Flash · agent workflow: compositing-ready (chroma)</li></ul></div><div class=grid><article class=card><h3>Codex · agent workflow</h3><p class=method>Native prompt (no chroma BACKGROUND) + --cutout</p><div class=checker><img loading=lazy src="codex-agent-workflow.png" alt=""></div><div class=on-blue><img loading=lazy src="codex-agent-workflow.png" alt=""></div><p class="verdict good">compositing-ready (native)</p><div class=meta><span class=pill>backend=codex</span><span class=pill>cutout_alpha=True</span><span class=pill>method=native</span><br>model: gpt-image-2 (codex)<br>format: .png · 1024×1024 · transparent px: 752,031 · fringe g/m: 0/0<br>note: —</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+OUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel — pixels outside
+the character must have alpha=0. No solid white, gray, black, green, or checkerboard background.
+No baked-in transparency pattern — true alpha only. The file must composite cleanly on any color.
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-native.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend codex --label codex-agent-workflow --cutout --out /private/tmp/illo/20260618-013157-744c/codex-agent-workflow.png</pre></details></article><article class=card><h3>Codex · chroma fallback</h3><p class=method>Chroma #FF00FF prompt + --cutout</p><div class=checker><img loading=lazy src="codex-chroma-fallback.png" alt=""></div><div class=on-blue><img loading=lazy src="codex-chroma-fallback.png" alt=""></div><p class="verdict good">compositing-ready (chroma)</p><div class=meta><span class=pill>backend=codex</span><span class=pill>cutout_alpha=True</span><span class=pill>method=chroma</span><br>model: gpt-image-2 (codex)<br>format: .png · 1024×1024 · transparent px: 746,195 · fringe g/m: 0/0<br>note: —</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character — perfectly
+uniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color
+onto the mascot outline. (The engine will chroma-key this to transparency.)
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-chroma.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend codex --label codex-chroma-fallback --cutout --out /private/tmp/illo/20260618-013157-744c/codex-chroma-fallback.png</pre></details></article><article class=card><h3>OpenRouter · GPT Image 2 · agent workflow</h3><p class=method>Chroma prompt + --cutout + --image-config aspect_ratio</p><div class=checker><img loading=lazy src="or-gpt-agent-workflow.png" alt=""></div><div class=on-blue><img loading=lazy src="or-gpt-agent-workflow.png" alt=""></div><p class="verdict good">compositing-ready (chroma)</p><div class=meta><span class=pill>backend=openrouter</span><span class=pill>cutout_alpha=True</span><span class=pill>method=chroma</span><br>model: openai/gpt-5.4-image-2<br>format: .png · 1024×1024 · transparent px: 662,969 · fringe g/m: 0/1<br>note: —</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character — perfectly
+uniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color
+onto the mascot outline. (The engine will chroma-key this to transparency.)
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-chroma.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend openrouter --label or-gpt-agent-workflow --cutout --out /private/tmp/illo/20260618-013157-744c/or-gpt-agent-workflow.png --model openai/gpt-5.4-image-2 --image-config {&quot;aspect_ratio&quot;:&quot;1:1&quot;}</pre></details></article><article class=card><h3>OpenRouter · GPT Image 2 · native ask</h3><p class=method>Transparent prompt + --cutout + --image-config (no chroma line)</p><div class=checker><img loading=lazy src="or-gpt-native-cutout.png" alt=""></div><div class=on-blue><img loading=lazy src="or-gpt-native-cutout.png" alt=""></div><p class="verdict good">compositing-ready (chroma)</p><div class=meta><span class=pill>backend=openrouter</span><span class=pill>cutout_alpha=True</span><span class=pill>method=chroma</span><br>model: openai/gpt-5.4-image-2<br>format: .png · 1024×1024 · transparent px: 731,405 · fringe g/m: 0/0<br>note: —</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+OUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel — pixels outside
+the character must have alpha=0. No solid white, gray, black, green, or checkerboard background.
+No baked-in transparency pattern — true alpha only. The file must composite cleanly on any color.
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-native.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend openrouter --label or-gpt-native-cutout --cutout --out /private/tmp/illo/20260618-013157-744c/or-gpt-native-cutout.png --model openai/gpt-5.4-image-2 --image-config {&quot;aspect_ratio&quot;:&quot;1:1&quot;}</pre></details></article><article class=card><h3>OpenRouter · Grok Imagine · agent workflow</h3><p class=method>Chroma prompt + --cutout + --image-config (JPEG → opaque fallback)</p><div class=checker><img loading=lazy src="or-grok-agent-workflow.jpg" alt=""></div><div class=on-blue><img loading=lazy src="or-grok-agent-workflow.jpg" alt=""></div><p class="verdict warn">not compositing-ready (opaque fallback)</p><div class=meta><span class=pill>backend=openrouter</span><span class=pill>cutout_alpha=False</span><span class=pill>method=opaque_fallback</span><br>model: x-ai/grok-imagine-image-quality<br>format: .jpg · 1024×1024 · transparent px: 0 · fringe g/m: 0/0<br>note: Model returned JPEG; chroma key skipped.</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character — perfectly
+uniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color
+onto the mascot outline. (The engine will chroma-key this to transparency.)
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-chroma.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend openrouter --label or-grok-agent-workflow --cutout --out /private/tmp/illo/20260618-013157-744c/or-grok-agent-workflow.png --model x-ai/grok-imagine-image-quality --image-config {&quot;aspect_ratio&quot;:&quot;1:1&quot;}</pre></details></article><article class=card><h3>OpenRouter · Gemini Flash · agent workflow</h3><p class=method>Chroma prompt + --cutout + --image-config (JPEG → opaque fallback)</p><div class=checker><img loading=lazy src="or-gemini-agent-workflow.png" alt=""></div><div class=on-blue><img loading=lazy src="or-gemini-agent-workflow.png" alt=""></div><p class="verdict good">compositing-ready (chroma)</p><div class=meta><span class=pill>backend=openrouter</span><span class=pill>cutout_alpha=True</span><span class=pill>method=chroma</span><br>model: google/gemini-3.1-flash-image-preview<br>format: .png · 1024×1024 · transparent px: 1,637 · fringe g/m: 0/0<br>note: —</div><details><summary>Prompt</summary><pre class=prompt>A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
+
+Composition (cutout — contact continuity): ONLY the mascot, waving with one stubby arm raised.
+Large and centered, ~70% of the frame. NO environment, no props, no text anywhere.
+
+POSE: front-facing, friendly wave, limbs matching the reference sheet proportions.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — a plump rounded
+ink-droplet body (a fat soft teardrop, wide at the bottom, narrowing to a gently curved tip at the top),
+two simple dot eyes, blank deadpan (no eyebrows, no mouth), small stubby arms and legs; the ONLY
+accent-colored part is the droplet tip. Body filled with structure ink #111111, eyes warm-white dots.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+
+PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
+
+BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character — perfectly
+uniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color
+onto the mascot outline. (The engine will chroma-key this to transparency.)
+</pre></details><details><summary>Command</summary><pre class=cmd>/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/scripts/illo.py generate --prompt-file /private/tmp/illo/20260618-013157-744c/prompt-chroma.txt --ref /Users/tmchow/orca/workspaces/illo-skill/aspidochelone/skills/illo/assets/character-reference.webp --aspect 1:1 --backend openrouter --label or-gemini-agent-workflow --cutout --out /private/tmp/illo/20260618-013157-744c/or-gemini-agent-workflow.png --model google/gemini-3.1-flash-image-preview --image-config {&quot;aspect_ratio&quot;:&quot;1:1&quot;}</pre></details></article></div></body></html>
