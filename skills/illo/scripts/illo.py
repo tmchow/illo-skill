@@ -63,6 +63,14 @@ CODEX_EXEC_TIMEOUT = 600
 CODEX_MTIME_SKEW = 2.0
 # `codex features list` row that means the built-in image tool is reachable.
 CODEX_IMAGE_FEATURE = "image_generation"
+# Codex CLI 0.141 exposes generated image artifacts to `codex exec` only when
+# the newer imagegen extension is explicitly enabled. Without this flag, the
+# text agent may see images and even claim it generated one, but no
+# $CODEX_HOME/generated_images/call_*.png artifact appears; the agent may then
+# satisfy the requested output path with local drawing/code, which is not an
+# illo render. Keep this centralized so the flag can be removed when Codex makes
+# the extension default or replaces it with a stable equivalent.
+CODEX_IMAGEGEN_EXT_FEATURE = "imagegenext"
 # Secret-shaped tokens we strip from any captured subprocess output before it
 # could reach a terminal (redact, never print raw stdout/stderr).
 SECRET_RE = re.compile(r"\b(sk-[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_.-]+)")
@@ -103,10 +111,11 @@ _CODEX_AVAILABLE = None  # per-process cache so detection's subprocesses run onc
 
 def codex_available():
     """True iff the host has a USABLE Codex CLI: `codex` on PATH, logged in, and
-    the built-in image_generation feature available. Eligibility is a
-    property of the execution host, detected — never assumed. Soft-fails to False
-    on any non-zero exit, timeout, or unparseable output (→ OpenRouter); reads NO
-    credential file and NO secret-shaped env var. Cached per process."""
+    the built-in image_generation feature plus the imagegenext exec-artifact
+    extension available. Eligibility is a property of the execution host,
+    detected — never assumed. Soft-fails to False on any non-zero exit, timeout,
+    or unparseable output (→ OpenRouter); reads NO credential file and NO
+    secret-shaped env var. Cached per process."""
     global _CODEX_AVAILABLE
     if _CODEX_AVAILABLE is not None:
         return _CODEX_AVAILABLE
@@ -121,9 +130,13 @@ def _detect_codex():
     rc, out = _codex_run(["login", "status"])
     if rc != 0 or "logged in" not in out.lower():
         return False
-    # Built-in image tool reachable? It shows up as a row in `codex features list`.
+    # Built-in image tool reachable, and the exec image-artifact extension
+    # supported? Both show up as rows in `codex features list`.
     rc, out = _codex_run(["features", "list"])
-    if rc != 0 or CODEX_IMAGE_FEATURE not in out.lower():
+    low = out.lower()
+    if (rc != 0
+            or CODEX_IMAGE_FEATURE not in low
+            or CODEX_IMAGEGEN_EXT_FEATURE not in low):
         return False
     return True
 
@@ -442,7 +455,7 @@ def codex_exec_generate(prompt, refs, out_path):
     privileged action is this subprocess to the user's own CLI."""
     if not codex_available():
         raise BackendUnavailable("Codex CLI not usable (not installed, logged out, "
-                                 "or image_generation feature unavailable).")
+                                 "or image_generation/imagegenext unavailable).")
     out = pathlib.Path(out_path).resolve()
     run_dir = out.parent
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -455,7 +468,8 @@ def codex_exec_generate(prompt, refs, out_path):
                     f"then save the resulting image to {out} "
                     f"(overwrite if it exists). Do not ask for confirmation.")
     cmd = ["codex", "exec", "--cd", str(run_dir),
-           "--sandbox", "workspace-write", "--skip-git-repo-check"]
+           "--sandbox", "workspace-write", "--skip-git-repo-check",
+           "--enable", CODEX_IMAGEGEN_EXT_FEATURE]
     # Attach every reference: the active character sheet, plus any finished-look
     # style anchor illo passes for within-set consistency. codex exec -i
     # repeats, so a second --ref is no longer silently dropped.
@@ -483,8 +497,15 @@ def codex_exec_generate(prompt, refs, out_path):
         raise BackendUnavailable(f"codex exec could not run: {e}")
     if proc.returncode != 0:
         # Redact before this string can reach a terminal — never echo raw output.
+        combined = redact((proc.stdout or "") + (proc.stderr or ""))
+        low = combined.lower()
+        if ("tools.namespace" in low and "image_gen" in low and "collid" in low):
+            raise BackendUnavailable(
+                "codex exec imagegenext namespace collision; this Codex CLI build "
+                "cannot use the Codex image backend reliably. Upgrade Codex "
+                "or use the OpenRouter backend.")
         raise BackendUnavailable(
-            f"codex exec exited {proc.returncode}: {redact(proc.stderr)[:300]}")
+            f"codex exec exited {proc.returncode}: {combined[:300]}")
     # Verify-first (the agent's save-to-path works under workspace-write), then
     # fall back to fetching the freshest file the built-in tool dropped under
     # $CODEX_HOME/generated_images/.
@@ -773,14 +794,15 @@ def cmd_doctor(args):
                      f"bash {SKILL_DIR / 'scripts/repair-hermes-assets.sh'}")
     else:
         lines.append("assets: OK")
-    # Codex CLI detection — present / logged-in / image_generation, or why not.
+    # Codex CLI detection — present / logged-in / image_generation + imagegenext,
+    # or why not.
     # codex_available() short-circuits at the first failure, so report by stage.
     # Only fall back to a fresh PATH walk when the cached check already said not-usable.
     if codex_ok:
-        lines.append("codex cli: usable (logged in, image_generation available)")
+        lines.append("codex cli: usable (logged in, image_generation + imagegenext available)")
     elif shutil.which("codex"):
         lines.append("codex cli: present but not usable — run `codex login`, "
-                     "or this host lacks the image_generation feature")
+                     "or this host lacks image_generation/imagegenext support")
     else:
         lines.append("codex cli: not installed (optional — enables free Codex-subscription images)")
     # OpenRouter key (no value ever printed).
