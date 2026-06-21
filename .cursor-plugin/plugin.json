@@ -14,5 +14,6 @@
     "riso",
     "image-generation",
     "mascot"
-  ]
+  ],
+  "skills": "./skills"
 }
