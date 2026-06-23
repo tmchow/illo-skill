@@ -9,8 +9,11 @@ values from `palettes.md`.
 The template below is written for **riso**. When the active character's pack
 declares a different style (its `Style:` line — SKILL.md step 4), replace the
 LINE LANGUAGE and STYLE lines with the blocks from that style's file, build
-the PALETTE line from its palette mapping, and apply its character treatment
-to the CHARACTER block's value-rule slot.
+the PALETTE line from its palette mapping, refine the LABELS line with the
+style's `## Labels` section so the lettering matches the look (its treatment
+and per-look count — e.g. a blocky pixel font, draftsman capitals, an
+office-stamp impression — override the generic "hand-lettered" default), and
+apply its character treatment to the CHARACTER block's value-rule slot.
 
 ## Generation template
 
@@ -27,7 +30,7 @@ STYLE: risograph print — grainy halftone texture, slight ink-layer offset, fai
 
 PALETTE: paper {paper hex}. Structure ink {structure hex} for all linework, forms, and label text. Accent {accent hex} used sparingly — the character's accent part + 1–2 elements. {optional secondary accent hex for one secondary note}.
 
-LABELS: exactly {1–3} short hand-lettered English labels — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper. Never put label text on a colored fill. No title bar, no type label, no logo.
+LABELS: exactly {1–3} short hand-lettered English labels — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper; one may be a short floating thesis title when it completes the piece. Never put label text on a colored fill. No title bar, no type label, no logo.
 ```
 
 ## Cutout variant

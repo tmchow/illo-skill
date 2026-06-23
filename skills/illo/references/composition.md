@@ -344,7 +344,12 @@ at most one short label per panel.
   (Explainer images swap these numbers for that register's budget, above —
   everything else here applies to both registers.)
 - A few accent touches — never a colored-in scene.
-- Don't write the staging's name or any diagram-style title on the image.
+- No boxed title bar or diagram-style header, and don't write the staging's
+  name. A short *floating* thesis title — a few words on bare paper, like a
+  caption that completes the piece — is fine and counts as one of the labels;
+  reach for it when it lands the idea, skip it when the scene already speaks.
+  Honor an explicit request either way: add a title when the user asks for one,
+  omit it when they say no title.
 
 ## Reinvent each time
 

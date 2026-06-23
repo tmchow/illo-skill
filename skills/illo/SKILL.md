@@ -8,7 +8,7 @@ description: >-
   (pose-only compositing asset, no scene or text) — in one of fifteen bundled
   looks (fourteen print, plus a photoreal toy-brick set). Triggers only when the skill is directly invoked or "illo" is
   requested; never on generic illustrate / draw / make-an-image requests.
-version: 0.26.0
+version: 0.27.0
 argument-hint: "[idea or article URL] | build a character | install <character>"
 author: Trevin Chow
 license: MIT
