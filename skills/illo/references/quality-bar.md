@@ -67,8 +67,10 @@ its style's file** — everything else here still applies.
 - One core idea, one structure. Subject large (~50–70%; explainer images may
   spread ~40–70%), ≥35% negative space.
 - **Labels**: ≤3, short, correctly spelled, structure-ink on bare paper — never
-  on a colored fill. (Explainer images use that register's callout budget
-  instead — next bullet.)
+  on a colored fill. If one string is a title, it must be the dominant text
+  element — visibly larger than secondary labels and readable at thumbnail
+  size; a title that is smaller than or visually equal to labels fails.
+  (Explainer images use that register's callout budget instead — next bullet.)
 - **Explainer register** (only when the shot list declared it): exactly one
   structure type; ≤5 stations, each with a nameable job; ONE main flow
   direction plus at most one return/exception leg; ≤6 short callouts,

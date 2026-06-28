@@ -68,8 +68,14 @@ more. The accent part stays the one saturated note.
 ## Labels
 
 Soft sans lettering in pale-light or the accent, sitting in the dim ambient
-zones away from the light — never typeset-sharp, never neon; reads like a title
-card on a quiet scene.
+zones away from the light — never typeset-sharp, never neon; reads like quiet
+cinematic lettering on a soft scene.
+
+When one text string is a **title**, it must keep the quiet bloom feel while
+still following the shared text hierarchy contract: large, clean,
+high-contrast, and unmistakably dominant over secondary labels. Never let a
+requested title become tiny ambient caption text or smaller than a nearby
+label. Secondary labels stay smaller and subordinate.
 
 ## QA deltas (replace the riso grain checks)
 
