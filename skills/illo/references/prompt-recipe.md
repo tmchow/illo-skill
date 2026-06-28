@@ -30,7 +30,9 @@ STYLE: risograph print — grainy halftone texture, slight ink-layer offset, fai
 
 PALETTE: paper {paper hex}. Structure ink {structure hex} for all linework, forms, and label text. Accent {accent hex} used sparingly — the character's accent part + 1–2 elements. {optional secondary accent hex for one secondary note}.
 
-LABELS: exactly {1–3} short hand-lettered English labels — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper; one may be a short floating thesis title when it completes the piece. Never put label text on a colored fill. No title bar, no type label, no logo.
+TEXT HIERARCHY: {If one string is a title: "{title text}" is the TITLE. Render the TITLE as the dominant text element: readable at thumbnail size, about 2–3x the height of secondary labels, placed in a clean calm zone with strong contrast. Secondary labels are visibly smaller and subordinate. If no title: all labels are secondary, small, and equal in weight.}
+
+LABELS: exactly {1–3} short hand-lettered English text strings — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper. A title is allowed only when it completes the piece and must follow TEXT HIERARCHY above. Never put label text on a colored fill. No title bar, no type label, no logo.
 ```
 
 ## Cutout variant
