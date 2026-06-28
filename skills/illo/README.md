@@ -185,21 +185,20 @@ Worth knowing:
 
 ## Install
 
-### Any agent (skills CLI)
+Prefer the native lane for your runtime: it installs the same `illo` skill and
+keeps you on that platform's managed update path. The generic skills CLI is
+the fallback for runtimes without a native plugin/skill manager.
 
-```bash
-npx skills add tmchow/illo-skill --skill illo
-```
-
-One command for Claude Code, Cursor, Codex, and the other runtimes the
-[skills CLI](https://skills.sh) supports — it finds the skill in this repo
-and asks which agents to install it into.
-
-### Hermes
-
-```bash
-hermes skills install tmchow/illo-skill/illo
-```
+| Platform | Install | Update |
+| --- | --- | --- |
+| **Claude Code** | `/plugin marketplace add tmchow/illo-skill` then `/plugin install illo@illo-skill` | `claude plugin update illo`, or enable marketplace auto-update |
+| **Codex** | `codex plugin marketplace add tmchow/illo-skill` then `codex plugin add illo@illo-skill` | `codex plugin marketplace upgrade` |
+| **Gemini CLI** | `gemini extensions install https://github.com/tmchow/illo-skill` | `gemini extensions update illo` |
+| **Copilot / GitHub CLI** | `gh skill install tmchow/illo-skill illo` (cross-agent via `--agent`) | `gh skill update illo` |
+| **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
+| **OpenClaw** | `openclaw skills install illo` | reinstall with the same command |
+| **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
+| **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
 From an interactive Hermes session:
 
@@ -213,20 +212,8 @@ From an interactive Hermes session:
 > multi-file skill (engine script, references, character sheet), and the
 > single-file URL form would install the instructions without the engine.
 
-### OpenClaw
-
-```bash
-openclaw skills install illo
-```
-
-### Platform plugins
-
-Prefer your platform's own package manager? The repo ships native plugin
-manifests for **Claude Code, Codex, Cursor, and Gemini CLI**, plus
-first-class **Copilot** support via `gh skill` — installs that receive
-managed updates. See the
-[repo README](https://github.com/tmchow/illo-skill#install) for the full
-install matrix.
+Releases are tagged `v<version>` and the version in every native manifest is
+kept in lockstep with `SKILL.md` by CI.
 
 ## Use it for
 
