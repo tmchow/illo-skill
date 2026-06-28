@@ -51,18 +51,10 @@ Same idea, different voice — four of the ten bundled looks:
 
 ## Install
 
-**Quick install — any agent.** One command for Claude Code, Cursor, Codex,
-Copilot, Gemini CLI, and the ~70 other runtimes the
-[skills CLI](https://skills.sh) supports (update later with
-`npx skills update`):
-
-```bash
-npx skills add tmchow/illo-skill --skill illo
-```
-
-**Platform-native installs.** The repo also ships a plugin/extension
-manifest for each major runtime, so you can install through your platform's
-own package manager and get managed updates:
+**Recommended: use your platform's native plugin or skill manager.** These
+lanes install the same `illo` skill, but they preserve the runtime's managed
+update path. Use the generic `npx skills` installer only when your runtime
+doesn't have a native lane yet.
 
 | Platform | Install | Update |
 | --- | --- | --- |
@@ -70,9 +62,10 @@ own package manager and get managed updates:
 | **Codex** | `codex plugin marketplace add tmchow/illo-skill` then `codex plugin add illo@illo-skill` | `codex plugin marketplace upgrade` |
 | **Gemini CLI** | `gemini extensions install https://github.com/tmchow/illo-skill` | `gemini extensions update illo` |
 | **Copilot / GitHub CLI** | `gh skill install tmchow/illo-skill illo` (cross-agent via `--agent`) | `gh skill update illo` |
-| **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
 | **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
 | **OpenClaw** | `openclaw skills install illo` | reinstall with the same command |
+| **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
+| **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with
