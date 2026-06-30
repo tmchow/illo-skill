@@ -295,8 +295,18 @@ that would sit at *different* places in the piece, each landing its own
 sentence, are separate anchors — separate images.
 
 The idea picks the shape; the destination never does — destination sets
-aspect, palette, and watermark only. Default to a **single scene**: it is
-bolder at every size, and most ideas land in one caught moment.
+aspect, palette, pixel normalization, and watermark only. Default to a
+**single scene**: it is bolder at every size, and most ideas land in one caught
+moment. Treat an **X Article banner / hero** as a special destination format,
+not generic social art: prompt for the banner target **1536 × 640 px**
+(`1536:640`) unless the user gives another concrete size. Keep essential action
+inside a crop-safe middle band, leave top/bottom/side breathing room, and avoid
+title placement that depends on edge-to-edge filling. Normal proportions are
+non-negotiable: never stretch, squash, or flatten the mascot or props to fill
+the banner. Generate the banner through the normal `illo.py generate` pipeline;
+do not manually composite or rebuild the scene from crops unless the user asks
+for post-processing. Ordinary X post art and X article body images remain the
+normal social formats (`16:9` or sometimes `1:1`).
 
 A mini-comic earns its panels only when **the meaning lives between the
 panels** — panels beat one scene when at least one of these holds:
@@ -368,12 +378,14 @@ at most one short label per panel.
   surrounding prose. Interior article art often does not.
 - When there is a primary title, reserve its space as a **title field** before
   placing the subject — usually the calm upper-left or upper-center region in a
-  16:9 hero. The title must sit inside the safe area, with visible paper around
-  it on all sides: roughly one title-letter height, or at least ~6-8% of the
-  canvas, from the nearest frame edge. It is never squeezed against the frame or
-  tucked into a leftover corner. Keep a clear gutter between title, mascot,
-  props, and supporting labels; no tangencies, no crowding, no title touching or
-  visually leaning on the subject.
+  16:9 hero. For an X Article banner, prefer a far-left or far-right calm field
+  and keep the title short enough to read in a 640 px-tall canvas. The title
+  must sit inside the safe area, with visible paper around it on all sides:
+  roughly one title-letter height, or at least ~6-8% of the canvas, from the
+  nearest frame edge. It is never squeezed against the frame or tucked into a
+  leftover corner. Keep a clear gutter between title, mascot, props, and
+  supporting labels; no tangencies, no crowding, no title touching or visually
+  leaning on the subject.
 - No boxed title bar or diagram-style header, and don't write the staging's
   name. A short *floating* thesis title — a few words on bare paper, like a
   caption that completes the piece — is fine and counts against the editorial

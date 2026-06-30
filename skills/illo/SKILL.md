@@ -61,7 +61,8 @@ infographic, not a formal flowchart, not a UI mockup.
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **A traceable structure** — "show the flow", "diagram the pipeline", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "The explainer register"): a hand-built flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
-| **Social-ready art** | 16:9 (or 1:1), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
+| **Social-ready art for X posts / article body images** | 16:9 (or 1:1 when square is explicitly useful), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
+| **X Article banner / hero image** | Use the unique banner format: **1536 × 640 px** when the user asks for an X Article hero/banner. Prompt and render through the normal `illo.py generate` image pipeline, with normal, undistorted character/object proportions and crop-safe breathing room. Do not satisfy this by manually compositing or rebuilding crops from another image unless the user explicitly asks for post-processing. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
 | **Community characters** — "what characters are available", "install blip", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, publish via a GitHub PR. |
@@ -248,7 +249,7 @@ Two kinds of input, handled differently:
   usually underspecifies the picture. Ask **up to ~3 quick questions — only the
   ones that change the output — then build.** Draw from:
   - the single takeaway (what should the reader conclude?),
-  - where it's headed (blog / X / deck → sets palette, aspect, watermark),
+  - where it's headed (blog / deck / X post / X article body / X Article banner → sets palette, aspect, pixel normalization, and watermark),
   - the shape: one image (the default), a **mini-comic** (2–4 panels in one
     image — only when the idea itself advances through stages), or several
     separate images — plus any must-include element or constraint. The shape
@@ -380,8 +381,14 @@ actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
 (re-roll).
 Generate each image **separately** — never combine ideas into one canvas. Default
-aspect is 16:9; use `1:1` for social, `9:16`/`4:5` for vertical. Pass `--label`
-for a caption that shows in the gallery.
+aspect is 16:9; use `1:1` for square social, `9:16`/`4:5` for vertical, and
+`1536:640` for an **X Article banner / hero**. For X Article banners, the
+platform target is **1536 × 640 px**. Generate through the normal image
+pipeline; do not manually composite or rebuild the scene from crops as a
+substitute for an illo render. Check `.width/.height`, and only do final
+post-processing when it is a non-distorting resize/crop that preserves normal
+proportions and all essential information. Never stretch or squash the art to
+force exact dimensions. Pass `--label` for a caption that shows in the gallery.
 
 **Sets read as one artist.** For any multi-image set, the first image that
 **passes the full quality bar** (and, for a hero in a rerouted article set,
