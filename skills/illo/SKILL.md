@@ -228,11 +228,13 @@ Two kinds of input, handled differently:
 - **A URL / article / paste / long post** carries its own context — but
   never generate from the first vivid detail. Route it first
   (`references/composition.md`, "Source routing"): classify the source's
-  **shape and genre**, separate the source's *rhetorical job* from its most
-  drawable detail, **lock the main thesis in one sentence** (a hero locks
-  the source's job, not its loudest evidence — the genre guardrails say what
-  each genre heroes), then pick the coverage — hero, hero + per-section set
-  (the full article job), set, mini-comic, or shot list first. Sets need placements: compact sources (a tweet, one
+  **shape and genre**, infer the **requested artifact's job** (what this
+  image must do for its audience), separate that job from the source's most
+  drawable mechanism, **lock the main thesis in one sentence** (a hero locks
+  the source/artifact job, not its loudest evidence — the genre guardrails
+  say what each genre heroes), then pick the coverage — hero, hero +
+  per-section set (the full article job), set, mini-comic, or shot list
+  first. Sets need placements: compact sources (a tweet, one
   concept) never yield a set — their multi-beat form is the mini-comic. Pull the **load-bearing moments** —
   the few places that turn on a judgment, a loop, an input→output, a
   before/after, or a trap — never one image per paragraph. The text already
@@ -295,10 +297,11 @@ install first, then continue here.
 
 If the user wants planning ("where should this be illustrated", "shot list"),
 output a shot list before generating. Per image: placement, the one idea,
-the register (editorial unless the row passes the explainer gate), the
-staging (or structure type), **what the mascot is doing**, the palette, and
-the short English labels (per-register budgets in
-`references/composition.md`). Let the anchor count drive how many (bands and the never-pad
+the artifact job, the register (editorial unless the row passes the explainer
+gate), the staging (or structure type), **what the mascot is doing**, the
+palette, and the text hierarchy — primary read/title when the artifact needs
+one, plus short supporting labels/callouts within the per-register budgets in
+`references/composition.md`. Let the anchor count drive how many (bands and the never-pad
 rule are in `references/composition.md`). When a stretch of the piece advances
 through stages **in one place**, plan a single mini-comic image there instead
 of several — the mini-comic-vs-separate routing is in
@@ -345,9 +348,9 @@ watermark). QA against the cutout section of `references/quality-bar.md`. Skip
 the editorial shot-list / thesis steps.
 
 **Editorial and explainer.** Build a full prompt per image from
-`references/prompt-recipe.md` (scene +
-structure + style + the active character's spec + resolved palette hexes +
-≤3 labels), write it to a file, and render it. **Pass the active character's
+`references/prompt-recipe.md` (scene + structure + communication hierarchy +
+style + the active character's spec + resolved palette hexes + the
+per-register text budget), write it to a file, and render it. **Pass the active character's
 model sheet as `--ref` every time** — that reference conditioning is what
 keeps the mascot on-model; style and palette come from the prompt, so both
 stays swappable. A pack's sheet is born in its own style, so sheet and style

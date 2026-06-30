@@ -22,6 +22,12 @@ its style's file** — everything else here still applies.
   incident. Apply the genre guardrails (`composition.md`): does the hero
   match what this genre should hero? If not, **re-route, then re-roll** —
   fix the lock first; do not keep iterating a well-rendered wrong thesis.
+- **Artifact-job test** (especially for standalone heroes/social cards): would
+  a stranger understand what this image is introducing or framing without
+  nearby prose? If the artifact's job is to introduce, announce, promote, or
+  frame a new offering, the primary read must be the role/capability/step-change
+  being claimed. A neat picture of the source's internal mechanism is still a
+  failure when that mechanism is only evidence for the announcement.
 - Correct aspect ratio; the style's expected ground (riso: light paper with
   the risograph grain; other styles: per their QA deltas — e.g. blueprint's
   deep ground is correct).
@@ -66,11 +72,21 @@ its style's file** — everything else here still applies.
   structure-ink (not pure-black) features — not a heavy dark blob.
 - One core idea, one structure. Subject large (~50–70%; explainer images may
   spread ~40–70%), ≥35% negative space.
-- **Labels**: ≤3, short, correctly spelled, structure-ink on bare paper — never
-  on a colored fill. If one string is a title, it must be the dominant text
-  element — visibly larger than secondary labels and readable at thumbnail
-  size; a title that is smaller than or visually equal to labels fails.
+- **Text hierarchy / labels**: editorial text stays short, correctly spelled,
+  structure-ink on bare paper — never on a colored fill. A primary floating
+  title is allowed when the artifact job needs a standalone read; it must be
+  visibly larger than secondary labels and readable at thumbnail size. Supporting
+  labels must remain visibly secondary and not compete with it. If the title
+  and labels flatten into equal-weight callouts, or a title is smaller than or
+  visually equal to labels, re-roll or simplify.
   (Explainer images use that register's callout budget instead — next bullet.)
+- **Title placement** (when a primary title is present): it sits in an
+  intentionally reserved field with visible paper around it, inside the safe
+  area, and separated from the mascot, props, and labels by a clear gutter. Keep
+  it roughly one title-letter height, or at least ~6-8% of the canvas, from the
+  nearest frame edge. If the title feels crammed into a corner, nearly touches
+  the subject/frame, or steals the only calm negative-space region, re-roll with
+  a named title field and a shifted/scaled subject.
 - **Explainer register** (only when the shot list declared it): exactly one
   structure type; ≤5 stations, each with a nameable job; ONE main flow
   direction plus at most one return/exception leg; ≤6 short callouts,
@@ -140,6 +156,12 @@ style QA deltas) still applies to the character cluster.
 ## Fail signals → fix
 
 - A title bar / type label ("Workflow", "System Diagram", "Roadmap") anywhere → edit it out.
+- A standalone announcement/hero image has only mechanism labels and no clear
+  primary read for the thing being introduced → re-route as an editorial hero
+  with a primary title or stronger role/step-change scene, then re-roll.
+- A primary title is technically present but jammed against the edge, clipped,
+  tangent to the subject, or crowding the visual action → re-roll with reserved
+  title space and fewer/smaller supporting labels.
 - Mascot reads as a sticker/cute-cartoon, or shows face details its locked
   design doesn't name (for house-face packs: any mouth/eyebrows/shiny eyes) → re-roll.
 - Looks like a slide, infographic, flowchart, or formal diagram → re-roll

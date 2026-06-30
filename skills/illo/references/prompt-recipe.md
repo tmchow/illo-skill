@@ -9,8 +9,8 @@ values from `palettes.md`.
 The template below is written for **riso**. When the active character's pack
 declares a different style (its `Style:` line — SKILL.md step 4), replace the
 LINE LANGUAGE and STYLE lines with the blocks from that style's file, build
-the PALETTE line from its palette mapping, refine the LABELS line with the
-style's `## Labels` section so the lettering matches the look (its treatment
+the PALETTE line from its palette mapping, refine the TEXT HIERARCHY line with
+the style's `## Labels` section so the lettering matches the look (its treatment
 and per-look count — e.g. a blocky pixel font, draftsman capitals, an
 office-stamp impression — override the generic "hand-lettered" default), and
 apply its character treatment to the CHARACTER block's value-rule slot.
@@ -20,7 +20,7 @@ apply its character treatment to the CHARACTER block's value-rule slot.
 ```text
 A {aspect, e.g. 16:9 horizontal} editorial illustration that explains ONE idea: "{the single idea}".
 
-Composition ({staging from composition.md}): {the scene — where the mascot is, the move it performs, the one or two built objects, how things flow}. Generous negative space (keep ~35%+ of the canvas empty); the subject is large and confident, ~50–70% of the frame.
+Composition ({staging from composition.md}): {the scene — where the mascot is, the move it performs, the one or two built objects, how things flow}. Generous negative space (keep ~35%+ of the canvas empty); the subject is large and confident, ~50–70% of the frame. {If using a primary title: reserve a clear title field in the calm paper area before placing the subject; keep a generous gutter between the title field, mascot, props, and labels.}
 
 CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. The mascot is a solid OPAQUE shape in front of the scene — no ground line, table edge, horizon, or prop passes through its body; background lines stop at its silhouette. Its limbs join the body cleanly at sensible points, exactly the count its design specifies (no extra, floating, or mid-body arms/legs). Only the mascot's own parts touch its outline: any tool is HELD in a hand and clearly separated from the torso, or rests in the scene — never pressed flat against the body or sprouting from it. Hold at most one prop per hand; any extra object sits on the table or ground. Preserve the character sheet's limb proportions: a stubby arm stays stubby and nearby, never stretched into a long bar/cable/lever or across the whole scene; handles, horns, tails, ears, or accent carriers are not extra hands unless the character pack explicitly says so.
 
@@ -28,11 +28,15 @@ LINE LANGUAGE: draw EVERYTHING — mascot, objects, arrows — in ONE bold, even
 
 STYLE: risograph print — grainy halftone texture, slight ink-layer offset, faint paper grain, flat fills, no gradients, no soft shadows.
 
-PALETTE: paper {paper hex}. Structure ink {structure hex} for all linework, forms, and label text. Accent {accent hex} used sparingly — the character's accent part + 1–2 elements. {optional secondary accent hex for one secondary note}.
+PALETTE: paper {paper hex}. Structure ink {structure hex} for all linework, forms, and text. Accent {accent hex} used sparingly — the character's accent part + 1–2 elements. {optional secondary accent hex for one secondary note}.
 
-TEXT HIERARCHY: {If one string is a title: "{title text}" is the TITLE. Render the TITLE as the dominant text element: readable at thumbnail size, about 2–3x the height of secondary labels, placed in a clean calm zone with strong contrast. Secondary labels are visibly smaller and subordinate. If no title: all labels are secondary, small, and equal in weight.}
+TEXT HIERARCHY: hand-letter exactly {N} text items in structure ink on bare paper: {optional PRIMARY TITLE: "{short floating thesis title}" — largest and clearest, visually primary, readable at thumbnail size, about 2–3x the height of secondary labels, placed in the reserved title field with visible paper margin around it, at least one title-letter height or ~6-8% of the canvas from the nearest frame edge, and not touching/crowding the mascot or props, with no box/bar/underline; optional SUPPORTING LABELS: {"label one", "label two", "label three"} — smaller, placed near the evidence/parts they name}. Use a primary title when the artifact must read as a standalone hero/announcement/social card or the abstract thesis needs a name; omit it when the scene and surrounding prose already carry the primary read. Editorial text usually stays within 1–3 total items; when a primary title is present, supporting labels stay subordinate and should not compete with it. Never put text on a colored fill. No title bar, no type label, no logo, no extra words.
+```
 
-LABELS: exactly {1–3} short hand-lettered English text strings — {"label one", "label two"} — in the structure-ink color placed directly on the bare paper. A title is allowed only when it completes the piece and must follow TEXT HIERARCHY above. Never put label text on a colored fill. No title bar, no type label, no logo.
+When no embedded text is needed, replace the TEXT HIERARCHY line with:
+
+```text
+TEXT: no hand-lettered text anywhere — no labels, title, caption, logo, signature, numbers, or stray words.
 ```
 
 ## Cutout variant
@@ -88,16 +92,20 @@ Composition (mini-comic, {2–4} panels in ONE image, read left to right, separa
 ## Explainer variant
 
 When the shot list declared the **explainer register** (`composition.md`,
-"The explainer register"), replace the Composition and LABELS lines with the
+"The explainer register"), replace the Composition and TEXT HIERARCHY lines with the
 two below — CHARACTER, LINE LANGUAGE, STYLE, and PALETTE are unchanged, so
 the structure is drawn in the active look. Resolve the semantic ink hexes
 (flow, warning) from `palettes.md` first.
+
+If the artifact job needs a primary announcement/hero read, revisit the
+register gate before using this variant. A true explainer can have callouts,
+but not a title-led hierarchy.
 
 Hex values live in the PALETTE line ONLY — extend it with the semantic-role
 sentence shown below. Never put a hex inside the Composition or CALLOUTS
 lines: a hex adjacent to quoted callout text gets hand-lettered into the art
 as if it were a label. Refer to inks by role name ("the flow color"), exactly
-as the editorial LABELS line refers to "the structure-ink color". When the
+as the editorial TEXT HIERARCHY line refers to "structure ink". When the
 structure has a return/exception leg, state its direction twice — where it
 leaves and where it rejoins — or the model may flip the arrowhead.
 

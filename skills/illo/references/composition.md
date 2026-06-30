@@ -18,6 +18,16 @@ register only sets which image grammar is allowed.
   callouts — for when the reader must be able to *trace* the structure, not
   just feel it. Rules in "The explainer register" below.
 
+Before choosing the register, infer the **artifact job**: what the requested
+image is supposed to do for its audience in the place it will be seen. This is
+not a keyword match; read the user's intent, destination, and source context.
+Some images are meant to explain a mechanism, but others are meant to introduce,
+promote, frame, or make a new offering legible as a standalone hero/poster. A
+standalone introduction or announcement heroes the role, capability, or
+step-change being claimed; mechanisms from the source become props, secondary
+actions, or small supporting labels. Do not route such an image to explainer
+just because the source contains a traceable process.
+
 Editorial wins every tie. Route an image to explainer only when:
 
 - **(a) the user asks for it** — "show the flow", "diagram the pipeline",
@@ -136,6 +146,12 @@ postmortem · quote · how-to / process · benchmark / comparison · personal
 anecdote · opinion / argument. Genre matters because each one heroes a
 different thing (the **Genre guardrails** below) — the same vivid detail
 that's the headline in one genre is a supporting prop in another.
+Also classify the requested artifact's job: is this image meant to introduce
+the whole thing as a standalone opener/social card, support a section inside a
+piece, explain a mechanism, or provide a reusable visual asset? Let that job
+shape the hero and the text hierarchy. A launch source can contain a process,
+but if the requested artifact is a hero/announcement, the process is evidence
+unless the source's actual promise is the process itself.
 
 **2. Lock the thesis — per coverage unit, not once per piece.** Write one
 sentence before any prompt: *"This image must communicate: \<thesis>."*
@@ -340,16 +356,32 @@ at most one short label per panel.
 
 ## Restraint
 
-- One idea, one staging; ≤3 short labels; leave a calm empty region.
+- One idea, one staging; usually ≤3 short editorial text items total; leave a calm empty region.
   (Explainer images swap these numbers for that register's budget, above —
   everything else here applies to both registers.)
 - A few accent touches — never a colored-in scene.
+- Decide the communication hierarchy before writing the prompt: the **primary
+  read** (the scene alone, or one short floating thesis title) and the
+  **supporting reads** (small labels/callouts that name evidence or parts).
+  Standalone heroes, announcement art, social cards, and abstract claims often
+  need an inferred primary title so the image can be understood away from the
+  surrounding prose. Interior article art often does not.
+- When there is a primary title, reserve its space as a **title field** before
+  placing the subject — usually the calm upper-left or upper-center region in a
+  16:9 hero. The title must sit inside the safe area, with visible paper around
+  it on all sides: roughly one title-letter height, or at least ~6-8% of the
+  canvas, from the nearest frame edge. It is never squeezed against the frame or
+  tucked into a leftover corner. Keep a clear gutter between title, mascot,
+  props, and supporting labels; no tangencies, no crowding, no title touching or
+  visually leaning on the subject.
 - No boxed title bar or diagram-style header, and don't write the staging's
   name. A short *floating* thesis title — a few words on bare paper, like a
-  caption that completes the piece — is fine and counts as one of the labels;
-  reach for it when it lands the idea, skip it when the scene already speaks.
-  Honor an explicit request either way: add a title when the user asks for one,
-  omit it when they say no title.
+  caption that completes the piece — is fine and counts against the editorial
+  text budget; reach for it when it lands the artifact job, skip it when the
+  scene already speaks. If a primary title is present, supporting labels stay
+  visibly subordinate and do not compete with it. Honor an explicit request
+  either way: add a title when the user asks for one, omit it when they say no
+  title.
 
 ## Reinvent each time
 
@@ -371,6 +403,8 @@ and the never-pad rule. Per image:
 - **Idea** — the one sentence it lands: *this anchor's* own thesis-lock
   (Source routing step 2), what this section turns on — not a fragment of
   the piece summary. Each row is analyzed on its own terms.
+- **Artifact job** — opener/social hero, interior section support, mechanism
+  explainer, reusable asset, etc.
 - **Register** — editorial unless the row passes the explainer gate ("Two
   registers"); say which, so the reader can challenge the call.
 - **Staging** — which angle above (editorial), or which structure type
@@ -378,7 +412,10 @@ and the never-pad rule. Per image:
 - **The mascot's move** — the physical action
 - **Object(s)** — the one or two built things
 - **Palette** — preset name or derived dominant
-- **Labels** — the 1–3 short strings
+- **Text hierarchy** — primary read/title if needed, then supporting labels or
+  explainer callouts; keep their visual priority distinct. For a primary title,
+  name the reserved title field and the gutter that keeps it clear of the
+  subject.
 
 Pick the moments that carry the piece — a pivotal claim, a loop, a turn, a trap,
 a handoff — not even coverage across every paragraph. A moment is
