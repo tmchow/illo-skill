@@ -69,7 +69,7 @@ doesn't have a native lane yet.
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with
-`skills/illo/SKILL.md` by CI.
+`skills/illo/SKILL.md` by Release Please and CI.
 
 ## Repo layout
 

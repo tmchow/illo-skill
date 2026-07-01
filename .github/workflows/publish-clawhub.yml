@@ -1,13 +1,16 @@
 name: Publish illo to ClawHub
 
-# Single-skill repo, so publishing is unconditional on merge — gated only by
-# the version: pushes to main publish illo when its SKILL.md version is new
-# on ClawHub. An unchanged version is skipped quietly so docs-only merges
-# stay green; bump version: in the same PR whenever a change should ship.
-# Manual dispatch is strict: an already-published version fails loudly.
+# Release Please owns version bumps, tags, and GitHub releases. This workflow
+# publishes the already-created release to ClawHub when called by
+# release-please.yml. Manual dispatch remains strict for repair/retry use.
 on:
-  push:
-    branches: [main]
+  workflow_call:
+    inputs:
+      changelog:
+        description: "Changelog text to send to ClawHub"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       changelog:
@@ -20,7 +23,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # creates the v<version> tag + GitHub release on publish
+      contents: read
 
     steps:
       - name: Checkout
@@ -48,7 +51,6 @@ jobs:
         env:
           MODE: ${{ github.event_name == 'workflow_dispatch' && 'strict' || 'skip-existing' }}
           CHANGELOG: ${{ inputs.changelog }}
-          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -77,10 +79,10 @@ jobs:
 
           if [ "$state" = "exists" ]; then
             if [ "$MODE" = "strict" ]; then
-              echo "::error::ClawHub version $VERSION already exists for $SLUG. Bump version: in $SKILL_DIR/SKILL.md before publishing."
+              echo "::error::ClawHub version $VERSION already exists for $SLUG. Cut a new Release Please release before publishing."
               exit 1
             fi
-            echo "::notice::$SLUG $VERSION is already on ClawHub — skipping (bump version: in $SKILL_DIR/SKILL.md to ship a new release)."
+            echo "::notice::$SLUG $VERSION is already on ClawHub — skipping (merge the next Release Please PR to ship a new release)."
             exit 0
           fi
 
@@ -91,14 +93,3 @@ jobs:
           npx -y clawhub@0.20.0 --no-input skill publish "$SKILL_DIR" \
             --slug "$SLUG" --version "$VERSION" --changelog "$changelog"
           echo "Published $SLUG@$VERSION"
-
-          # Tag the release: v<version> is what Copilot's `gh skill` resolves
-          # versions against and what Gemini CLI's release-based update
-          # detection watches. Created only when a new version just shipped.
-          if gh release view "v$VERSION" >/dev/null 2>&1; then
-            echo "::notice::Release v$VERSION already exists — skipping tag."
-          else
-            gh release create "v$VERSION" --target "$GITHUB_SHA" \
-              --title "illo v$VERSION" --notes "$changelog"
-            echo "Tagged and released v$VERSION"
-          fi
