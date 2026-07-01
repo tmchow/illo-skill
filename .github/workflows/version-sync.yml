@@ -1,9 +1,8 @@
 name: Plugin manifest versions
 
-# skills/illo/SKILL.md `version:` is the single source of truth; every plugin
-# manifest (.claude-plugin, .codex-plugin, .cursor-plugin, gemini-extension)
-# mirrors it. PRs that bump the skill version get the manifests synced
-# automatically; pushes to main verify and fail loudly if anything drifted.
+# Release Please bumps skills/illo/SKILL.md and every plugin manifest together.
+# This workflow is a backstop: release PRs from same-repo branches can still be
+# auto-synced if needed, and pushes to main verify lockstep loudly.
 
 on:
   pull_request:

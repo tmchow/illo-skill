@@ -213,7 +213,7 @@ From an interactive Hermes session:
 > single-file URL form would install the instructions without the engine.
 
 Releases are tagged `v<version>` and the version in every native manifest is
-kept in lockstep with `SKILL.md` by CI.
+kept in lockstep with `SKILL.md` by Release Please and CI.
 
 ## Use it for
 

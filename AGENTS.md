@@ -58,14 +58,19 @@ Required: `name`, `description`, `version`.
   generic illustrate/draw requests). It states only the look *count* ("ten
   bundled print looks") — bump the number when adding a look, never
   enumerate names there.
-- `version` — semver; bump on meaningful change. **Publishing is gated on
-  this** (see Publishing below). "Meaningful change" includes **any edit to
-  shipped skill content** — `SKILL.md`, `references/**`, `scripts/**`,
-  `assets/**` — because those install onto the user's machine and change how
-  the skill behaves. Editing a reference doc is *not* a docs-only change: only
-  repo-meta files (`README.md`, `AGENTS.md`, `CONTRIBUTING`, `.github/**`) are
-  docs-only and skip the bump. When in doubt, bump — an unchanged version is
-  skipped silently at publish, so the fix never reaches installed skills.
+- `version` — semver; **Release Please owns this in normal development**.
+  Do not bump it in ordinary feature/fix PRs unless the user explicitly asks
+  for a release PR or emergency publish. Meaningful shipped-content changes
+  are discovered from Conventional Commits and batched into the Release Please
+  PR. "Meaningful shipped content" includes **any edit to installed skill
+  content** — `SKILL.md`, `references/**`, `scripts/**`, `assets/**` —
+  because those install onto the user's machine and change how the skill
+  behaves. Editing a reference doc is *not* a docs-only change: only repo-meta
+  files (`README.md`, `AGENTS.md`, `CONTRIBUTING`, `.github/**`) are docs-only.
+  Use Conventional Commit titles/messages so Release Please can choose the
+  right bump: `fix:` for corrected behavior/docs that should ship, `feat:` for
+  new user-visible capability, `chore:`/`docs:` for repo-only changes that do
+  not need a skill release.
 
 Per-runtime metadata (`metadata.hermes`, `metadata.openclaw`) is optional
 and additive — unknown fields are ignored by other runtimes. **Verify every
@@ -226,14 +231,19 @@ skill, five manifests, one version:
   directly, and the repo carries the `agent-skills` topic so
   `gh skill search` finds it.
 
-**`skills/illo/SKILL.md` `version:` is the single source of truth.**
-`.github/scripts/sync_plugin_versions.py` copies it into every manifest;
-the `version-sync` workflow auto-syncs on PRs and verifies on main — bump
-the SKILL.md version and let CI fix the manifests (or run the script
-locally). On a successful publish, the ClawHub workflow also creates the
-`v<version>` git tag and GitHub release: that tag is what Copilot's
-`gh skill` resolves versions against and what Gemini CLI's release-based
-update detection watches. Never hand-create version tags.
+**Release Please is the release authority.** Ordinary feature/fix PRs should
+not edit version fields. On pushes to `main`,
+`.github/workflows/release-please.yml` maintains a release PR that bumps
+`version.txt`, `skills/illo/SKILL.md`, every plugin manifest, and
+`CHANGELOG.md` together. `skills/illo/SKILL.md` remains the runtime-facing
+version source for publish/install tools, and `.github/scripts/sync_plugin_versions.py`
+still verifies manifest lockstep on `main`. When the Release Please PR is
+merged, Release Please creates the `v<version>` git tag and GitHub release:
+that tag is what Copilot's `gh skill` resolves versions against and what
+Gemini CLI's release-based update detection watches. Never hand-create version
+tags. The workflow uses `secrets.RELEASE_PLEASE_TOKEN` when present and falls
+back to `github.token`; add a PAT secret only if branch protection requires CI
+to run on Release Please-created PRs.
 
 Before merging layout or manifest changes, validate with the real tools:
 `claude plugin validate .`, `gemini extensions validate .`, and
@@ -241,14 +251,13 @@ Before merging layout or manifest changes, validate with the real tools:
 
 ## Publishing to ClawHub
 
-Single-skill repo, so publishing is **unconditional on merge — gated only by
-the version**. There is no opt-in registry (that was an agent-skills
-mechanism).
+Single-skill repo, so publishing is driven by the Release Please release.
+There is no opt-in registry (that was an agent-skills mechanism).
 
-- **On push to main**, `.github/workflows/publish-clawhub.yml` publishes
-  `illo` when its `SKILL.md` `version:` is **new** on ClawHub. An unchanged
-  version is skipped quietly (docs-only merges stay green) — bump `version:`
-  in the same PR whenever a change should ship.
+- **On Release Please release**, `.github/workflows/release-please.yml` calls
+  `.github/workflows/publish-clawhub.yml`, which publishes `illo` when its
+  `SKILL.md` `version:` is **new** on ClawHub. An already-published version is
+  skipped in the release flow so reruns stay safe.
 - **Manual dispatch** is strict: an already-published version fails loudly.
   Input: `changelog` (optional, defaults to a sha-stamped message).
 - Auth comes from the `CLAW_TOKEN` repository secret (a ClawHub API token).
