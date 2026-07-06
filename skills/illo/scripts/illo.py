@@ -112,6 +112,12 @@ def redact(text):
     return SECRET_RE.sub("<redacted>", text or "")
 
 
+def _codex_binary():
+    """Resolved path to the codex executable. Cached — shutil.which is a
+    cheap syscall, but this is called multiple times per process."""
+    return shutil.which("codex") or "codex"
+
+
 def _codex_run(args):
     """Run a short `codex` subcommand and return (rc, combined-output). Any
     failure mode — missing binary, non-zero exit, timeout — collapses to a
@@ -120,7 +126,7 @@ def _codex_run(args):
     printing. Reads no env var and no credential file."""
     try:
         proc = subprocess.run(
-            ["codex"] + args, capture_output=True, text=True,
+            [_codex_binary()] + args, capture_output=True, text=True,
             timeout=CODEX_DETECT_TIMEOUT)
     except (FileNotFoundError, OSError, subprocess.SubprocessError):
         return 1, ""
@@ -930,7 +936,7 @@ def codex_exec_generate(prompt, refs, out_path):
                     f"Use your built-in image generation tool to render this, "
                     f"then save the resulting image to {out} "
                     f"(overwrite if it exists). Do not ask for confirmation.")
-    cmd = ["codex", "exec", "--cd", str(run_dir),
+    cmd = [_codex_binary(), "exec", "--cd", str(run_dir),
            "--sandbox", "workspace-write", "--skip-git-repo-check",
            "--enable", CODEX_IMAGEGEN_EXT_FEATURE]
     # Attach every reference: the active character sheet, plus any finished-look
