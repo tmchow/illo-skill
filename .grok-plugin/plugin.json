@@ -1,0 +1,17 @@
+{
+  "name": "illo",
+  "version": "0.28.2",
+  "description": "Original editorial illustrations where a recurring mascot performs the idea — fourteen bundled looks, custom characters, palettes from your own site's colors. Ships the illo Agent Skill and its dual-backend image engine: free generation through your Codex CLI subscription (gpt-image-2) when available, OpenRouter otherwise.",
+  "author": {
+    "name": "Trevin Chow",
+    "url": "https://github.com/tmchow"
+  },
+  "homepage": "https://illo-skill.com",
+  "repository": "https://github.com/tmchow/illo-skill",
+  "license": "MIT",
+  "keywords": [
+    "illo",
+    "illo skill",
+    "editorial illustration"
+  ]
+}
