@@ -208,7 +208,7 @@ consequences:
 ## Plugin manifests and version lockstep
 
 The repo doubles as a native plugin/extension for the major runtimes. One
-skill, five manifests, one version:
+skill, six manifests, one version:
 
 - `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` — Claude
   Code. The repo is its own single-plugin marketplace (`illo@illo-skill`);
@@ -223,6 +223,14 @@ skill, five manifests, one version:
   through the review-gated Cursor Marketplace
   (cursor.com/marketplace/publish); until the listing is approved, Cursor
   users install via the generic skills CLI.
+- `.grok-plugin/plugin.json` + `.grok-plugin/marketplace.json` — Grok (xAI).
+  Grok reads the `.claude-plugin/*` manifests for compat, so illo installs
+  today without these; the native pair makes it a first-class Grok plugin —
+  same rationale as the Codex native file. The marketplace catalog uses a
+  local source (`{"type": "local", "path": "."}`), and its brand-scoped
+  `keywords`/`domains` feed Grok's plugin CTA (kept tight so illo does not
+  mis-fire on generic illustrate requests). This same pair is what the
+  xAI-official-marketplace submission points at (see below).
 - `gemini-extension.json` — Gemini CLI extension; skills auto-discovered
   from `skills/`. (Google is migrating free-tier Gemini CLI users to
   Antigravity CLI, which imports extensions as plugins — the manifest
@@ -246,8 +254,56 @@ back to `github.token`; add a PAT secret only if branch protection requires CI
 to run on Release Please-created PRs.
 
 Before merging layout or manifest changes, validate with the real tools:
-`claude plugin validate .`, `gemini extensions validate .`, and
-`gh skill publish --dry-run`.
+`claude plugin validate .`, `gemini extensions validate .`,
+`grok plugin validate .`, and `gh skill publish --dry-run`.
+
+## Submitting to the xAI plugin marketplace
+
+Getting illo into xAI's official catalog (`xai-org/plugin-marketplace`) is an
+outbound PR to *their* repo — an index that only points at our source, so
+nothing of illo is vendored there. Do this **after** the change you want to
+ship has merged to `main`: the entry pins a commit that must already exist.
+
+1. Fork `xai-org/plugin-marketplace` and branch from `main`.
+2. Get the commit to pin — a full 40-char lowercase SHA; a branch, tag, or
+   short SHA is rejected by their validator:
+   ```bash
+   git ls-remote https://github.com/tmchow/illo-skill.git HEAD
+   ```
+3. Add one entry to their `.grok-plugin/marketplace.json` under `plugins[]`, a
+   remote source pinned to that SHA:
+   ```json
+   {
+     "name": "illo",
+     "description": "Original editorial illustrations where a recurring mascot performs the idea.",
+     "category": "creative",
+     "source": {
+       "source": "url",
+       "url": "https://github.com/tmchow/illo-skill.git",
+       "sha": "<full-40-char-sha-from-step-2>"
+     },
+     "homepage": "https://illo-skill.com",
+     "keywords": ["illo", "illo skill", "editorial illustration"],
+     "domains": ["illo-skill.com"]
+   }
+   ```
+4. Regenerate their component index (never hand-edit it) and validate exactly
+   as their CI does:
+   ```bash
+   python3 scripts/generate-plugin-index.py
+   python3 scripts/validate-catalog.py
+   python3 scripts/generate-plugin-index.py --check
+   ```
+5. Open the PR, fill in their template, and wait for code-owner review.
+
+To roll out a later illo update in their catalog, bump the pinned `sha` in the
+existing entry — never open a second, parallel entry.
+
+Do not confuse this with our own `.grok-plugin/marketplace.json`: that file
+makes this repo directly addable as a Grok marketplace
+(`grok plugin marketplace add tmchow/illo-skill`) and uses a **local** source;
+the xAI entry above lives in *their* repo and uses a **remote** source pinned
+to a SHA.
 
 ## Publishing to ClawHub
 
