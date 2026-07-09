@@ -293,9 +293,9 @@ def dump_config_yaml(cfg):
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
-        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex backend ignores it)",
+        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok backends ignore it)",
         f"backend: {val(cfg['backend'])}" if cfg.get("backend")
-        else "# backend: codex            # codex (your Codex subscription) or openrouter; default: auto",
+        else "# backend: codex            # codex, grok (your subscription), or openrouter; default: auto",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
@@ -686,14 +686,17 @@ def merge_image_config(aspect, image_config_json):
 
 
 def resolve_generate_model(cfg, args_model, backend, cutout):
-    """Resolve the OpenRouter model id for this render.
+    """Resolve the OpenRouter model id used for a direct OpenRouter render or a
+    CLI-backend → OpenRouter fallback.
 
-    Explicit --model wins. Cutouts on OpenRouter default to CUTOUT_OPENROUTER_MODEL
-    (Grok/JPEG cannot produce compositing-ready cutouts). Editorial and Codex keep
-    config/default resolution."""
+    Explicit --model wins. Cutouts default to CUTOUT_OPENROUTER_MODEL regardless of
+    the resolved backend: the CLI backends ignore the model, but if one fails (or a
+    Grok cutout redirects) and OpenRouter serves the render, the cutout must still
+    land on GPT Image 2 — the editorial default (Grok/JPEG) can't produce
+    compositing-ready alpha. Editorial renders keep config/default resolution."""
     if args_model:
         return args_model
-    if cutout and backend == "openrouter":
+    if cutout:
         return CUTOUT_OPENROUTER_MODEL
     return cfg.get("model") or DEFAULT_MODEL
 
@@ -1093,8 +1096,13 @@ def grok_exec_generate(prompt, refs, out_path):
                      f"resulting image to {out} (overwrite if it exists). Do not "
                      f"construct the image with code (HTML/SVG/Python) — use the "
                      f"image generation tool. Do not ask for confirmation.")
+    # Confine the auto-approved agent: --sandbox workspace lets it write only to
+    # CWD/tmp/~/.grok (network stays open for the image call), so an instruction
+    # injected via the prompt content can't reach the wider filesystem. Grok's
+    # sandbox is OFF by default, so this must be explicit — the analog of the
+    # Codex path's --sandbox workspace-write.
     cmd = [_grok_binary(), "-p", single_prompt, "--always-approve",
-           "--cwd", str(run_dir)]
+           "--sandbox", "workspace", "--cwd", str(run_dir)]
     # Clear any prior file at the target so the verify-first branch can't accept a
     # stale render as this run's output — only a file this run creates counts.
     try:

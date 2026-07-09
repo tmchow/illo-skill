@@ -392,10 +392,11 @@ python3 "$SKILL_DIR/scripts/illo.py" generate \
 ```
 
 `illo.py generate` prints a **JSON line per image** (`{path, backend, model,
-id, cost, width, height, label, prompt}`; `backend` is `codex` or
+id, cost, width, height, label, prompt}`; `backend` is `codex`, `grok`, or
 `openrouter`, and `model`/`id`/`cost` are OpenRouter-only — they are null on a
-Codex-served record. `cost` is null unless `--cost` is passed — `gallery`
-backfills it) and appends the same record to `<out-dir>/manifest.jsonl`.
+CLI-served record (Codex or Grok). `cost` is null unless `--cost` is passed —
+`gallery` backfills it) and appends the same record to
+`<out-dir>/manifest.jsonl`.
 Read `.path` — it may differ from `--out`: the engine names the file by the
 actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
