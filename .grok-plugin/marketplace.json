@@ -1,0 +1,29 @@
+{
+  "name": "illo-skill",
+  "owner": {
+    "name": "Trevin Chow",
+    "url": "https://github.com/tmchow"
+  },
+  "description": "Marketplace for the illo editorial-illustration skill",
+  "plugins": [
+    {
+      "name": "illo",
+      "source": {
+        "type": "local",
+        "path": "."
+      },
+      "description": "Original editorial illustrations where a recurring mascot performs the idea — fourteen bundled looks, custom characters, palettes from your own site's colors.",
+      "version": "0.28.2",
+      "category": "creative",
+      "homepage": "https://illo-skill.com",
+      "keywords": [
+        "illo",
+        "illo skill",
+        "editorial illustration"
+      ],
+      "domains": [
+        "illo-skill.com"
+      ]
+    }
+  ]
+}
