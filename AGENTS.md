@@ -253,6 +253,16 @@ tags. The workflow uses `secrets.RELEASE_PLEASE_TOKEN` when present and falls
 back to `github.token`; add a PAT secret only if branch protection requires CI
 to run on Release Please-created PRs.
 
+**One-time repo setup for the release PR.** Release Please opens its release
+PR, so with the `github.token` fallback the repo must allow Actions to do that:
+Settings → Actions → General → "Allow GitHub Actions to create and approve pull
+requests" must be **on** (API: `can_approve_pull_request_reviews: true`).
+Without it the release job fails at PR creation with "GitHub Actions is not
+permitted to create or approve pull requests" — the workflow itself is fine.
+The scoped alternative, which keeps that toggle off, is to set the
+`RELEASE_PLEASE_TOKEN` PAT secret (contents + pull-requests write); the workflow
+prefers it automatically.
+
 Before merging layout or manifest changes, validate with the real tools:
 `claude plugin validate .`, `gemini extensions validate .`,
 `grok plugin validate .`, and `gh skill publish --dry-run`.
