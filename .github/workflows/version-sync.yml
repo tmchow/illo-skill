@@ -12,6 +12,8 @@ on:
       - ".claude-plugin/marketplace.json"
       - ".codex-plugin/plugin.json"
       - ".cursor-plugin/plugin.json"
+      - ".grok-plugin/plugin.json"
+      - ".grok-plugin/marketplace.json"
       - "gemini-extension.json"
       - ".github/scripts/sync_plugin_versions.py"
   push:

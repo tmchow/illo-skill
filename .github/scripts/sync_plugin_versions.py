@@ -7,10 +7,12 @@ copies it into every plugin manifest that carries a version field:
   .claude-plugin/plugin.json   (Claude Code)
   .codex-plugin/plugin.json    (Codex)
   .cursor-plugin/plugin.json   (Cursor)
+  .grok-plugin/plugin.json     (Grok)
   gemini-extension.json        (Gemini CLI)
 
-plus the illo entry in .claude-plugin/marketplace.json (Claude Code shows
-and updates against the marketplace entry's version).
+plus the illo entry in each marketplace catalog
+(.claude-plugin/marketplace.json, .grok-plugin/marketplace.json), whose
+clients show and update against the marketplace entry's version.
 
 Run with --check to verify everything is in lockstep (exit 1 if not).
 The publish workflow tags releases v<version>, which is what Copilot's
@@ -28,6 +30,7 @@ MANIFESTS = [
     REPO / ".claude-plugin" / "plugin.json",
     REPO / ".codex-plugin" / "plugin.json",
     REPO / ".cursor-plugin" / "plugin.json",
+    REPO / ".grok-plugin" / "plugin.json",
     REPO / "gemini-extension.json",
 ]
 
@@ -43,16 +46,19 @@ def skill_version():
     sys.exit(f"ERROR: no version: in {SKILL_MD} frontmatter")
 
 
-MARKETPLACE = REPO / ".claude-plugin" / "marketplace.json"
+MARKETPLACES = [
+    REPO / ".claude-plugin" / "marketplace.json",
+    REPO / ".grok-plugin" / "marketplace.json",
+]
 
 
 def main():
     version = skill_version()
     check = "--check" in sys.argv
     stale = []
-    for path in MANIFESTS + [MARKETPLACE]:
+    for path in MANIFESTS + MARKETPLACES:
         data = json.loads(path.read_text(encoding="utf-8"))
-        if path == MARKETPLACE:
+        if path in MARKETPLACES:
             target = next(p for p in data["plugins"] if p["name"] == "illo")
         else:
             target = data
