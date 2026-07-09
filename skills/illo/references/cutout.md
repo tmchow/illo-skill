@@ -114,13 +114,19 @@ aspect **1:1**. Pass the active character's model sheet as `--ref`. Always pass
 | Backend | Model | Prompt shape | Transparency path |
 |---|---|---|---|
 | **Codex** | gpt-image-2 (automatic) | Chroma `BACKGROUND:` in prompt (engine auto-appends if omitted) | Chroma key via `--cutout` — **no native alpha** from `codex exec` |
+| **Grok** | — | — | **Unsupported** — engine auto-redirects (see below) |
 | **OpenRouter** | **`openai/gpt-5.4-image-2`** (engine default when `--cutout` and no `--model`) | Chroma `BACKGROUND:` + `--image-config` | Chroma key via `--cutout` |
 | **OpenRouter** (other `--model`) | User override only | Chroma prompt; may fail on JPEG models | Best-effort; read `cutout_alpha` |
 
 Editorial OpenRouter renders keep the global default (`x-ai/grok-imagine-image-quality`).
-**Do not use Grok for cutouts** — it returns JPEG with no chroma path. Gemini and
-other models are unreliable for cutout alpha; prefer **Codex + chroma** or
-**OpenRouter GPT Image 2 + chroma**.
+**Grok cannot make cutouts** — it returns JPEG with no alpha, and its "solid
+background" renders come back as gradients with the subject drifting toward the
+key color, so chroma-keying fails. A `--cutout` render whose backend resolves to
+`grok` **auto-redirects**: to **Codex** if usable, else **OpenRouter GPT Image
+2** if a key is set; with neither the engine exits naming both fixes. No action
+needed from the caller — the note and the manifest record the backend that ran.
+Gemini and other models are unreliable for cutout alpha; prefer **Codex +
+chroma** or **OpenRouter GPT Image 2 + chroma**.
 
 **Codex backend** — always use a flat chroma `BACKGROUND:` line (included in
 the Cutout template). gpt-image-2 via `codex exec` returns **opaque PNG only**;

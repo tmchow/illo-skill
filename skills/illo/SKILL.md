@@ -16,7 +16,7 @@ author: Trevin Chow
 license: MIT
 metadata:
   hermes:
-    tags: [illustration, riso, image-generation, editorial, mascot, codex, openrouter]
+    tags: [illustration, riso, image-generation, editorial, mascot, codex, grok, openrouter]
     category: creative
     requires_toolsets: [terminal]
   openclaw:
@@ -76,7 +76,7 @@ infographic, not a formal flowchart, not a UI mockup.
 ## Prerequisites
 
 The engine (`scripts/illo.py`, stdlib Python, no installs) renders through one
-of **two backends**; `python3` and network access are the only hard
+of **three backends**; `python3` and network access are the only hard
 requirements.
 
 - **Codex backend (free for Codex subscribers).** When the host has a usable
@@ -85,17 +85,23 @@ requirements.
   per-image charge (it draws on their Codex quota). No API key, no token: illo
   only shells out to the user's own CLI. Detected, not assumed; gpt-image-2 is
   automatic; unsupported on Windows/WSL.
+- **Grok backend (free for Grok/xAI subscribers).** When the host has a usable
+  **Grok CLI** — installed and `grok login`-ed — illo can generate through the
+  user's Grok subscription via `grok -p` (headless), drawing on their Grok
+  quota. Same env-free, token-free subprocess design as Codex. **Grok returns
+  JPEG with no alpha, so it cannot make transparent cutouts** — those auto-fall
+  back to a cutout-capable backend. The image tool exposes no model selector.
 - **OpenRouter backend (the universal fallback).** Needs an **OpenRouter API
   key** in the user's config file — the **single credential channel** —
   written once by the user-run `init` (mode 600). The engine never reads
   secrets from the environment and never accepts them as command-line
-  arguments. This is the path on any host without Codex, and the fallback when
-  Codex fails. It is **model-selectable** (`--model`).
+  arguments. This is the path on any host without a subscription CLI, and the
+  fallback when one fails. It is **model-selectable** (`--model`).
 
-Capsule of the backend model (resolution, the Codex-CLI requirement,
-gpt-image-2 automatic, quota vs. charge, Windows/WSL, fallback): **read
-`references/backends.md` in full before choosing or explaining a backend** —
-the mechanics live there, once.
+Capsule of the backend model (resolution and precedence, the CLI requirements,
+the built-in image tool being automatic, quota vs. charge, cutout limits,
+Windows/WSL, fallback): **read `references/backends.md` in full before choosing
+or explaining a backend** — the mechanics live there, once.
 
 ### Setup is the user's job (never enter the key yourself)
 
@@ -144,7 +150,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
-- `references/backends.md` — the dual image engine: how the backend resolves, the Codex-CLI requirement, gpt-image-2 being automatic (no model selection), quota-vs-charge, Windows/WSL, and OpenRouter as the universal fallback. Read before choosing or explaining a backend.
+- `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and OpenRouter as the universal fallback. Read before choosing or explaining a backend.
 - `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
@@ -172,25 +178,37 @@ a healthy check as an error.
 
 It reports python, the config path, the resolved model/palette defaults,
 whether a **custom character pack** or **custom palettes file** exists,
-**Codex CLI detection and the resolved backend/transport**, and whether an
+**Codex/Grok CLI detection and the resolved backend/transport**, and whether an
 OpenRouter key is found (without revealing it); exit 0 = the resolved backend
-is ready. An OpenRouter-only install (no Codex CLI) stays exit 0 — readiness
-follows the resolved backend, not a hardwired key check
+is ready. An OpenRouter-only install (no subscription CLI) stays exit 0 —
+readiness follows the resolved backend, not a hardwired key check
 (`references/backends.md`).
 
 **Config migration — surface the backend choice interactively.** If `doctor`
 reports `backend: NEEDS CHOICE` (or `generate` hard-stops saying the config "is
 out of date"), this user's config predates the backend choice — they have an
-older install and have never been offered Codex. Do **not** pick for them
-silently. Surface an **interactive choice** using the platform's blocking
-question tool (`AskUserQuestion` in Claude Code, the equivalent elsewhere):
-"illo now has two image backends — which would you like?" with two options —
-**Codex** (free, uses your Codex subscription; draws on your Codex quota) and
-**OpenRouter** (pick the model: Grok Imagine, Nano Banana, GPT Image, and
-others). Persist the answer without touching any existing key:
-`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|openrouter> --no-key`,
+older install and have never been offered a subscription CLI. Do **not** pick
+for them silently. Surface an **interactive choice** using the platform's
+blocking question tool (`AskUserQuestion` in Claude Code, the equivalent
+elsewhere): "illo now has three image backends — which would you like?" with
+three options — **Codex** (free, your Codex subscription), **Grok** (free, your
+Grok subscription; no transparent cutouts), and **OpenRouter** (pick the model:
+Grok Imagine, Nano Banana, GPT Image, and others). Persist the answer without
+touching any existing key:
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|openrouter> --no-key`,
 then continue. A brand-new install (no config at all) is ordinary onboarding,
 not this migration — it does not fire.
+
+**Prefer your own CLI when you are a subscription-CLI agent.** The engine's
+auto-default reads *host* capability (**Codex > Grok > OpenRouter**; it can't
+tell which agent invoked it) — but **you know which agent you are**. So when you
+are a subscription-CLI agent and your own CLI is usable on this host, add your
+own backend flag to `generate` for non-cutout renders: the **Grok agent** adds
+`--backend grok`, the **Codex agent** adds `--backend codex`. This keeps "in
+Grok, generate with Grok" true even on a host that also has Codex, with no
+runtime-sniffing in the engine. Cutouts ignore this (Grok can't make them — they
+auto-fall back). A user's config `backend:` overrides everything. Resolution and
+precedence mechanics: `references/backends.md`.
 
 Read the printed **config path** before concluding
 the key is missing: under Hermes,
