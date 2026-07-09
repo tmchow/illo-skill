@@ -1223,10 +1223,16 @@ def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
     backend=openrouter); a CLI-only host with no key exits with the fixes named.
     The single file placement, sniff_ext, and the additive `backend` field live
     here, never in a backend."""
+    # Resolve references once (with the default-character fallback) so every path
+    # attaches the same sheet — CLI, direct OpenRouter, and the CLI→OpenRouter
+    # fallback/redirect alike. Resolving only inside the CLI branch let a ref-less
+    # cutout that lands on OpenRouter (e.g. a Grok cutout redirect) lose the
+    # character lock the CLI branch would have kept.
+    refs = _resolve_refs(refs, cfg)
     if backend in CLI_BACKENDS:
         gen = codex_exec_generate if backend == "codex" else grok_exec_generate
         try:
-            produced, meta = gen(prompt, _resolve_refs(refs, cfg), out_path)
+            produced, meta = gen(prompt, refs, out_path)
         except BackendUnavailable as e:
             if cfg.get("apiKey"):
                 sys.stderr.write(f"note: {backend} backend unavailable ({e}); "

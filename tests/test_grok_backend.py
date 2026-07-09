@@ -171,5 +171,49 @@ class CutoutModelRoutingTests(unittest.TestCase):
         )
 
 
+class RenderRefResolutionTests(unittest.TestCase):
+    """A ref-less render with a configured default character must attach that
+    sheet on every path — including OpenRouter (direct) and the CLI→OpenRouter
+    fallback, not only the CLI backends."""
+
+    def setUp(self):
+        self.illo = load_illo_module()
+
+    def _with_default_char(self, cfgdir):
+        char_ref = Path(cfgdir) / "characters" / "bot" / "reference.png"
+        char_ref.parent.mkdir(parents=True)
+        char_ref.write_bytes(b"sheet")
+        self.illo.config_dir = lambda: Path(cfgdir)
+        return char_ref
+
+    def test_direct_openrouter_gets_default_character_ref(self):
+        with tempfile.TemporaryDirectory() as cfgdir:
+            char_ref = self._with_default_char(cfgdir)
+            captured = {}
+            self.illo._openrouter_record = (
+                lambda cfg, prompt, model, refs, *a, **k: captured.update(refs=refs) or {}
+            )
+            cfg = {"apiKey": "k", "defaultCharacter": "bot"}
+            self.illo._render_one("openrouter", cfg, "p", "m", [], False, Path(cfgdir) / "o.png")
+            self.assertEqual(captured["refs"], [str(char_ref)])
+
+    def test_cli_fallback_to_openrouter_keeps_default_character_ref(self):
+        with tempfile.TemporaryDirectory() as cfgdir:
+            char_ref = self._with_default_char(cfgdir)
+            self.illo.grok_available = lambda: True
+
+            def boom(*a, **k):
+                raise self.illo.BackendUnavailable("down")
+
+            self.illo.grok_exec_generate = boom
+            captured = {}
+            self.illo._openrouter_record = (
+                lambda cfg, prompt, model, refs, *a, **k: captured.update(refs=refs) or {}
+            )
+            cfg = {"apiKey": "k", "defaultCharacter": "bot"}
+            self.illo._render_one("grok", cfg, "p", "m", [], False, Path(cfgdir) / "o.png")
+            self.assertEqual(captured["refs"], [str(char_ref)])
+
+
 if __name__ == "__main__":
     unittest.main()
