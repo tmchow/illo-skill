@@ -2,9 +2,10 @@
 
 **This table is the OpenRouter backend only.** `--model` (and config `model:`)
 is an **OpenRouter-only axis** — it is orthogonal to `--backend`, and the
-**Codex backend ignores it entirely**: there the model is automatic
-(gpt-image-2) with no selector (`references/backends.md`). So only translate
-model names / honor `--model` when the OpenRouter backend is in play.
+**Codex and Grok backends ignore it entirely**: there the image model is
+automatic (Codex → gpt-image-2; Grok → its built-in image tool) with no selector
+(`references/backends.md`). So only translate model names / honor `--model` when
+the OpenRouter backend is in play.
 
 `illo.py` takes a full OpenRouter id only — do the friendly-name translation:
 when the user names a model in plain language, map it to the id and pass it

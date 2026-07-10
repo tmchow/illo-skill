@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Illo — editorial illustration engine + setup. OpenRouter, stdlib only.
+"""Illo — editorial illustration engine + setup. Codex/Grok/OpenRouter, stdlib only.
 
 Subcommands:
   generate   Render image(s) from a prompt (+ refs); prints a JSON line per image
@@ -65,7 +65,19 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 # and hits no endpoint — the only privileged action is a subprocess call to the
 # user's own CLI. Subprocess to `codex` is the ONE sanctioned exception to the
 # stdlib-over-subprocess rule — a benign call to a known CLI, not a credential read.
-BACKENDS = ("codex", "openrouter")
+#
+# Grok backend: same shape as Codex — illo drives the user's already-installed,
+# already-logged-in Grok CLI (`grok -p`, its headless single-turn mode) to reach
+# its built-in image_gen/image_edit tools (billed to the user's Grok/xAI
+# subscription, no API key). illo handles NO token: it runs no OAuth, reads no
+# ~/.grok/auth.json content, hits no endpoint — the only privileged action is the
+# subprocess call to the user's own CLI, the same sanctioned exception as Codex.
+# Grok returns JPEG with no alpha channel, so it CANNOT produce transparent
+# cutouts; those redirect to a cutout-capable backend (see cmd_generate).
+BACKENDS = ("codex", "grok", "openrouter")
+# The subscription-CLI backends: no API key, no per-image charge, no --model, and
+# a null cost/id in the manifest (never queried for OpenRouter cost).
+CLI_BACKENDS = ("codex", "grok")
 # Config schema version. 2 is the first version that has the Codex/OpenRouter
 # backend choice. A config without this key (or below) predates the choice, so
 # the user has never been offered Codex vs OpenRouter — `generate` hard-stops and
@@ -92,6 +104,14 @@ CODEX_IMAGE_FEATURE = "image_generation"
 # illo render. Keep this centralized so the flag can be removed when Codex makes
 # the extension default or replaces it with a stable equivalent.
 CODEX_IMAGEGEN_EXT_FEATURE = "imagegenext"
+# Grok backend: `grok -p` is the headless single-turn mode (equivalent of
+# `codex exec`); the agent fires image_gen/image_edit and saves to a path.
+GROK_EXEC_TIMEOUT = 600
+# Grok drops the raw image_gen artifact here before the agent copies it to the
+# requested path: $GROK_HOME/sessions/<url-encoded-cwd>/<session-uuid>/images/.
+# Resolved at run time; GROK_HOME is a path, not a secret, so reading it is allowed.
+GROK_SESSIONS_SUBDIR = "sessions"
+GROK_MTIME_SKEW = 2.0
 # Secret-shaped tokens we strip from any captured subprocess output before it
 # could reach a terminal (redact, never print raw stdout/stderr).
 SECRET_RE = re.compile(r"\b(sk-[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_.-]+)")
@@ -166,6 +186,34 @@ def _detect_codex():
             or CODEX_IMAGEGEN_EXT_FEATURE not in low):
         return False
     return True
+
+
+def grok_home():
+    """Grok's data dir ($GROK_HOME, default ~/.grok) — holds auth.json and the
+    per-session image cache. A path, not a secret, so resolving it is allowed;
+    illo never reads the credential file's contents."""
+    return pathlib.Path(os.environ.get("GROK_HOME") or os.path.expanduser("~/.grok"))
+
+
+def _grok_binary():
+    return shutil.which("grok") or "grok"
+
+
+_GROK_AVAILABLE = None  # per-process cache
+
+
+def grok_available():
+    """True iff the host has a USABLE Grok CLI: `grok` on PATH and a login
+    credential present (auth.json exists). Login is detected by the credential
+    file's *existence* — never its contents (scanner-clean: no secret read, no
+    secret-shaped env var). The image tools' reachability can't be probed without
+    a billed call, so a logged-out or image-ineligible account soft-fails at
+    generate time (→ BackendUnavailable → fallback), never here. Cached."""
+    global _GROK_AVAILABLE
+    if _GROK_AVAILABLE is not None:
+        return _GROK_AVAILABLE
+    _GROK_AVAILABLE = bool(shutil.which("grok")) and (grok_home() / "auth.json").is_file()
+    return _GROK_AVAILABLE
 
 
 def config_dir():
@@ -245,9 +293,9 @@ def dump_config_yaml(cfg):
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
-        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex backend ignores it)",
+        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok backends ignore it)",
         f"backend: {val(cfg['backend'])}" if cfg.get("backend")
-        else "# backend: codex            # codex (your Codex subscription) or openrouter; default: auto",
+        else "# backend: codex            # codex, grok (your subscription), or openrouter; default: auto",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
@@ -297,12 +345,15 @@ def migration_message():
     return (
         "illo config is out of date — it predates the image-backend choice, so "
         "no backend is selected.\n"
-        "illo now has two image backends. Pick one, then re-run:\n"
+        "illo now has three image backends. Pick one, then re-run:\n"
         f"  Codex      — free, uses your Codex subscription (draws on your Codex "
         f"quota):\n      {PROG} init --backend codex --no-key\n"
+        f"  Grok       — free, uses your Grok (xAI) subscription (draws on your "
+        f"Grok quota; no transparent cutouts):\n"
+        f"      {PROG} init --backend grok --no-key\n"
         f"  OpenRouter — pick the model (Grok Imagine, Nano Banana, GPT Image, …):\n"
         f"      {PROG} init --backend openrouter --no-key\n"
-        "Agents: surface this as an interactive Codex-vs-OpenRouter choice to the "
+        "Agents: surface this as an interactive backend choice to the "
         "user, then run the matching init.")
 
 
@@ -323,9 +374,11 @@ def resolve_backend(cfg, override=None):
         return choice
     if codex_available():
         return "codex"
+    if grok_available():
+        return "grok"
     if cfg.get("apiKey"):
         return "openrouter"
-    return None  # neither configured → caller routes to onboarding
+    return None  # none configured → caller routes to onboarding
 
 
 def data_url(path):
@@ -633,14 +686,17 @@ def merge_image_config(aspect, image_config_json):
 
 
 def resolve_generate_model(cfg, args_model, backend, cutout):
-    """Resolve the OpenRouter model id for this render.
+    """Resolve the OpenRouter model id used for a direct OpenRouter render or a
+    CLI-backend → OpenRouter fallback.
 
-    Explicit --model wins. Cutouts on OpenRouter default to CUTOUT_OPENROUTER_MODEL
-    (Grok/JPEG cannot produce compositing-ready cutouts). Editorial and Codex keep
-    config/default resolution."""
+    Explicit --model wins. Cutouts default to CUTOUT_OPENROUTER_MODEL regardless of
+    the resolved backend: the CLI backends ignore the model, but if one fails (or a
+    Grok cutout redirects) and OpenRouter serves the render, the cutout must still
+    land on GPT Image 2 — the editorial default (Grok/JPEG) can't produce
+    compositing-ready alpha. Editorial renders keep config/default resolution."""
     if args_model:
         return args_model
-    if cutout and backend == "openrouter":
+    if cutout:
         return CUTOUT_OPENROUTER_MODEL
     return cfg.get("model") or DEFAULT_MODEL
 
@@ -987,6 +1043,94 @@ def codex_exec_generate(prompt, refs, out_path):
     return produced, {"model": None, "id": None}
 
 
+def _freshest_grok_image(since):
+    """Newest image under $GROK_HOME/sessions/**/images/ that postdates `since`
+    (a wall-clock float captured just before this run), or None. Same rationale as
+    the Codex finder: the cache is shared across renders and sessions, so the
+    recency floor stops a stale or foreign artifact from passing as this run's
+    output. Only the verify-first path (agent saved to --out) normally fires;
+    this is the fallback when the agent produced an image but didn't copy it."""
+    root = grok_home() / GROK_SESSIONS_SUBDIR
+    if not root.is_dir():
+        return None
+    floor = since - GROK_MTIME_SKEW
+    # Match the documented fixed depth (sessions/<enc-cwd>/<uuid>/images/*) with a
+    # bounded glob, not an rglob over all session history — the tree grows without
+    # bound and only files from the last GROK_MTIME_SKEW seconds can ever qualify.
+    recent = []
+    for f in root.glob("*/*/images/*"):
+        if f.is_file() and f.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
+            m = f.stat().st_mtime
+            if m >= floor:
+                recent.append((m, f))
+    if not recent:
+        return None
+    return max(recent, key=lambda mf: mf[0])[1]
+
+
+def grok_exec_generate(prompt, refs, out_path):
+    """Grok backend: drive the user's `grok -p` (headless single-turn) against its
+    built-in image_gen/image_edit tools (billed to the user's Grok subscription,
+    no API key). Returns (produced_file_path, partial_record). Sends NO model id —
+    the image tool is not the chat model, so --model never applies here. Every
+    failure (CLI unusable, exit non-zero, timeout, no image) raises
+    BackendUnavailable for fallback. illo handles no token; the only privileged
+    action is this subprocess to the user's own CLI."""
+    if not grok_available():
+        raise BackendUnavailable("Grok CLI not usable (not installed or logged out).")
+    out = pathlib.Path(out_path).resolve()
+    run_dir = out.parent
+    run_dir.mkdir(parents=True, exist_ok=True)
+    # With a reference sheet, use image_edit for character lock; else image_gen.
+    # Grok reads reference images by filesystem path from the prompt text (there
+    # is no -i flag). Force the image tool so the agent can't satisfy the path by
+    # drawing an SVG/HTML asset (the imagine skill steers code-built visuals for
+    # charts/text — the opposite of what an illustration needs).
+    if refs:
+        ref_list = ", ".join(str(pathlib.Path(r).resolve()) for r in refs)
+        tool_line = (f"Use your image_edit tool with the reference image(s) at "
+                     f"{ref_list} to keep the character on-model, then render")
+    else:
+        tool_line = "Use your image_gen tool to render"
+    single_prompt = (f"{prompt}\n\n{tool_line} this illustration and save the "
+                     f"resulting image to {out} (overwrite if it exists). Do not "
+                     f"construct the image with code (HTML/SVG/Python) — use the "
+                     f"image generation tool. Do not ask for confirmation.")
+    # Confine the auto-approved agent: --sandbox workspace lets it write only to
+    # CWD/tmp/~/.grok (network stays open for the image call), so an instruction
+    # injected via the prompt content can't reach the wider filesystem. Grok's
+    # sandbox is OFF by default, so this must be explicit — the analog of the
+    # Codex path's --sandbox workspace-write.
+    cmd = [_grok_binary(), "-p", single_prompt, "--always-approve",
+           "--sandbox", "workspace", "--cwd", str(run_dir)]
+    # Clear any prior file at the target so the verify-first branch can't accept a
+    # stale render as this run's output — only a file this run creates counts.
+    try:
+        out.unlink()
+    except FileNotFoundError:
+        pass
+    started = time.time()
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True,
+                              timeout=GROK_EXEC_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise BackendUnavailable("grok exec timed out before producing an image.")
+    except (FileNotFoundError, OSError, subprocess.SubprocessError) as e:
+        raise BackendUnavailable(f"grok could not run: {e}")
+    if proc.returncode != 0:
+        combined = redact((proc.stdout or "") + (proc.stderr or ""))
+        raise BackendUnavailable(f"grok exited {proc.returncode}: {combined[:300]}")
+    # Verify-first (the agent saved to --out), else fetch the freshest image the
+    # tool dropped under $GROK_HOME/sessions/**/images/.
+    if out.is_file() and out.stat().st_size > 0:
+        produced = out
+    else:
+        produced = _freshest_grok_image(started)
+        if produced is None:
+            raise BackendUnavailable("grok produced no retrievable image.")
+    return produced, {"model": None, "id": None}
+
+
 def place_image(img_bytes, out_path, cutout=False, chroma_key=CHROMA_MAGENTA):
     """Write image bytes to out_path, renaming by the real encoding (callers read
     .path from the JSON line), and return (resolved_path, width, height, cutout_meta)."""
@@ -1009,10 +1153,27 @@ def cmd_generate(args):
 
     backend = resolve_backend(cfg, args.backend)
     if backend is None:
-        # Neither backend configured — name both fixes.
-        sys.exit(f"No image backend ready. Either install + `codex login` to use "
-                 f"your Codex subscription, or run `{PROG} init` to set an "
+        # No backend configured — name the fixes.
+        sys.exit(f"No image backend ready. Install + `codex login` (or `grok login`) "
+                 f"to use a subscription CLI, or run `{PROG} init` to set an "
                  f"OpenRouter key.")
+
+    # Grok returns JPEG with no alpha/chroma path, so it can't produce transparent
+    # cutouts. Redirect a cutout render to a cutout-capable backend (Codex chroma,
+    # else OpenRouter GPT Image 2); error if neither is configured.
+    if args.cutout and backend == "grok":
+        if codex_available():
+            sys.stderr.write("note: Grok can't produce transparent cutouts (JPEG, no "
+                             "alpha) — using Codex for this cutout.\n")
+            backend = "codex"
+        elif cfg.get("apiKey"):
+            sys.stderr.write("note: Grok can't produce transparent cutouts (JPEG, no "
+                             "alpha) — using OpenRouter GPT Image 2 for this cutout.\n")
+            backend = "openrouter"
+        else:
+            sys.exit("Grok can't produce transparent cutouts (it returns JPEG with no "
+                     "alpha). Configure a cutout-capable backend: install + "
+                     f"`codex login`, or run `{PROG} init` to set an OpenRouter key.")
 
     model = resolve_generate_model(cfg, args.model, backend, args.cutout)
     aspect = args.aspect or cfg.get("aspect")
@@ -1057,30 +1218,39 @@ def _apply_cutout_meta(rec, cutout_meta):
 def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
                 cutout=False, image_config=None, chroma_key=CHROMA_MAGENTA):
     """Render one image through the resolved backend and place it, returning the
-    manifest record. Codex failures raise BackendUnavailable and fall back to a
-    configured OpenRouter key (record tagged backend=openrouter); a Codex-only
-    host with no key exits with both fixes named. The single file placement,
-    sniff_ext, and the additive `backend` field live here, never in a backend."""
-    if backend == "codex":
+    manifest record. A subscription-CLI backend (Codex/Grok) failure raises
+    BackendUnavailable and falls back to a configured OpenRouter key (record tagged
+    backend=openrouter); a CLI-only host with no key exits with the fixes named.
+    The single file placement, sniff_ext, and the additive `backend` field live
+    here, never in a backend."""
+    # Resolve references once (with the default-character fallback) so every path
+    # attaches the same sheet — CLI, direct OpenRouter, and the CLI→OpenRouter
+    # fallback/redirect alike. Resolving only inside the CLI branch let a ref-less
+    # cutout that lands on OpenRouter (e.g. a Grok cutout redirect) lose the
+    # character lock the CLI branch would have kept.
+    refs = _resolve_refs(refs, cfg)
+    if backend in CLI_BACKENDS:
+        gen = codex_exec_generate if backend == "codex" else grok_exec_generate
         try:
-            produced, meta = codex_exec_generate(prompt, _codex_refs(refs, cfg), out_path)
+            produced, meta = gen(prompt, refs, out_path)
         except BackendUnavailable as e:
             if cfg.get("apiKey"):
-                sys.stderr.write(f"note: Codex backend unavailable ({e}); "
+                sys.stderr.write(f"note: {backend} backend unavailable ({e}); "
                                  f"falling back to OpenRouter.\n")
                 return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
                                           cutout=cutout, image_config=image_config,
                                           chroma_key=chroma_key)
-            sys.exit(f"Codex backend failed and no OpenRouter key is set: {e}\n"
-                     f"Fix: ensure Codex CLI is installed + `codex login`, or run "
+            login = "codex login" if backend == "codex" else "grok login"
+            sys.exit(f"{backend} backend failed and no OpenRouter key is set: {e}\n"
+                     f"Fix: ensure the CLI is installed + `{login}`, or run "
                      f"`{PROG} init` to set an OpenRouter key.")
         img = produced.read_bytes()
         path, w, h, cutout_meta = place_image(img, out_path, cutout=cutout,
                                               chroma_key=chroma_key)
-        # gpt-image-2 on the free built-in tool: no model id, no per-image cost,
-        # so never fetch_cost a codex-served record.
+        # The subscription CLI's built-in tool exposes no model id and bills no
+        # per-image cost, so never fetch_cost a CLI-served record.
         rec = {"path": str(path), "model": meta["model"], "id": meta["id"],
-               "backend": "codex", "cost": None, "width": w, "height": h}
+               "backend": backend, "cost": None, "width": w, "height": h}
         return _apply_cutout_meta(rec, cutout_meta)
     return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
                               cutout=cutout, image_config=image_config,
@@ -1107,19 +1277,21 @@ def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
     return _apply_cutout_meta(rec, cutout_meta)
 
 
-def _codex_refs(refs, cfg):
-    """Reference image(s) to attach with `codex exec -i` for character lock. Passes every --ref the caller gives (the active character sheet, plus
+def _resolve_refs(refs, cfg):
+    """Reference image(s) for character lock, shared by the Codex and Grok
+    backends (Codex attaches them with `exec -i`; Grok reads them by path from the
+    prompt). Passes every --ref the caller gives (the active character sheet, plus
     any finished-look style anchor illo adds for set consistency); else falls
     back to a configured default character's reference.png so the mascot still
     locks if --ref was omitted.
 
     With neither a --ref nor a default character there is nothing to lock to —
     a ref-less render, exactly what bootstrapping a brand-new character's first
-    model sheet needs (character-builder step 4). gpt-image-2 via `codex exec`
-    does text-to-image fine with no -i, and OpenRouter already renders ref-less
-    without complaint, so Codex matches it rather than refusing (which had left
-    Codex-only users unable to create a character). A one-line note marks the
-    lockless render so a genuinely-forgotten --ref on a scene is still visible."""
+    model sheet needs (character-builder step 4). Both CLIs do text-to-image fine
+    with no reference, and OpenRouter already renders ref-less without complaint,
+    so the CLI backends match it rather than refusing (which had left CLI-only
+    users unable to create a character). A one-line note marks the lockless render
+    so a genuinely-forgotten --ref on a scene is still visible."""
     if refs:
         return list(refs)
     default_char = cfg.get("defaultCharacter")
@@ -1162,13 +1334,14 @@ def cmd_init(args):
         if "=" in pair:
             dest, text = pair.split("=", 1)
             cfg.setdefault("watermark", {})[dest.strip()] = text.strip()
-    # Codex preflight: only when a usable Codex CLI is detected, and
-    # only as a user-run, consented choice — the agent never auto-enables Codex.
-    # No secret is entered on this branch (the Codex path needs none). If declined
-    # or unavailable, fall through to the existing hidden-prompt OpenRouter flow.
-    chose_codex = (not args.no_key and not args.backend
-                   and _maybe_offer_codex(cfg))
-    if not chose_codex and not args.no_key:
+    # Subscription-CLI preflight: only when a usable CLI is detected, and only as
+    # a user-run, consented choice — the agent never auto-enables one. No secret is
+    # entered on these branches (neither CLI path needs a key). Codex is offered
+    # first (precedence Codex > Grok); if both declined or unavailable, fall through
+    # to the existing hidden-prompt OpenRouter flow.
+    chose_cli = (not args.no_key and not args.backend
+                 and (_maybe_offer_codex(cfg) or _maybe_offer_grok(cfg)))
+    if not chose_cli and not args.no_key:
         entered = getpass.getpass("OpenRouter API key (blank to skip): ").strip()
         if entered:
             cfg["apiKey"] = entered
@@ -1200,6 +1373,31 @@ def _maybe_offer_codex(cfg):
         cfg["backend"] = "codex"
     else:
         # Opted into Codex but not as default — leave resolution capability-aware.
+        cfg.pop("backend", None)
+    return True
+
+
+def _maybe_offer_grok(cfg):
+    """If a usable Grok CLI is present, offer to generate through the user's Grok
+    (xAI) subscription (free, but it draws on their Grok usage quota) and to set it
+    as the default. Returns True iff the user opted into Grok (so the caller skips
+    the OpenRouter key prompt). Writes `backend: grok` into cfg on accept; enables
+    nothing without an explicit yes."""
+    if not grok_available():
+        return False
+    print("Detected a usable Grok CLI (logged in).")
+    print("illo can generate images through your Grok (xAI) subscription — free, but "
+          "it draws on your Grok usage quota (image turns consume it faster than "
+          "text). Note: Grok can't produce transparent cutouts — those fall back to "
+          "Codex or OpenRouter.")
+    ans = input("Use your Grok subscription for image generation? [y/N] ").strip().lower()
+    if ans not in ("y", "yes"):
+        return False
+    default = input("Set Grok as the default backend? [Y/n] ").strip().lower()
+    if default not in ("n", "no"):
+        cfg["backend"] = "grok"
+    else:
+        # Opted into Grok but not as default — leave resolution capability-aware.
         cfg.pop("backend", None)
     return True
 
@@ -1252,12 +1450,14 @@ def cmd_doctor(args):
     p = cdir / "config.yaml"
     has_key = bool(cfg.get("apiKey"))
     codex_ok = codex_available()
+    grok_ok = grok_available()
     backend = resolve_backend(cfg)  # capability-aware; honors config `backend:`
     lines = [
         f"python:  {sys.version.split()[0]}",
         f"config:  {p} ({'present' if p.exists() else 'absent'})",
         f"model:   {cfg.get('model') or DEFAULT_MODEL}"
-        + ("  (openrouter only — codex uses gpt-image-2 automatically)" if backend == "codex" else ""),
+        + ("  (openrouter only — the CLI backend uses its own image tool)"
+           if backend in CLI_BACKENDS else ""),
     ]
     if cfg.get("defaultPalette"):
         lines.append(f"palette: {cfg['defaultPalette']} (default)")
@@ -1301,6 +1501,13 @@ def cmd_doctor(args):
                      "or this host lacks image_generation/imagegenext support")
     else:
         lines.append("codex cli: not installed (optional — enables free Codex-subscription images)")
+    # Grok CLI detection — present + logged in (auth.json exists), or why not.
+    if grok_ok:
+        lines.append("grok cli: usable (logged in) — no transparent cutouts (JPEG)")
+    elif shutil.which("grok"):
+        lines.append("grok cli: present but not logged in — run `grok login`")
+    else:
+        lines.append("grok cli: not installed (optional — enables free Grok-subscription images)")
     # OpenRouter key (no value ever printed).
     lines.append("api key: found (config)" if has_key
                  else f"api key: not set — run `{PROG} init` to use OpenRouter")
@@ -1311,10 +1518,11 @@ def cmd_doctor(args):
         # Pre-backends config: not ready until the user makes a one-time choice.
         ready = False
         lines.append("backend: NEEDS CHOICE — this config predates the image "
-                     "backend choice. Codex (free, your Codex subscription) or "
-                     "OpenRouter (model choice: Grok Imagine, Nano Banana, GPT "
-                     f"Image, …)? Run `{PROG} init --backend codex|openrouter "
-                     "--no-key`. Agents: ask the user interactively, then run that init.")
+                     "backend choice. Codex (free, your Codex subscription), Grok "
+                     "(free, your Grok subscription; no cutouts), or OpenRouter "
+                     "(model choice: Grok Imagine, Nano Banana, GPT Image, …)? Run "
+                     f"`{PROG} init --backend codex|grok|openrouter --no-key`. Agents: "
+                     "ask the user interactively, then run that init.")
     elif backend == "codex":
         ready = codex_ok
         lines.append("backend: codex — transport: `codex exec` (your Codex "
@@ -1322,6 +1530,13 @@ def cmd_doctor(args):
                      if ready else
                      "backend: codex (configured) — NOT ready: Codex CLI unusable; "
                      f"run `codex login` or set backend: openrouter / run `{PROG} init`")
+    elif backend == "grok":
+        ready = grok_ok
+        lines.append("backend: grok — transport: `grok -p` (your Grok "
+                     "subscription; illo stores no token)"
+                     if ready else
+                     "backend: grok (configured) — NOT ready: Grok CLI unusable; "
+                     f"run `grok login` or set backend: openrouter / run `{PROG} init`")
     elif backend == "openrouter":
         ready = has_key
         lines.append("backend: openrouter — transport: OpenRouter API"
@@ -1329,8 +1544,8 @@ def cmd_doctor(args):
                      f"backend: openrouter (configured) — NOT ready: no key; run `{PROG} init`")
     else:
         ready = False
-        lines.append(f"backend: none ready — install + `codex login`, or run `{PROG} init` "
-                     f"to set an OpenRouter key")
+        lines.append(f"backend: none ready — install + `codex login` (or `grok login`), "
+                     f"or run `{PROG} init` to set an OpenRouter key")
     # Hermes caveat: the path above is illo's default; a managed runtime may
     # resolve config elsewhere. Preserve this note for that environment.
     lines.append(f"note: config resolved at {p} (a managed runtime e.g. Hermes "
@@ -1545,9 +1760,9 @@ def cmd_gallery(args):
             sys.exit("every manifest record excluded — nothing to build")
     key = load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
-        # Codex-served records are free (no model id, no OpenRouter cost) — never
-        # query OpenRouter for them, even if a stray id is ever present.
-        if r.get("backend") == "codex":
+        # CLI-served records (Codex/Grok) are free (no model id, no OpenRouter
+        # cost) — never query OpenRouter for them, even if a stray id is present.
+        if r.get("backend") in CLI_BACKENDS:
             continue
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
@@ -1570,10 +1785,10 @@ def main():
     g.add_argument("--prompt-file")
     g.add_argument("--out", required=True)
     g.add_argument("--model", help="OpenRouter image model id (overrides config/default; "
-                   "ignored by the codex backend, which uses gpt-image-2 automatically)")
+                   "ignored by the codex/grok backends, which use their own image tool)")
     g.add_argument("--backend", choices=BACKENDS,
-                   help="image backend (overrides config/default): codex (your Codex "
-                        "subscription) or openrouter; default resolves by host capability")
+                   help="image backend (overrides config/default): codex or grok (your "
+                        "subscription CLI) or openrouter; default resolves by host capability")
     g.add_argument("--ref", action="append", default=[], help="reference image path (repeatable)")
     g.add_argument("--aspect", help="aspect ratio hint, e.g. 16:9")
     g.add_argument("--image-config",
@@ -1593,7 +1808,8 @@ def main():
     i = sub.add_parser("init", help="create/update user config (run this yourself)")
     i.add_argument("--model", help="default model id")
     i.add_argument("--backend", choices=BACKENDS,
-                   help="default image backend: codex or openrouter (skips the Codex questionnaire)")
+                   help="default image backend: codex, grok, or openrouter "
+                        "(skips the subscription-CLI questionnaire)")
     i.add_argument("--palette", help="default palette preset name")
     i.add_argument("--character", help="default character pack name (characters/<name>/)")
     i.add_argument("--aspect", help="default aspect ratio")
