@@ -88,9 +88,11 @@ does not. The host is "usable Codex" only when **all three** hold:
 
 1. `codex` is on `PATH`;
 2. `codex login status` reports logged in;
-3. `codex features list` reports both `image_generation` and `imagegenext`
-   rows are present. `imagegenext` may be default-disabled; illo enables it per
-   render with `--enable imagegenext`, so presence is the capability signal.
+3. `codex features list` reports the `image_generation` row. Codex 0.144 folded
+   generated-image artifact handling into this stable feature, so its presence is
+   the whole capability signal. (Codex 0.141 also required an experimental
+   `imagegenext` extension to make `codex exec` emit the artifact; that extension
+   was removed once the behavior went stable, so illo no longer gates on it.)
 
 Any non-zero exit, timeout, or unparseable output → not usable, and the
 engine soft-falls to OpenRouter. Detection runs once per process and reads
@@ -124,17 +126,15 @@ enabling Codex.
 
 illo invokes `codex exec` against the built-in tool, attaching the active
 character's reference sheet (`-i <sheet>`) so the mascot stays on-model, and
-asks the agent to save the result to the run-dir path. As of Codex CLI 0.141,
-the stable `image_generation` feature being available is not enough for `exec`
-to expose generated image artifacts reliably; illo also passes
-`--enable imagegenext`. Without that flag the text agent may see the reference
-image and claim it generated an image, while no `$CODEX_HOME/generated_images`
-artifact appears; the agent can then satisfy the requested path with local
-drawing/code, which is not a valid illo render. Keep this flag until Codex
-makes the imagegen extension default or replaces it with a stable equivalent.
-If `imagegenext` hits the known `image_gen` namespace-collision failure
-(openai/codex#28464), illo treats the Codex backend as unavailable and falls
-back to OpenRouter when configured.
+asks the agent to save the result to the run-dir path. As of Codex CLI 0.144
+the stable `image_generation` feature drops the generated artifact under
+`$CODEX_HOME/generated_images` on its own — illo verifies the requested path
+first and otherwise fetches the freshest artifact that postdates the exec.
+(On Codex 0.141 this required an extra `--enable imagegenext` flag, since the
+stable feature did not emit the artifact reliably; the extension was removed
+once the behavior went stable, so illo no longer passes the flag. If a `codex
+exec` run exits non-zero, illo treats the Codex backend as unavailable and
+falls back to OpenRouter when configured.)
 
 With no `--ref` and no
 default character there is nothing to lock to, so illo renders ref-less (a
