@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.30.0](https://github.com/tmchow/illo-skill/compare/v0.29.0...v0.30.0) (2026-07-11)
+
+
+### Features
+
+* **grok:** add Grok image backend ([2060546](https://github.com/tmchow/illo-skill/commit/2060546f37daad1bc789e97ed41659b66cf77dd2))
+
+
+### Bug Fixes
+
+* **codex:** detect image backend by image_generation alone ([943ad29](https://github.com/tmchow/illo-skill/commit/943ad291dfd7db7c3fb766595f07b244ba72937f))
+* **codex:** detect image backend by image_generation alone ([e3ef349](https://github.com/tmchow/illo-skill/commit/e3ef349a96c8ebe5e01808c35f64314e9ccf522c))
+* **grok:** apply default-character ref on the OpenRouter fallback path ([#30](https://github.com/tmchow/illo-skill/issues/30)) ([63b4c3e](https://github.com/tmchow/illo-skill/commit/63b4c3e98d235dc75ddf45e76451f45fa9a0760b))
+* **grok:** sandbox the agent, fix cutout fallback model, refresh backend docs ([57f9407](https://github.com/tmchow/illo-skill/commit/57f9407b6705ceb9375a6627a99c7528eb511f26))
+
 ## [0.29.0](https://github.com/tmchow/illo-skill/compare/v0.28.2...v0.29.0) (2026-07-09)
 
 
