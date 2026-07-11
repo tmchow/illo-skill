@@ -187,6 +187,7 @@ pack. Then ask whether this should become the **default character**; if yes,
 set it (non-secret, so you may run it):
 
 ```bash
+SKILL_DIR="<path to this skill>";
 python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <name>
 ```
 
@@ -210,15 +211,9 @@ Use a neutral front-facing wave pose, the pack's style blocks with a
 and a `BACKGROUND:` line matching the working `Cutout chroma:` value.
 
 ```bash
-SKILL_DIR="<path to this skill>"
-PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>"
-
-python3 "$SKILL_DIR/scripts/illo.py" generate \
-  --prompt-file /tmp/<name>-cutout-proof.txt \
-  --ref "$PACK/reference.png" \
-  --aspect 1:1 \
-  --cutout \
-  --out /tmp/<name>-cutout-proof.png
+SKILL_DIR="<path to this skill>";
+PACK="${XDG_CONFIG_HOME:-$HOME/.config}/illo/characters/<name>";
+python3 "$SKILL_DIR/scripts/illo.py" generate --prompt-file /tmp/<name>-cutout-proof.txt --ref "$PACK/reference.png" --aspect 1:1 --cutout --out /tmp/<name>-cutout-proof.png
 ```
 
 Read the JSON line: **`cutout_alpha`** must be true; **`cutout_note`** must
