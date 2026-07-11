@@ -140,13 +140,8 @@ Unless the user names another model with `--model`, the engine selects
 the engine forwards this to OpenRouter's `image_config`:
 
 ```bash
-python3 "$SKILL_DIR/scripts/illo.py" generate \
-  --prompt-file /tmp/cutout.txt \
-  --ref "$REF" \
-  --aspect 1:1 \
-  --cutout \
-  --image-config '{"aspect_ratio":"1:1"}' \
-  --out /tmp/illo-cutout-blot-wave.png
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" generate --prompt-file /tmp/cutout.txt --ref "$REF" --aspect 1:1 --cutout --image-config '{"aspect_ratio":"1:1"}' --out /tmp/illo-cutout-blot-wave.png
 ```
 
 ### Chroma screen color

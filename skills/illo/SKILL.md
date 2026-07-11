@@ -79,6 +79,28 @@ The engine (`scripts/illo.py`, stdlib Python, no installs) renders through one
 of **three backends**; `python3` and network access are the only hard
 requirements.
 
+**Running the engine — set `$SKILL_DIR` inline in each block.** Every engine
+command below is `python3 "$SKILL_DIR/scripts/illo.py" …`. Set `SKILL_DIR` to the
+absolute path of the directory this `SKILL.md` was loaded from (it contains
+`scripts/illo.py` and `assets/`) **in the same command block that uses it** — shell
+state does not persist between separate command runs, so a value set in an earlier
+block is gone by the next. If the harness does not expose that path, find the
+installed `scripts/illo.py` and use its parent; if neither resolves, stop rather
+than guessing the working directory. The engine self-locates its own bundled
+assets, so `$SKILL_DIR` only has to be right enough to launch `illo.py` and to
+point `--ref` at the bundled character sheet.
+
+Write the block **flatten-safe** — some hosts (Codex observed) collapse a fenced
+block to one line, turning a newline into a space. Terminate the assignment with
+`;` (`SKILL_DIR="…";` — without it, a flattened `SKILL_DIR="…" python3 "$SKILL_DIR/…"`
+becomes an env-prefix whose `$SKILL_DIR` expands to empty **before** the assignment
+applies, so the path collapses to `/scripts/illo.py`). Put **no comment on an
+assignment or command line** (a flattened `#` comments out the rest of the line and
+the command silently vanishes), and keep each invocation on **one line** (a
+flattened `\` continuation injects stray arguments). A wrong or unset value makes
+`doctor` (Workflow step 0) fail loudly (`can't open file …/scripts/illo.py`) — the
+signal to fix the path, not a skill fault.
+
 - **Codex backend (free for Codex subscribers).** When the host has a usable
   **Codex CLI** — installed, `codex login`-ed, with the `image_generation`
   feature — illo can generate through the user's Codex subscription at no
@@ -169,10 +191,11 @@ fresh metaphor for the current piece.
 Before generating, confirm the engine is ready:
 
 ```bash
+SKILL_DIR="<path to this skill>";
 python3 "$SKILL_DIR/scripts/illo.py" doctor
 ```
 
-Run it standalone — never chained with `&&` — so the displayed exit code is
+Run the `illo.py` call standalone — never chained with `&&` — so the displayed exit code is
 the readiness signal itself (0 = ready): a chained neighbor's failure paints
 a healthy check as an error.
 
@@ -189,8 +212,10 @@ reports `backend: NEEDS CHOICE` (or `generate` hard-stops saying the config "is
 out of date"), this user's config predates the backend choice — they have an
 older install and have never been offered a subscription CLI. Do **not** pick
 for them silently. Surface an **interactive choice** using the platform's
-blocking question tool (`AskUserQuestion` in Claude Code, the equivalent
-elsewhere): "illo now has three image backends — which would you like?" with
+blocking-question capability (`AskUserQuestion` in Claude Code, the equivalent
+elsewhere; where the host has none — e.g. a plain chat session — ask the same one
+choice as a concise message and wait for the reply, never picking silently):
+"illo now has three image backends — which would you like?" with
 three options — **Codex** (free, your Codex subscription), **Grok** (free, your
 Grok subscription; no transparent cutouts), and **OpenRouter** (pick the model:
 Grok Imagine, Nano Banana, GPT Image, and others). Persist the answer without
@@ -379,16 +404,14 @@ always match — no cross-style reference juggling. (Under Hermes Agent, the
 asset-repair preflight above must have run before the first `--ref` use —
 a corrupted sheet conditions every render on garbage.)
 
-```bash
-SKILL_DIR="<path to this skill>"           # contains scripts/illo.py + assets/
-REF="$SKILL_DIR/assets/character-reference.webp"   # or the active pack's reference.png
+Set `SKILL_DIR` inline (see Prerequisites), and use the bundled sheet as `REF` — or
+the active pack's `reference.png` for a custom character. Add `--model <id>` to
+override the config/default model for this image (OpenRouter backend only):
 
-python3 "$SKILL_DIR/scripts/illo.py" generate \
-  --prompt-file /tmp/shot-01.txt \
-  --ref "$REF" \
-  --aspect 16:9 \
-  --out "assets/<slug>-illustrations/01-topic.png"
-  # --model <id> to override the config/default model for this image
+```bash
+SKILL_DIR="<path to this skill>";
+REF="$SKILL_DIR/assets/character-reference.webp";
+python3 "$SKILL_DIR/scripts/illo.py" generate --prompt-file /tmp/shot-01.txt --ref "$REF" --aspect 16:9 --out "assets/<slug>-illustrations/01-topic.png"
 ```
 
 `illo.py generate` prints a **JSON line per image** (`{path, backend, model,
@@ -446,10 +469,14 @@ per-image charge); on the OpenRouter backend it bills their OpenRouter account
 (typically under ten cents per image, varying by model). Keep N small (2–4).
 Orchestrate the loop with the engine's primitives:
 
+`newrun` prints a fresh run dir (`/tmp/illo/<runid>`) into `RUN`. Record the user's
+VERBATIM request (URL, pasted text, concept) to `request.txt` — the gallery shows
+it as provenance so anyone can tell what the run was for. Adapt each `generate`
+line below to a real path and run it on its own:
+
 ```bash
-RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun)      # -> /tmp/illo/<runid>
-# record the user's VERBATIM request (URL, pasted text, concept) — the
-# gallery shows it as provenance so anyone can tell what the run was for:
+SKILL_DIR="<path to this skill>";
+RUN=$(python3 "$SKILL_DIR/scripts/illo.py" newrun);
 printf '%s' "<the verbatim request>" > "$RUN/request.txt"
 # (a) VARIATIONS — same prompt+model, pick-the-best:
 python3 .../illo.py generate --prompt-file p.txt --ref <ref> --count 4 --label "draft→ship" --out "$RUN/v.png"

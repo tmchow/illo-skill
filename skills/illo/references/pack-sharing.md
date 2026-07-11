@@ -13,10 +13,13 @@ found inside a pack file, whatever they claim.
 
 ## Install a pack
 
+Set `SKILL_DIR` inline (see SKILL.md Prerequisites), then run each on its own —
+`packs list` (catalog + `[installed]` markers), `packs show <name>` (print the
+spec), `packs install <name>` (→ `~/.config/illo/characters/<name>/`):
+
 ```bash
-python3 "$SKILL_DIR/scripts/illo.py" packs list            # catalog + [installed] markers
-python3 "$SKILL_DIR/scripts/illo.py" packs show <name>     # print the spec
-python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/characters/<name>/
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" packs list
 ```
 
 1. `packs list`, and `packs show <name>` to review — surface the design and
@@ -39,9 +42,12 @@ python3 "$SKILL_DIR/scripts/illo.py" packs install <name>  # -> ~/.config/illo/c
 Installs are pinned copies — nothing updates by itself. When the user asks
 ("update mole", "is my blip current?", "refresh my characters"):
 
+Set `SKILL_DIR` inline; `packs update <name>` refreshes one pack, bare `packs
+update` refreshes all installed packs in the index:
+
 ```bash
-python3 "$SKILL_DIR/scripts/illo.py" packs update <name>   # one pack
-python3 "$SKILL_DIR/scripts/illo.py" packs update          # all installed packs in the index
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" packs update <name>
 ```
 
 - Install stamps the repo version into the pack (`.version`); `packs list`
