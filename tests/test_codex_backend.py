@@ -33,7 +33,7 @@ class CodexBackendTests(unittest.TestCase):
     def tearDown(self):
         self.illo.subprocess.run = self.original_run
 
-    def test_codex_exec_enables_imagegenext_and_passes_refs(self):
+    def test_codex_exec_passes_refs_and_does_not_enable_removed_feature(self):
         captured = {}
 
         def fake_run(cmd, input, capture_output, text, timeout):
@@ -60,10 +60,10 @@ class CodexBackendTests(unittest.TestCase):
         self.assertEqual(produced, out_path.resolve())
         self.assertEqual(meta, {"model": None, "id": None})
         cmd = captured["cmd"]
-        self.assertIn("--enable", cmd)
-        enable_index = cmd.index("--enable")
-        self.assertEqual(cmd[enable_index + 1], self.illo.CODEX_IMAGEGEN_EXT_FEATURE)
-        self.assertEqual(self.illo.CODEX_IMAGEGEN_EXT_FEATURE, "imagegenext")
+        # imagegenext was removed in Codex 0.144 (folded into stable
+        # image_generation); illo must no longer enable it.
+        self.assertNotIn("--enable", cmd)
+        self.assertNotIn("imagegenext", cmd)
         self.assertEqual(cmd.count("-i"), 2)
         self.assertIn(str(refs[0]), cmd)
         self.assertIn(str(refs[1]), cmd)
@@ -74,7 +74,7 @@ class CodexBackendTests(unittest.TestCase):
         self.assertTrue(captured["text"])
         self.assertEqual(captured["timeout"], self.illo.CODEX_EXEC_TIMEOUT)
 
-    def test_detect_codex_requires_imagegenext_row(self):
+    def test_detect_codex_accepts_image_generation_alone(self):
         self.illo.shutil.which = lambda name: "/usr/local/bin/codex" if name == "codex" else None
 
         def fake_codex_run(args):
@@ -85,42 +85,20 @@ class CodexBackendTests(unittest.TestCase):
             raise AssertionError(args)
 
         self.illo._codex_run = fake_codex_run
-        self.assertFalse(self.illo._detect_codex())
+        self.assertTrue(self.illo._detect_codex())
 
-    def test_detect_codex_accepts_imagegenext_even_when_default_disabled(self):
+    def test_detect_codex_rejects_when_image_generation_absent(self):
         self.illo.shutil.which = lambda name: "/usr/local/bin/codex" if name == "codex" else None
 
         def fake_codex_run(args):
             if args == ["login", "status"]:
                 return 0, "Logged in using ChatGPT"
             if args == ["features", "list"]:
-                return 0, (
-                    "image_generation stable true\n"
-                    "imagegenext under development false\n"
-                )
+                return 0, "apps stable true\nbrowser_use stable true\n"
             raise AssertionError(args)
 
         self.illo._codex_run = fake_codex_run
-        self.assertTrue(self.illo._detect_codex())
-
-    def test_namespace_collision_is_reported_as_backend_unavailable(self):
-        def fake_run(cmd, input, capture_output, text, timeout):
-            return FakeCompletedProcess(
-                returncode=1,
-                stdout="",
-                stderr=(
-                    "Invalid Value: 'tools.namespace'. User-defined namespace "
-                    "'image_gen' collides with an existing tool namespace."
-                ),
-            )
-
-        with tempfile.TemporaryDirectory() as td:
-            self.illo.subprocess.run = fake_run
-            with self.assertRaises(self.illo.BackendUnavailable) as ctx:
-                self.illo.codex_exec_generate("prompt", [], Path(td) / "out.png")
-
-        self.assertIn("imagegenext namespace collision", str(ctx.exception))
-        self.assertIn("OpenRouter backend", str(ctx.exception))
+        self.assertFalse(self.illo._detect_codex())
 
     def test_generic_codex_error_includes_redacted_combined_output(self):
         fake_secret = "sk-" + "secretvalue123"
