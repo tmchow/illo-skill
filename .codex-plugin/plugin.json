@@ -2,5 +2,40 @@
   "name": "illo",
   "version": "0.31.0",
   "description": "Original editorial illustrations where a recurring mascot performs the idea — fourteen bundled looks, custom characters, palettes from your own site's colors. Ships the illo Agent Skill and its three-backend image engine: free generation through your Codex or Grok CLI subscription when available, OpenRouter otherwise.",
-  "skills": "./skills"
+  "author": {
+    "name": "Trevin Chow",
+    "url": "https://github.com/tmchow"
+  },
+  "homepage": "https://illo-skill.com",
+  "repository": "https://github.com/tmchow/illo-skill",
+  "license": "MIT",
+  "keywords": [
+    "illustration",
+    "editorial",
+    "image-generation",
+    "mascot",
+    "riso"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "illo",
+    "shortDescription": "Editorial illustrations with consistent characters",
+    "longDescription": "Create original editorial illustrations, explainers, mini-comics, and transparent character cutouts in distinctive bundled print looks. Build reusable characters, derive palettes from a site, and render through Codex, Grok, or OpenRouter.",
+    "developerName": "Trevin Chow",
+    "category": "Creative",
+    "capabilities": [
+      "Image Generation",
+      "Image Editing",
+      "Character Design"
+    ],
+    "websiteURL": "https://illo-skill.com",
+    "defaultPrompt": [
+      "Use illo to create an editorial illustration for this article.",
+      "Use illo to turn this concept into a mascot-led visual metaphor.",
+      "Use illo to build a reusable character for future illustrations."
+    ],
+    "brandColor": "#F46FB5",
+    "composerIcon": "./_assets/illo/logo/illo-logo-avatar.png",
+    "logo": "./_assets/illo/logo/illo-logo.png"
+  }
 }
