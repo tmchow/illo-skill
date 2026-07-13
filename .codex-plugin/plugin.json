@@ -30,9 +30,9 @@
     ],
     "websiteURL": "https://illo-skill.com",
     "defaultPrompt": [
-      "Use illo to create an editorial illustration for this article.",
-      "Use illo to turn this concept into a mascot-led visual metaphor.",
-      "Use illo to build a reusable character for future illustrations."
+      "surprise me",
+      "illustrate 'many inputs become one decision'",
+      "install all character packs and describe them to me"
     ],
     "brandColor": "#F46FB5",
     "composerIcon": "./_assets/illo/logo/illo-logo-avatar.png",
