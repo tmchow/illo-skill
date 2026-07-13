@@ -33,15 +33,27 @@ Surprise mode is always headless:
 - Still run Step 0 preflight. If `doctor` reports `backend: NEEDS CHOICE`,
   surface that choice — it is a hard blocker, not a taste question.
 
+## Procedure order
+
+Execute in this order — do not invent the saying before the register is
+chosen:
+
+1. Parse scopes → resolve **character** (below)
+2. Pick **register** (below)
+3. Find / invent the **saying** shaped to earn that register
+4. Apply the **safety filter**, then lock the **thesis**
+5. Render via Steps 0 + 3–7 (skip Step 2 — character is already resolved)
+
 ## Parse scopes
 
 Strip the trigger words, then split what remains into **character** and
 **focus**:
 
 1. **Character** — phrases like `using blot`, `with bray`, `as blip`.
-   Resolve with Step 2 rules (pack name → aliases → catalog). On one clear
-   match, use it; on several, pick the closest name match without asking; on
-   none, say the name was unknown and fall through to random.
+   Resolve by pack name → aliases → catalog (same matching rules as Step 2;
+   do **not** fall through to `defaultCharacter`). On one clear match, use
+   it; on several, pick the closest name match without asking; on none, say
+   the name was unknown and fall through to random.
 2. **Focus** — everything else that scopes subject matter: `art quote`,
    `productivity`, `space`, `cooking`, `design`, etc. Unscoped = any safe
    domain.
@@ -54,9 +66,38 @@ character list, then **add shipped `blot`** if it is not already present.
 Pick **uniformly at random** (e.g. a one-liner over the name list). Name
 the chosen pack in the delivery text.
 
+## Register variety (pick before the saying)
+
+Surprise runs must **not** collapse into the same picture shape every time
+(one mascot + one prop + a big title). Pick the **register first**, then
+shape the saying and thesis to earn it — do not invent a single-beat claim
+and then default to editorial every run.
+
+Choose among these with deliberate variety across runs (and within a
+scheduled series). A simple rotation works: editorial → mini-comic →
+explainer → editorial… unless the user's focus forces a shape (e.g. "as a
+comic", "show the flow"):
+
+- **Editorial** — one caught scene. Still the most common, but not automatic.
+- **Mini-comic** — 2–4 panels in one image when the saying is a short
+  progression (stuck → try → land; closed → open → light). Invent the saying
+  so it *has* beats — do not demote a progression into a single freeze-frame.
+  Panel lettering follows the house mini-comic rules below (not silence).
+- **Explainer** — a hand-built flow / fan-out / timeline / loop / stack when
+  the saying teaches a structure (how care compounds, how a craft works, how
+  an archive becomes a discovery). Invent the saying so the structure *is*
+  the point — then follow `references/composition.md`, "The explainer
+  register", including short station callouts.
+- **Never cutout** — cutouts carry no idea.
+
+If the chosen register and a candidate saying fight each other, rewrite the
+saying or pick a different register — do not silently fall back to
+editorial+title.
+
 ## Seed discovery — three layers
 
-There is **no** canned topic bank. Build three related pieces, then render:
+There is **no** canned topic bank. With register already chosen, build three
+related pieces, then render:
 
 | Layer | Role | Lives where |
 |---|---|---|
@@ -173,6 +214,9 @@ or verification fails.
 
 ### How to find the saying
 
+Shape every candidate for the **register already chosen** (beats for
+mini-comic, structure for explainer, single stake for editorial):
+
 1. Prefer a **fresh, drawable moment** with a human stake — then either find
    a **verifiable** sourced line that fits it, or write an **original**
    saying that passes the sense bar (no citation).
@@ -194,14 +238,14 @@ or verification fails.
    with **no** citation — do not fake a famous voice. Illustrate the *idea*,
    not a wall of text on the canvas.
 5. Reject sayings that cannot become a **physical move the mascot performs**
-   (`references/composition.md`, "Turn the idea into a move"). Abstract
-   vibes without a move → invent a concrete staging, then rewrite the
-   saying so it still names the stake.
+   (`references/composition.md`, "Turn the idea into a move") in the chosen
+   register. Abstract vibes without a move → invent a concrete staging, then
+   rewrite the saying so it still names the stake.
 
 Re-roll until the saying clears the saying bar, the sense bar (for
 originals / paraphrases), the safety filter, **and** has a named physical
-move (plus a verified citation whenever a name is attached). Never "tone
-down" a banned topic into the picture.
+move that fits the chosen register (plus a verified citation whenever a name
+is attached). Never "tone down" a banned topic into the picture.
 
 ## Safety filter
 
@@ -222,34 +266,6 @@ achievements, nature, learning, collaboration.
 **Borderline current events:** keep only the **celebratory or wondrous**
 face (the launch succeeded; the discovery landed) — never the controversy
 around it. If unsure whether a seed is safe, invent something else.
-
-## Register variety (pick before locking the move)
-
-Surprise runs must **not** collapse into the same picture shape every time
-(one mascot + one prop + a big title). Pick the **register first**, then
-shape the saying and thesis to earn it — do not invent a single-beat claim
-and then default to editorial every run.
-
-Choose among these with deliberate variety across runs (and within a
-scheduled series). A simple rotation works: editorial → mini-comic →
-explainer → editorial… unless the user's focus forces a shape (e.g. "as a
-comic", "show the flow"):
-
-- **Editorial** — one caught scene. Still the most common, but not automatic.
-- **Mini-comic** — 2–4 panels in one image when the saying is a short
-  progression (stuck → try → land; closed → open → light). Invent the saying
-  so it *has* beats — do not demote a progression into a single freeze-frame.
-  Panel lettering follows the house mini-comic rules below (not silence).
-- **Explainer** — a hand-built flow / fan-out / timeline / loop / stack when
-  the saying teaches a structure (how care compounds, how a craft works, how
-  an archive becomes a discovery). Invent the saying so the structure *is*
-  the point — then follow `references/composition.md`, "The explainer
-  register", including short station callouts.
-- **Never cutout** — cutouts carry no idea.
-
-If the chosen register and a candidate saying fight each other, rewrite the
-saying or pick a different register — do not silently fall back to
-editorial+title.
 
 ## Thesis lock
 
@@ -286,9 +302,10 @@ lettering.
   requires (`composition.md`); still no poster title above the diagram.
 - Never hand-letter the full saying onto the image.
 
-Then continue with Steps 2–7 as a **single** image (character already
-resolved above; Step 2 is confirmation, not re-asking). Explainer and
-mini-comic rows still follow those registers' shot-list / structure rules.
+Then continue with Steps 0 + 3–7 as a **single** image (character already
+resolved above — skip Step 2 so `defaultCharacter` cannot override).
+Explainer and mini-comic rows still follow those registers' shot-list /
+structure rules.
 
 ## Delivery
 

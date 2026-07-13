@@ -64,7 +64,7 @@ infographic, not a formal flowchart, not a UI mockup.
 |---|---|
 | **Illustrate an article / post / newsletter / URL** | Steps 0–7: route the source first (thesis → coverage: hero / hero+set / set / mini-comic — `references/composition.md`, "Source routing"), then shot list (hero row + anchors), one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
-| **Surprise / random** — "surprise me", "random", "surprise me with art quote using bray" | Read `references/surprise.md` in full, then Steps 0 + 2–7 as one headless image: invent or fetch a safe **saying** (sense-bar originals; multi-source verified citations only), pick register with deliberate variety, random installed character unless named, deliver saying + image. Poster titles default off; mini-comics still get per-panel labels. |
+| **Surprise / random** — "surprise me", "random", "surprise me with art quote using bray" | Read `references/surprise.md` in full (character + register resolved there — ignore `defaultCharacter`), then Steps 0 + 3–7 as one headless image: invent or fetch a safe **saying** (sense-bar originals; multi-source verified citations only), deliver saying + image. Poster titles default off; mini-comics still get per-panel labels. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **A traceable structure** — "show the flow", "diagram the pipeline", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "The explainer register"): a hand-built flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
 | **Social-ready art for X posts / article body images** | 16:9 (or 1:1 when square is explicitly useful), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
@@ -278,8 +278,10 @@ Three kinds of input, handled differently:
 
 - **Surprise / random** ("surprise me", "random", "surprise me with art quote
   using bray", and close variants) — the ask is invent-and-render, not a
-  supplied thesis. **Stop and read `references/surprise.md` in full**, then
-  continue Steps 0 + 2–7 as one headless image. Do not enter the thin-concept
+  supplied thesis. **Stop and read `references/surprise.md` in full**, resolve
+  character and register there (ignore `defaultCharacter`; random when
+  unnamed), then continue Steps 0 + 3–7 as one headless image — Step 2 is
+  skipped because the pack is already chosen. Do not enter the thin-concept
   Q&A path below. A prompt that already names a concrete idea
   ("illustrate 'you are the bottleneck'") is **not** surprise mode even if
   it also says "surprise me".
@@ -317,6 +319,10 @@ Three kinds of input, handled differently:
   the answer is obvious from context. Never block a clear request by asking.
 
 ### 2. Resolve the character
+
+**Surprise / random mode:** skip this step — character was already resolved
+in `references/surprise.md` (named pack, or random among installed + Blot;
+never `defaultCharacter`). Continue at Step 3+.
 
 Installed packs live under `${XDG_CONFIG_HOME:-~/.config}/illo/characters/`
 (format and location details: `references/character.md`); `doctor` lists
