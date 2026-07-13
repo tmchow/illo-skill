@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.31.1](https://github.com/tmchow/illo-skill/compare/v0.31.0...v0.31.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* **codex:** enrich plugin install metadata ([d6a706a](https://github.com/tmchow/illo-skill/commit/d6a706aee4945daf109b178d938b6aff1d05bc22))
+* **codex:** enrich plugin metadata ([7bf6421](https://github.com/tmchow/illo-skill/commit/7bf64211a3ad547e44897d784cf3f02da5e8c728))
+
 ## [0.31.0](https://github.com/tmchow/illo-skill/compare/v0.30.0...v0.31.0) (2026-07-13)
 
 
