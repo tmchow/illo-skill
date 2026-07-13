@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.31.0](https://github.com/tmchow/illo-skill/compare/v0.30.0...v0.31.0) (2026-07-13)
+
+
+### Features
+
+* **illo:** add surprise-me / random headless generation mode ([8f47fd7](https://github.com/tmchow/illo-skill/commit/8f47fd7bd9bf854ace8f0e373b35aba5e21effb8))
+* **illo:** add surprise-me / random headless generation mode ([855e265](https://github.com/tmchow/illo-skill/commit/855e265767670623d996d0678ddfac1fa4b09266))
+
+
+### Bug Fixes
+
+* **skill:** make $SKILL_DIR engine blocks flatten-safe ([bf9d092](https://github.com/tmchow/illo-skill/commit/bf9d092809cfca759e34a6b8a165664c7fc5b9d3))
+* **skill:** make $SKILL_DIR engine blocks flatten-safe ([c4f3bfb](https://github.com/tmchow/illo-skill/commit/c4f3bfb001e1b001027f9018f81f1a1e85f37664))
+
 ## [0.30.0](https://github.com/tmchow/illo-skill/compare/v0.29.0...v0.30.0) (2026-07-11)
 
 
