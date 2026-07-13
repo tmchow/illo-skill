@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.31.2](https://github.com/tmchow/illo-skill/compare/v0.31.1...v0.31.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* **codex:** sharpen plugin starter prompts ([74baf9b](https://github.com/tmchow/illo-skill/commit/74baf9b2860fe1a833711623d2b8209f6de13155))
+* **codex:** sharpen plugin starter prompts ([4104465](https://github.com/tmchow/illo-skill/commit/4104465075f8f5a833f6994df1f76614d42367f7))
+
 ## [0.31.1](https://github.com/tmchow/illo-skill/compare/v0.31.0...v0.31.1) (2026-07-13)
 
 
