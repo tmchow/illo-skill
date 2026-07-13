@@ -99,7 +99,8 @@ CODEX_MTIME_SKEW = 2.0
 # (see image_generation_artifact_path / ImageGenerationItem.saved_path upstream)
 # and removed the earlier experimental `imagegenext` extension illo used to
 # force artifact emission on 0.141, so this row is now the whole capability
-# signal — `codex exec` drops $CODEX_HOME/generated_images/*.png on its own.
+# signal — `codex exec` drops
+# $CODEX_HOME/generated_images/<session-id>/<image>.png on its own.
 CODEX_IMAGE_FEATURE = "image_generation"
 # Grok backend: `grok -p` is the headless single-turn mode (equivalent of
 # `codex exec`); the agent fires image_gen/image_edit and saves to a path.
@@ -117,9 +118,9 @@ SECRET_RE = re.compile(r"\b(sk-[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-
 class BackendUnavailable(Exception):
     """A backend could not produce an image for a non-fatal reason (Codex CLI
     missing/logged-out, `codex exec` errored or timed out, unsupported platform,
-    or OpenRouter returned no image after a retry). cmd_generate catches this and
-    falls back to another configured backend; it is NOT a hard caller error
-    (those stay `sys.exit`)."""
+    or OpenRouter returned no image after a retry). cmd_generate catches this so
+    it can fail cleanly or use an explicitly authorized fallback; it is NOT a
+    hard caller error (those stay `sys.exit`)."""
 
 
 def redact(text):
@@ -199,8 +200,9 @@ def grok_available():
     credential present (auth.json exists). Login is detected by the credential
     file's *existence* — never its contents (scanner-clean: no secret read, no
     secret-shaped env var). The image tools' reachability can't be probed without
-    a billed call, so a logged-out or image-ineligible account soft-fails at
-    generate time (→ BackendUnavailable → fallback), never here. Cached."""
+    a billed call, so a logged-out or image-ineligible account fails cleanly at
+    generate time (and only uses paid fallback when explicitly allowed), never
+    here. Cached."""
     global _GROK_AVAILABLE
     if _GROK_AVAILABLE is not None:
         return _GROK_AVAILABLE
@@ -939,9 +941,9 @@ def openrouter_generate(model, content, key, image_config=None):
 
 
 def _freshest_generated_image(since):
-    """Newest file under $CODEX_HOME/generated_images/ that postdates `since`
-    (a wall-clock float captured just before this exec ran), or None. The
-    recency floor is mandatory: the dir is shared across renders and across
+    """Newest $CODEX_HOME/generated_images/<session-id>/<image> that postdates
+    `since` (a wall-clock float captured just before this exec ran), or None.
+    The recency floor is mandatory: the dir is shared across renders and across
     concurrent codex sessions, so without it the agent failing to produce a new
     image (a non-deterministic miss) would silently return a leftover from
     a previous render or a foreign session — a duplicate in a --count batch, or
@@ -955,11 +957,32 @@ def _freshest_generated_image(since):
     if not gen.is_dir():
         return None
     floor = since - CODEX_MTIME_SKEW
-    recent = [(f.stat().st_mtime, f) for f in gen.iterdir() if f.is_file()]
-    recent = [(m, f) for m, f in recent if m >= floor]
+    # Codex 0.144.3 writes generated_images/<session-id>/<image>.png. Match that
+    # documented fixed depth rather than recursively walking unbounded history.
+    recent = []
+    for f in gen.glob("*/*"):
+        try:
+            mtime = f.stat().st_mtime
+        except OSError:
+            continue
+        if mtime >= floor and _valid_image_file(f):
+            recent.append((mtime, f))
     if not recent:
         return None
     return max(recent, key=lambda mf: mf[0])[1]
+
+
+def _valid_image_file(path):
+    """True for a parseable non-empty PNG/JPEG, false for missing/partial files."""
+    try:
+        p = pathlib.Path(path)
+        if not p.is_file() or p.stat().st_size == 0:
+            return False
+        data = p.read_bytes()
+        width, height = image_size(data)
+        return sniff_ext(data) is not None and bool(width and height)
+    except OSError:
+        return False
 
 
 def codex_exec_generate(prompt, refs, out_path):
@@ -967,9 +990,10 @@ def codex_exec_generate(prompt, refs, out_path):
     its built-in image_generation tool (gpt-image-2, no API key, no per-image
     charge). Returns (produced_file_path, partial_record). Sends NO model id —
     gpt-image-2 is automatic on the free built-in tool, so --model never
-    applies here. Every failure (CLI unusable, exec non-zero, timeout, no image)
-    raises BackendUnavailable for fallback. illo handles no token; the only
-    privileged action is this subprocess to the user's own CLI."""
+    applies here. A valid fresh artifact is authoritative even when the wrapper
+    exits non-zero or times out; only a run with no valid artifact raises
+    BackendUnavailable. illo handles no token; the only privileged action is
+    this subprocess to the user's own CLI."""
     if not codex_available():
         raise BackendUnavailable("Codex CLI not usable (not installed, logged out, "
                                  "or image_generation unavailable).")
@@ -1003,29 +1027,37 @@ def codex_exec_generate(prompt, refs, out_path):
     # postdate this moment, so a stale prior render or a concurrent session's
     # file in the shared generated_images dir can't pass as our result.
     started = time.time()
+
+    def produced_image():
+        """Return this run's requested/fallback artifact when it is a real image."""
+        if _valid_image_file(out):
+            return out
+        return _freshest_generated_image(started)
+
     try:
         proc = subprocess.run(cmd, input=stdin_prompt, capture_output=True,
                               text=True, timeout=CODEX_EXEC_TIMEOUT)
     except subprocess.TimeoutExpired:
+        produced = produced_image()
+        if produced is not None:
+            return produced, {"model": None, "id": None}
         raise BackendUnavailable("codex exec timed out before producing an image.")
     except (FileNotFoundError, OSError, subprocess.SubprocessError) as e:
         # Includes the unsupported-platform case (Windows/WSL exec breakage).
         raise BackendUnavailable(f"codex exec could not run: {e}")
+    # Artifact-first: Codex can persist image_generation output, then emit an
+    # empty final assistant response and exit 1. The image tool result is the
+    # render contract; wrapper text status must not discard it or trigger a
+    # second paid render.
+    produced = produced_image()
+    if produced is not None:
+        return produced, {"model": None, "id": None}
     if proc.returncode != 0:
         # Redact before this string can reach a terminal — never echo raw output.
         combined = redact((proc.stdout or "") + (proc.stderr or ""))
         raise BackendUnavailable(
             f"codex exec exited {proc.returncode}: {combined[:300]}")
-    # Verify-first (the agent's save-to-path works under workspace-write), then
-    # fall back to fetching the freshest file the built-in tool dropped under
-    # $CODEX_HOME/generated_images/.
-    if out.is_file() and out.stat().st_size > 0:
-        produced = out
-    else:
-        produced = _freshest_generated_image(started)
-        if produced is None:
-            raise BackendUnavailable("codex exec produced no retrievable image.")
-    return produced, {"model": None, "id": None}
+    raise BackendUnavailable("codex exec produced no retrievable image.")
 
 
 def _freshest_grok_image(since):
@@ -1059,8 +1091,9 @@ def grok_exec_generate(prompt, refs, out_path):
     no API key). Returns (produced_file_path, partial_record). Sends NO model id —
     the image tool is not the chat model, so --model never applies here. Every
     failure (CLI unusable, exit non-zero, timeout, no image) raises
-    BackendUnavailable for fallback. illo handles no token; the only privileged
-    action is this subprocess to the user's own CLI."""
+    BackendUnavailable so the caller can fail cleanly or use an explicitly
+    authorized fallback. illo handles no token; the only privileged action is
+    this subprocess to the user's own CLI."""
     if not grok_available():
         raise BackendUnavailable("Grok CLI not usable (not installed or logged out).")
     out = pathlib.Path(out_path).resolve()
@@ -1182,7 +1215,8 @@ def cmd_generate(args):
     for p in paths:
         rec = _render_one(backend, cfg, prompt, model, args.ref, args.cost, p,
                           cutout=args.cutout, image_config=image_config,
-                          chroma_key=chroma_key)
+                          chroma_key=chroma_key,
+                          allow_paid_fallback=args.allow_paid_fallback)
         rec["label"] = args.label or ""
         rec["prompt"] = prompt
         with manifest.open("a") as f:
@@ -1201,13 +1235,13 @@ def _apply_cutout_meta(rec, cutout_meta):
 
 
 def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
-                cutout=False, image_config=None, chroma_key=CHROMA_MAGENTA):
+                cutout=False, image_config=None, chroma_key=CHROMA_MAGENTA,
+                allow_paid_fallback=False):
     """Render one image through the resolved backend and place it, returning the
-    manifest record. A subscription-CLI backend (Codex/Grok) failure raises
-    BackendUnavailable and falls back to a configured OpenRouter key (record tagged
-    backend=openrouter); a CLI-only host with no key exits with the fixes named.
-    The single file placement, sniff_ext, and the additive `backend` field live
-    here, never in a backend."""
+    manifest record. A subscription-CLI backend (Codex/Grok) failure only falls
+    back to a configured OpenRouter key when the caller explicitly permits the
+    paid fallback; otherwise it fails closed. The single file placement,
+    sniff_ext, and additive `backend` field live here, never in a backend."""
     # Resolve references once (with the default-character fallback) so every path
     # attaches the same sheet — CLI, direct OpenRouter, and the CLI→OpenRouter
     # fallback/redirect alike. Resolving only inside the CLI branch let a ref-less
@@ -1219,16 +1253,23 @@ def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
         try:
             produced, meta = gen(prompt, refs, out_path)
         except BackendUnavailable as e:
-            if cfg.get("apiKey"):
+            if allow_paid_fallback and cfg.get("apiKey"):
                 sys.stderr.write(f"note: {backend} backend unavailable ({e}); "
                                  f"falling back to OpenRouter.\n")
                 return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
                                           cutout=cutout, image_config=image_config,
                                           chroma_key=chroma_key)
+            if cfg.get("apiKey"):
+                sys.exit(f"{backend} backend failed: {e}\n"
+                         "Paid OpenRouter fallback is disabled. Retry with "
+                         "`--allow-paid-fallback` to permit a per-image charge, "
+                         f"or fix the {backend} backend.")
             login = "codex login" if backend == "codex" else "grok login"
             sys.exit(f"{backend} backend failed and no OpenRouter key is set: {e}\n"
                      f"Fix: ensure the CLI is installed + `{login}`, or run "
-                     f"`{PROG} init` to set an OpenRouter key.")
+                     f"`{PROG} init` to set a key and then choose direct "
+                     "`--backend openrouter` or retry with "
+                     "`--allow-paid-fallback`.")
         img = produced.read_bytes()
         path, w, h, cutout_meta = place_image(img, out_path, cutout=cutout,
                                               chroma_key=chroma_key)
@@ -1773,6 +1814,9 @@ def main():
     g.add_argument("--backend", choices=BACKENDS,
                    help="image backend (overrides config/default): codex or grok (your "
                         "subscription CLI) or openrouter; default resolves by host capability")
+    g.add_argument("--allow-paid-fallback", action="store_true",
+                   help="if a Codex/Grok subscription render fails, explicitly allow "
+                        "fallback to the configured paid OpenRouter API (off by default)")
     g.add_argument("--ref", action="append", default=[], help="reference image path (repeatable)")
     g.add_argument("--aspect", help="aspect ratio hint, e.g. 16:9")
     g.add_argument("--image-config",

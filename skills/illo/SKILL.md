@@ -117,12 +117,14 @@ signal to fix the path, not a skill fault.
   quota. Same env-free, token-free subprocess design as Codex. **Grok returns
   JPEG with no alpha, so it cannot make transparent cutouts** — those auto-fall
   back to a cutout-capable backend. The image tool exposes no model selector.
-- **OpenRouter backend (the universal fallback).** Needs an **OpenRouter API
-  key** in the user's config file — the **single credential channel** —
-  written once by the user-run `init` (mode 600). The engine never reads
-  secrets from the environment and never accepts them as command-line
-  arguments. This is the path on any host without a subscription CLI, and the
-  fallback when one fails. It is **model-selectable** (`--model`).
+- **OpenRouter backend (paid, direct or explicit fallback).** Needs an
+  **OpenRouter API key** in the user's config file — the **single credential
+  channel** — written once by the user-run `init` (mode 600). The engine never
+  reads secrets from the environment and never accepts them as command-line
+  arguments. A host without a subscription CLI can select this path directly.
+  A failed Codex/Grok render does **not** spend money automatically: paid
+  fallback requires `--allow-paid-fallback`. It is **model-selectable**
+  (`--model`).
 
 Capsule of the backend model (resolution and precedence, the CLI requirements,
 the built-in image tool being automatic, quota vs. charge, cutout limits,
@@ -177,7 +179,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
 - `references/surprise.md` — surprise / random mode: scope parse, random character, saying bar + sense bar, deliberate register variety, poster titles off but mini-comic panel labels on, multi-source quote verification, safety filter, headless contract. Read in full before any surprise/random request.
-- `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and OpenRouter as the universal fallback. Read before choosing or explaining a backend.
+- `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
 - `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
@@ -440,7 +442,10 @@ CLI-served record (Codex or Grok). `cost` is null unless `--cost` is passed —
 Read `.path` — it may differ from `--out`: the engine names the file by the
 actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
-(re-roll).
+(re-roll). A failed Codex/Grok render stops by default even when an OpenRouter
+key is configured. Add `--allow-paid-fallback` only when the user has explicitly
+approved a pay-per-image retry. Direct `--backend openrouter` renders and the
+intentional Grok-cutout redirect remain direct routes and do not need this flag.
 Generate each image **separately** — never combine ideas into one canvas. Default
 aspect is 16:9; use `1:1` for square social, `9:16`/`4:5` for vertical, and
 `1536:640` for an **X Article banner / hero**. For X Article banners, the
