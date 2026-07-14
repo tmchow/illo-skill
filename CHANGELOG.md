@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.5](https://github.com/tmchow/illo-skill/compare/v0.31.4...v0.31.5) (2026-07-14)
+
+
+### Bug Fixes
+
+* **illo:** scope Codex artifacts to exec thread ([7e05fcb](https://github.com/tmchow/illo-skill/commit/7e05fcbced6d1dbd3c24f5d408162dceaadf4ceb))
+
 ## [0.31.4](https://github.com/tmchow/illo-skill/compare/v0.31.3...v0.31.4) (2026-07-14)
 
 
