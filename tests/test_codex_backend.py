@@ -242,6 +242,65 @@ class CodexBackendTests(unittest.TestCase):
 
         self.assertIn("codex exec exited 1", str(ctx.exception))
 
+    def test_count_batch_prior_artifact_not_reused(self):
+        """A prior --count iteration's artifact in generated_images must not
+        be silently returned when the current Codex exec fails to produce any
+        new artifact. Without the pre-exec snapshot exclusion, the prior
+        artifact's fresh mtime (within CODEX_MTIME_SKEW of start) would let
+        it pass the freshness floor. With exclusion it must be blocked."""
+        def fake_run(cmd, input, capture_output, text, timeout):
+            return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            # Simulate a prior iteration's nested artifact in generated_images.
+            # Its mtime will be recent enough to pass the freshness floor, so
+            # only the pre-exec snapshot exclusion prevents its reuse.
+            prior = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "previous-iteration.png"
+            write_png_artifact(prior)
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                with self.assertRaises(self.illo.BackendUnavailable) as ctx:
+                    self.illo.codex_exec_generate(
+                        "draw the mascot", [], Path(td) / "requested.png"
+                    )
+
+        self.assertIn("codex exec exited 1", str(ctx.exception))
+
+    def test_count_batch_fresh_artifact_still_detected_alongside_prior(self):
+        """When Codex creates a genuinely new nested artifact alongside a prior
+        iteration's artifact, the exclusion of pre-existing files must not
+        accidentally exclude the new one."""
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            # Prior iteration's artifact — recent mtime, same layout.
+            prior = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "previous-iteration.png"
+            write_png_artifact(prior)
+
+            # Fresh artifact produced by THIS exec — different session dir so
+            # it's a different path from the excluded prior.
+            fresh_session = (
+                Path(codex_home) / self.illo.CODEX_GENERATED_SUBDIR / "other-session"
+            )
+            fresh_session.mkdir(parents=True)
+            fresh = fresh_session / "fresh-this-run.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                write_png_artifact(fresh)
+                return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                produced, meta = self.illo.codex_exec_generate(
+                    "draw the mascot", [], Path(td) / "requested.png"
+                )
+
+        self.assertEqual(produced, fresh)
+        self.assertEqual(meta, {"model": None, "id": None})
+
 
 class PaidFallbackTests(unittest.TestCase):
     def setUp(self):
