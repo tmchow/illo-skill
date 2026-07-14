@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.4](https://github.com/tmchow/illo-skill/compare/v0.31.3...v0.31.4) (2026-07-14)
+
+
+### Bug Fixes
+
+* **illo:** exclude prior count-batch artifacts from freshness fallback ([acd3920](https://github.com/tmchow/illo-skill/commit/acd39201602799f688e42424146a138fc83c93c0))
+
 ## [0.31.3](https://github.com/tmchow/illo-skill/compare/v0.31.2...v0.31.3) (2026-07-14)
 
 
