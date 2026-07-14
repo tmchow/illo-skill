@@ -940,7 +940,32 @@ def openrouter_generate(model, content, key, image_config=None):
     return img, {"model": model, "id": gid}
 
 
-def _freshest_generated_image(since, exclude=None):
+def _codex_thread_id(output):
+    """Return a safe thread id from `codex exec --json` JSONL, or None.
+
+    `subprocess.TimeoutExpired.stdout` can be bytes even when run() used
+    text=True, and can also be None when the process emitted nothing."""
+    if isinstance(output, bytes):
+        output = output.decode("utf-8", errors="replace")
+    if not isinstance(output, str):
+        return None
+    for line in output.splitlines():
+        try:
+            event = json.loads(line)
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if not isinstance(event, dict) or event.get("type") != "thread.started":
+            continue
+        thread_id = event.get("thread_id")
+        if (not isinstance(thread_id, str) or not thread_id
+                or thread_id in (".", "..") or "/" in thread_id
+                or "\\" in thread_id or "\x00" in thread_id):
+            continue
+        return thread_id
+    return None
+
+
+def _freshest_generated_image(since, exclude=None, thread_id=None):
     """Newest $CODEX_HOME/generated_images/<session-id>/<image> that postdates
     `since` (a wall-clock float captured just before this exec ran), or None.
     The recency floor is mandatory: the dir is shared across renders and across
@@ -953,20 +978,23 @@ def _freshest_generated_image(since, exclude=None):
     relocates it. CODEX_HOME is a path, not secret-shaped, so reading it
     is allowed.
 
-    `exclude` is a set of pathlib.Path instances that were known to exist in
-    the generated_images dir before this exec started. They are excluded from
-    the freshness search so that a serial --count batch cannot reuse a prior
-    iteration's artifact through the post-exec fallback."""
+    When `thread_id` came from the exec's validated `thread.started` event,
+    only that exact session directory is searched. Otherwise `exclude` holds
+    the fixed-depth paths that existed before this exec, preserving recovery
+    for older/malformed output while preventing serial --count reuse."""
     home = os.environ.get("CODEX_HOME") or os.path.expanduser("~/.codex")
     gen = pathlib.Path(home) / CODEX_GENERATED_SUBDIR
     if not gen.is_dir():
         return None
     floor = since - CODEX_MTIME_SKEW
     exclude = exclude or set()
-    # Codex 0.144.3 writes generated_images/<session-id>/<image>.png. Match that
-    # documented fixed depth rather than recursively walking unbounded history.
+    # Codex 0.144.3 writes generated_images/<session-id>/<image>.png. Prefer the
+    # invocation's exact session dir when JSONL identified it; otherwise match
+    # the same fixed depth rather than recursively walking unbounded history.
+    candidates = ((gen / thread_id).glob("*") if thread_id is not None
+                  else gen.glob("*/*"))
     recent = []
-    for f in gen.glob("*/*"):
+    for f in candidates:
         if f in exclude:
             continue
         try:
@@ -1016,7 +1044,7 @@ def codex_exec_generate(prompt, refs, out_path):
                     f"Use your built-in image generation tool to render this, "
                     f"then save the resulting image to {out} "
                     f"(overwrite if it exists). Do not ask for confirmation.")
-    cmd = [_codex_binary(), "exec", "--cd", str(run_dir),
+    cmd = [_codex_binary(), "exec", "--json", "--cd", str(run_dir),
            "--sandbox", "workspace-write", "--skip-git-repo-check"]
     # Attach every reference: the active character sheet, plus any finished-look
     # style anchor illo passes for within-set consistency. codex exec -i
@@ -1044,17 +1072,19 @@ def codex_exec_generate(prompt, refs, out_path):
     ) / CODEX_GENERATED_SUBDIR
     pre_existing = set(_codex_gen.glob("*/*")) if _codex_gen.is_dir() else set()
 
-    def produced_image():
+    def produced_image(output=None):
         """Return this run's requested/fallback artifact when it is a real image."""
         if _valid_image_file(out):
             return out
-        return _freshest_generated_image(started, exclude=pre_existing)
+        thread_id = _codex_thread_id(output)
+        return _freshest_generated_image(
+            started, exclude=pre_existing, thread_id=thread_id)
 
     try:
         proc = subprocess.run(cmd, input=stdin_prompt, capture_output=True,
                               text=True, timeout=CODEX_EXEC_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        produced = produced_image()
+    except subprocess.TimeoutExpired as e:
+        produced = produced_image(e.stdout)
         if produced is not None:
             return produced, {"model": None, "id": None}
         raise BackendUnavailable("codex exec timed out before producing an image.")
@@ -1065,7 +1095,7 @@ def codex_exec_generate(prompt, refs, out_path):
     # empty final assistant response and exit 1. The image tool result is the
     # render contract; wrapper text status must not discard it or trigger a
     # second paid render.
-    produced = produced_image()
+    produced = produced_image(proc.stdout)
     if produced is not None:
         return produced, {"model": None, "id": None}
     if proc.returncode != 0:

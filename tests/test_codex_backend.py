@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import tempfile
 import unittest
@@ -41,6 +42,11 @@ def generated_session(codex_home, generated_subdir):
     return session
 
 
+def thread_started_json(thread_id, as_bytes=False):
+    output = json.dumps({"type": "thread.started", "thread_id": thread_id}) + "\n"
+    return output.encode() if as_bytes else output
+
+
 class CodexBackendTests(unittest.TestCase):
     def setUp(self):
         self.illo = load_illo_module()
@@ -81,6 +87,7 @@ class CodexBackendTests(unittest.TestCase):
         # image_generation); illo must no longer enable it.
         self.assertNotIn("--enable", cmd)
         self.assertNotIn("imagegenext", cmd)
+        self.assertIn("--json", cmd)
         self.assertEqual(cmd.count("-i"), 2)
         self.assertIn(str(refs[0]), cmd)
         self.assertIn(str(refs[1]), cmd)
@@ -142,6 +149,51 @@ class CodexBackendTests(unittest.TestCase):
                 )
 
         self.assertEqual(produced, artifact)
+        self.assertEqual(meta, {"model": None, "id": None})
+
+    def test_thread_id_parser_accepts_text_and_timeout_bytes(self):
+        thread_id = "019f5f08-255f-7032-abc2-e8f3451a2043"
+        for output in (thread_started_json(thread_id),
+                       thread_started_json(thread_id, as_bytes=True)):
+            with self.subTest(output_type=type(output).__name__):
+                self.assertEqual(self.illo._codex_thread_id(output), thread_id)
+        self.assertIsNone(self.illo._codex_thread_id(None))
+
+    def test_thread_id_parser_rejects_unsafe_path_components(self):
+        for thread_id in ("", ".", "..", "../foreign", "foreign/session",
+                          "foreign\\session", "foreign\x00session"):
+            with self.subTest(thread_id=repr(thread_id)):
+                self.assertIsNone(
+                    self.illo._codex_thread_id(thread_started_json(thread_id)))
+
+    def test_thread_event_prefers_own_artifact_over_newer_foreign_session(self):
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            generated = Path(codex_home) / self.illo.CODEX_GENERATED_SUBDIR
+            own_session = generated / "own-session"
+            foreign_session = generated / "foreign-session"
+            own_session.mkdir(parents=True)
+            foreign_session.mkdir(parents=True)
+            own = own_session / "own.png"
+            foreign = foreign_session / "foreign.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                write_png_artifact(own)
+                write_png_artifact(foreign)
+                own_mtime = own.stat().st_mtime
+                os.utime(foreign, (own_mtime + 1, own_mtime + 1))
+                return FakeCompletedProcess(
+                    returncode=1,
+                    stdout=cast(str, thread_started_json("own-session")),
+                    stderr="empty final response",
+                )
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                produced, meta = self.illo.codex_exec_generate(
+                    "draw the mascot", [], Path(td) / "requested.png"
+                )
+
+        self.assertEqual(produced, own)
         self.assertEqual(meta, {"model": None, "id": None})
 
     def test_detect_codex_accepts_image_generation_alone(self):
@@ -268,6 +320,30 @@ class CodexBackendTests(unittest.TestCase):
                     )
 
         self.assertIn("codex exec exited 1", str(ctx.exception))
+
+    def test_count_batch_prior_artifact_not_reused_after_timeout(self):
+        """Timeout recovery must not reuse the previous serial iteration,
+        including when TimeoutExpired carries partial JSONL as bytes."""
+        def fake_run(cmd, input, capture_output, text, timeout):
+            raise self.illo.subprocess.TimeoutExpired(
+                cmd, timeout,
+                output=thread_started_json("current-session", as_bytes=True),
+            )
+
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            prior = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "previous-iteration.png"
+            write_png_artifact(prior)
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                with self.assertRaises(self.illo.BackendUnavailable) as ctx:
+                    self.illo.codex_exec_generate(
+                        "draw the mascot", [], Path(td) / "requested.png"
+                    )
+
+        self.assertIn("timed out before producing an image", str(ctx.exception))
 
     def test_count_batch_fresh_artifact_still_detected_alongside_prior(self):
         """When Codex creates a genuinely new nested artifact alongside a prior
