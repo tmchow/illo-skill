@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.3](https://github.com/tmchow/illo-skill/compare/v0.31.2...v0.31.3) (2026-07-14)
+
+
+### Bug Fixes
+
+* **illo:** trust artifacts and gate paid fallback ([30b05ea](https://github.com/tmchow/illo-skill/commit/30b05ea0ae23554112f8ee7febbac1872776bb34))
+
 ## [0.31.2](https://github.com/tmchow/illo-skill/compare/v0.31.1...v0.31.2) (2026-07-13)
 
 
