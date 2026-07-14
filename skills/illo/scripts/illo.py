@@ -940,7 +940,7 @@ def openrouter_generate(model, content, key, image_config=None):
     return img, {"model": model, "id": gid}
 
 
-def _freshest_generated_image(since):
+def _freshest_generated_image(since, exclude=None):
     """Newest $CODEX_HOME/generated_images/<session-id>/<image> that postdates
     `since` (a wall-clock float captured just before this exec ran), or None.
     The recency floor is mandatory: the dir is shared across renders and across
@@ -951,16 +951,24 @@ def _freshest_generated_image(since):
     tolerates mtime granularity / clock skew. Resolves CODEX_HOME (env, default
     ~/.codex) at run time and NEVER hardcodes ~/.codex — the spike found Orca
     relocates it. CODEX_HOME is a path, not secret-shaped, so reading it
-    is allowed."""
+    is allowed.
+
+    `exclude` is a set of pathlib.Path instances that were known to exist in
+    the generated_images dir before this exec started. They are excluded from
+    the freshness search so that a serial --count batch cannot reuse a prior
+    iteration's artifact through the post-exec fallback."""
     home = os.environ.get("CODEX_HOME") or os.path.expanduser("~/.codex")
     gen = pathlib.Path(home) / CODEX_GENERATED_SUBDIR
     if not gen.is_dir():
         return None
     floor = since - CODEX_MTIME_SKEW
+    exclude = exclude or set()
     # Codex 0.144.3 writes generated_images/<session-id>/<image>.png. Match that
     # documented fixed depth rather than recursively walking unbounded history.
     recent = []
     for f in gen.glob("*/*"):
+        if f in exclude:
+            continue
         try:
             mtime = f.stat().st_mtime
         except OSError:
@@ -1027,12 +1035,20 @@ def codex_exec_generate(prompt, refs, out_path):
     # postdate this moment, so a stale prior render or a concurrent session's
     # file in the shared generated_images dir can't pass as our result.
     started = time.time()
+    # Snapshot pre-existing generated images so a serial --count batch cannot
+    # reuse a prior iteration's artifact through the post-exec fallback. The
+    # exclusion set shadows the same generated_images dir _freshest_generated_image
+    # will traverse, sharing the same CODEX_HOME resolution.
+    _codex_gen = pathlib.Path(
+        os.environ.get("CODEX_HOME") or os.path.expanduser("~/.codex")
+    ) / CODEX_GENERATED_SUBDIR
+    pre_existing = set(_codex_gen.glob("*/*")) if _codex_gen.is_dir() else set()
 
     def produced_image():
         """Return this run's requested/fallback artifact when it is a real image."""
         if _valid_image_file(out):
             return out
-        return _freshest_generated_image(started)
+        return _freshest_generated_image(started, exclude=pre_existing)
 
     try:
         proc = subprocess.run(cmd, input=stdin_prompt, capture_output=True,
