@@ -100,11 +100,13 @@ network access are the only hard requirements:
   Grok agent. Two limits: no model selection, and **no transparent cutouts**
   (Grok returns JPEG with no alpha) — cutouts auto-fall back to Codex or
   OpenRouter.
-- **OpenRouter (the universal fallback).** An
+- **OpenRouter (paid, direct or explicit fallback).** An
   **[OpenRouter](https://openrouter.ai) API key** lets illo call OpenRouter's
-  image API directly — the path on any host without a subscription CLI, and the
-  fallback when one is unavailable. **Model-selectable** — see
-  [Models & cost](#models--cost) below.
+  image API directly — the path on a host without a subscription CLI.
+  **Model-selectable** — see [Models & cost](#models--cost) below. A failed
+  Codex/Grok render never spends money automatically: pass
+  `--allow-paid-fallback` to explicitly permit that pay-per-image retry.
+  Intentional cutout routing remains automatic.
 
 ### Setting the key (OpenRouter path)
 

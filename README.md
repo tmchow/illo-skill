@@ -14,8 +14,9 @@ and reference-image character consistency. Renders through **three backends**:
 your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your subscription —
 free for subscribers, no API key — when one is installed and logged in, or
 **OpenRouter** (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
-Image 2, …) as the universal fallback. Grok can't make transparent cutouts;
-those fall back automatically.
+Image 2, …) as a direct pay-per-image backend. Failed subscription renders
+fail closed unless `--allow-paid-fallback` explicitly permits OpenRouter.
+Grok can't make transparent cutouts; those route automatically.
 
 Hand it *"we replatform with zero downtime"* and you get the bridge being
 rebuilt under live traffic:

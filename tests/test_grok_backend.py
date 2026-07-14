@@ -211,7 +211,10 @@ class RenderRefResolutionTests(unittest.TestCase):
                 lambda cfg, prompt, model, refs, *a, **k: captured.update(refs=refs) or {}
             )
             cfg = {"apiKey": "k", "defaultCharacter": "bot"}
-            self.illo._render_one("grok", cfg, "p", "m", [], False, Path(cfgdir) / "o.png")
+            self.illo._render_one(
+                "grok", cfg, "p", "m", [], False, Path(cfgdir) / "o.png",
+                allow_paid_fallback=True,
+            )
             self.assertEqual(captured["refs"], [str(char_ref)])
 
 

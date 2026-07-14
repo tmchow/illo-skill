@@ -38,6 +38,13 @@ its style's file** — everything else here still applies.
   exactly (house default: two dot eyes, blank deadpan, no brow, no mouth),
   every locked part present, locked treatments reading in aggregate, one
   accent carrier, nothing the spec doesn't name.
+  - **Pack-driven face-interior scan:** when the active character pack forbids a
+    mouth, muzzle divider, cheek, nostril, or any other interior facial mark,
+    inspect a tight face crop at full resolution and judge literal strokes, not
+    the intended expression. After accounting for explicitly locked eyes/marks,
+    any prohibited line, loop, notch, arc, divider, or construction stroke inside
+    the face is a **hard fail**. Do not rationalize it as anatomy, texture, or a
+    route/prop line; ambiguous marks fail and must be edited or re-rolled.
 - **Structural integrity** — a separate axis from "on-model" (a body can be
   perfectly on-model and still be assembled wrong, so the identity check
   above will not catch this; scan for it deliberately). The one rule that
@@ -65,7 +72,13 @@ its style's file** — everything else here still applies.
     or sprouting from it. Watch the case where the mascot is given more
     props than it has hands: the extra one tends to fuse to the torso — keep
     held props to **one per hand** and let any others rest in the world.
-  - **In mini-comics, run all three checks on every panel separately** —
+  - **Line topology / collisions** — trace facial strokes and every route-like
+    line (wire, arrow, path, ground line, cable) through contacts near the
+    character. A stroke must keep one clear owner and readable endpoints. It is a
+    hard fail when a facial or route stroke visually fuses into a face, torso, or
+    limb, creates apparent extra anatomy, or makes a limb and route read as one
+    continuous line. Restore a clear gap/occlusion or re-roll.
+  - **In mini-comics, run all four checks on every panel separately** —
     each panel is its own small render and the repeated, smaller mascot
     instances are where these errors drift in most.
 - **Value matches the palette**: in light palettes the body is light with
@@ -163,7 +176,9 @@ style QA deltas) still applies to the character cluster.
   tangent to the subject, or crowding the visual action → re-roll with reserved
   title space and fewer/smaller supporting labels.
 - Mascot reads as a sticker/cute-cartoon, or shows face details its locked
-  design doesn't name (for house-face packs: any mouth/eyebrows/shiny eyes) → re-roll.
+  design doesn't name → inspect the tight face crop and re-roll. For a pack that
+  forbids facial interior marks, any mouth-like loop/line, cheek/muzzle/nostril
+  mark, or construction stroke is a hard fail regardless of apparent intent.
 - Looks like a slide, infographic, flowchart, or formal diagram → re-roll
   simpler. (In the explainer register the fail is *formality* — vector-clean
   boxes, a legend, a grid, a boxed title — not the presence of arrows and

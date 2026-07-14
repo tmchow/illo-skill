@@ -1,8 +1,10 @@
 import importlib.util
+import os
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Any, cast
+from unittest import mock
 
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "skills" / "illo" / "scripts" / "illo.py"
@@ -24,6 +26,21 @@ class FakeCompletedProcess:
         self.stderr = stderr
 
 
+def write_png_artifact(path):
+    """Write enough PNG structure for illo's artifact validation tests."""
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        b"\x00\x00\x00\x0dIHDR"
+        b"\x00\x00\x00\x01\x00\x00\x00\x01"
+    )
+
+
+def generated_session(codex_home, generated_subdir):
+    session = Path(codex_home) / generated_subdir / "session-id"
+    session.mkdir(parents=True)
+    return session
+
+
 class CodexBackendTests(unittest.TestCase):
     def setUp(self):
         self.illo = load_illo_module()
@@ -42,7 +59,7 @@ class CodexBackendTests(unittest.TestCase):
             captured["capture_output"] = capture_output
             captured["text"] = text
             captured["timeout"] = timeout
-            out_path.write_bytes(b"not a real png, just a non-empty artifact")
+            write_png_artifact(out_path)
             return FakeCompletedProcess(returncode=0)
 
         with tempfile.TemporaryDirectory() as td:
@@ -73,6 +90,59 @@ class CodexBackendTests(unittest.TestCase):
         self.assertTrue(captured["capture_output"])
         self.assertTrue(captured["text"])
         self.assertEqual(captured["timeout"], self.illo.CODEX_EXEC_TIMEOUT)
+
+    def test_nonzero_exit_with_requested_output_succeeds(self):
+        def fake_run(cmd, input, capture_output, text, timeout):
+            write_png_artifact(out_path)
+            return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+        with tempfile.TemporaryDirectory() as td:
+            out_path = Path(td) / "requested.png"
+            self.illo.subprocess.run = fake_run
+            produced, meta = self.illo.codex_exec_generate(
+                "draw the mascot", [], out_path
+            )
+
+        self.assertEqual(produced, out_path.resolve())
+        self.assertEqual(meta, {"model": None, "id": None})
+
+    def test_nonzero_exit_with_fresh_nested_generated_artifact_succeeds(self):
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            artifact = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "render.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                write_png_artifact(artifact)
+                return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                produced, meta = self.illo.codex_exec_generate(
+                    "draw the mascot", [], Path(td) / "requested.png"
+                )
+
+        self.assertEqual(produced, artifact)
+        self.assertEqual(meta, {"model": None, "id": None})
+
+    def test_timeout_with_fresh_nested_generated_artifact_succeeds(self):
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            artifact = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "render.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                write_png_artifact(artifact)
+                raise self.illo.subprocess.TimeoutExpired(cmd, timeout)
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                produced, meta = self.illo.codex_exec_generate(
+                    "draw the mascot", [], Path(td) / "requested.png"
+                )
+
+        self.assertEqual(produced, artifact)
+        self.assertEqual(meta, {"model": None, "id": None})
 
     def test_detect_codex_accepts_image_generation_alone(self):
         self.illo.shutil.which = lambda name: "/usr/local/bin/codex" if name == "codex" else None
@@ -120,6 +190,101 @@ class CodexBackendTests(unittest.TestCase):
         self.assertIn("<redacted>", msg)
         self.assertNotIn(fake_secret, msg)
         self.assertIn("stderr details", msg)
+
+    def test_nonzero_exit_with_invalid_fresh_nested_artifact_fails(self):
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            artifact = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "partial.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                artifact.write_bytes(b"not an image")
+                return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                with self.assertRaises(self.illo.BackendUnavailable):
+                    self.illo.codex_exec_generate(
+                        "draw the mascot", [], Path(td) / "requested.png"
+                    )
+
+    def test_nonzero_exit_with_stale_nested_artifact_fails(self):
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            artifact = generated_session(
+                codex_home, self.illo.CODEX_GENERATED_SUBDIR
+            ) / "stale.png"
+
+            def fake_run(cmd, input, capture_output, text, timeout):
+                write_png_artifact(artifact)
+                os.utime(artifact, (0, 0))
+                return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                with self.assertRaises(self.illo.BackendUnavailable) as ctx:
+                    self.illo.codex_exec_generate(
+                        "draw the mascot", [], Path(td) / "requested.png"
+                    )
+
+        self.assertIn("codex exec exited 1", str(ctx.exception))
+
+    def test_nonzero_exit_with_no_artifact_fails(self):
+        def fake_run(cmd, input, capture_output, text, timeout):
+            return FakeCompletedProcess(returncode=1, stderr="empty final response")
+
+        with tempfile.TemporaryDirectory() as codex_home, tempfile.TemporaryDirectory() as td:
+            self.illo.subprocess.run = fake_run
+            with mock.patch.dict(os.environ, {"CODEX_HOME": codex_home}):
+                with self.assertRaises(self.illo.BackendUnavailable) as ctx:
+                    self.illo.codex_exec_generate(
+                        "draw the mascot", [], Path(td) / "requested.png"
+                    )
+
+        self.assertIn("codex exec exited 1", str(ctx.exception))
+
+
+class PaidFallbackTests(unittest.TestCase):
+    def setUp(self):
+        self.illo = load_illo_module()
+
+        def fail_codex(*args, **kwargs):
+            raise self.illo.BackendUnavailable("wrapper failed")
+
+        self.illo.codex_exec_generate = fail_codex
+
+    def test_default_cli_failure_never_calls_openrouter_with_configured_key(self):
+        def unexpected_openrouter(*args, **kwargs):
+            self.fail("OpenRouter must not be called without explicit paid fallback")
+
+        self.illo._openrouter_record = unexpected_openrouter
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaises(SystemExit) as ctx:
+                self.illo._render_one(
+                    "codex", {"apiKey": "configured"}, "prompt", "model",
+                    ["ref.png"], False, Path(td) / "out.png"
+                )
+
+        self.assertIn("--allow-paid-fallback", str(ctx.exception))
+
+    def test_explicit_paid_fallback_records_openrouter_backend(self):
+        self.illo._openrouter_record = lambda *args, **kwargs: {"backend": "openrouter"}
+        with tempfile.TemporaryDirectory() as td:
+            rec = self.illo._render_one(
+                "codex", {"apiKey": "configured"}, "prompt", "model",
+                ["ref.png"], False, Path(td) / "out.png", allow_paid_fallback=True
+            )
+
+        self.assertEqual(rec["backend"], "openrouter")
+
+    def test_direct_openrouter_does_not_require_paid_fallback_flag(self):
+        self.illo._openrouter_record = lambda *args, **kwargs: {"backend": "openrouter"}
+        with tempfile.TemporaryDirectory() as td:
+            rec = self.illo._render_one(
+                "openrouter", {"apiKey": "configured"}, "prompt", "model",
+                ["ref.png"], False, Path(td) / "out.png"
+            )
+
+        self.assertEqual(rec["backend"], "openrouter")
 
 
 if __name__ == "__main__":

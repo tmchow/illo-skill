@@ -14,8 +14,10 @@ file; they differ only in where the image is made and who is billed.
   (Grok returns JPEG with no alpha) — cutout renders redirect to a
   cutout-capable backend.
 - **OpenRouter** — calls OpenRouter's image API directly. Pay-per-image
-  through the user's OpenRouter account. The **universal fallback** and the
-  only backend a host without a subscription CLI can use.
+  through the user's OpenRouter account. The direct paid backend and the only
+  backend a host without a subscription CLI can use. A failed CLI render reaches
+  it only when `--allow-paid-fallback` is explicitly supplied; intentional
+  cutout routing is unchanged.
 
 `--backend` (and config `backend:`) selects one explicitly; otherwise the
 engine resolves the right one by host capability. Resolution and readiness
@@ -94,10 +96,13 @@ does not. The host is "usable Codex" only when **all three** hold:
    `imagegenext` extension to make `codex exec` emit the artifact; that extension
    was removed once the behavior went stable, so illo no longer gates on it.)
 
-Any non-zero exit, timeout, or unparseable output → not usable, and the
-engine soft-falls to OpenRouter. Detection runs once per process and reads
-**no** credential file and **no** secret-shaped env var. `doctor` reports
-the stage that failed (`codex login` needed, feature unavailable, etc.).
+Any non-zero detection exit, timeout, or unparseable output means Codex is not
+usable. The capability-aware default can then select Grok or direct OpenRouter.
+Once Codex is selected for a render, generation fails closed by default;
+OpenRouter retry requires `--allow-paid-fallback`. Detection runs once per
+process and reads **no** credential file and **no** secret-shaped env var.
+`doctor` reports the stage that failed (`codex login` needed, feature
+unavailable, etc.).
 
 If the user needs to enable it: install the official Codex CLI and run
 `codex login` — that is the entire setup. illo never touches the token.
@@ -128,13 +133,17 @@ illo invokes `codex exec` against the built-in tool, attaching the active
 character's reference sheet (`-i <sheet>`) so the mascot stays on-model, and
 asks the agent to save the result to the run-dir path. As of Codex CLI 0.144
 the stable `image_generation` feature drops the generated artifact under
-`$CODEX_HOME/generated_images` on its own — illo verifies the requested path
-first and otherwise fetches the freshest artifact that postdates the exec.
-(On Codex 0.141 this required an extra `--enable imagegenext` flag, since the
-stable feature did not emit the artifact reliably; the extension was removed
-once the behavior went stable, so illo no longer passes the flag. If a `codex
-exec` run exits non-zero, illo treats the Codex backend as unavailable and
-falls back to OpenRouter when configured.)
+`$CODEX_HOME/generated_images/<session-id>/<image>.png` on its own — illo
+verifies the requested path first and otherwise fetches the freshest valid image
+artifact at that fixed depth that postdates the exec. (On Codex 0.141 this
+required an extra `--enable imagegenext` flag, since
+the stable feature did not emit the artifact reliably; the extension was removed
+once the behavior went stable, so illo no longer passes the flag.) Artifact
+presence takes precedence over wrapper status: Codex can complete
+`image_generation` and persist the PNG, then exit 1 because its final assistant
+text is empty. A valid requested or fresh generated artifact is still a Codex
+success, including after a timeout; only a run with no valid fresh artifact
+fails.
 
 With no `--ref` and no
 default character there is nothing to lock to, so illo renders ref-less (a
@@ -146,25 +155,24 @@ the only privileged action is the subprocess call to the user's own CLI
 (the one sanctioned exception to the stdlib-over-subprocess rule — a benign
 call to a known CLI, not a credential read). The adapter verifies the file
 landed, otherwise fetches the
-freshest image the tool dropped under `$CODEX_HOME/generated_images/`
+freshest image the tool dropped under
+`$CODEX_HOME/generated_images/<session-id>/`
 (`$CODEX_HOME` resolved at run time — relocatable, never hardcoded).
 
-### Windows/WSL is unsupported → OpenRouter
+### Windows/WSL is unsupported
 
 `codex exec` image generation is broken on Windows/WSL (openai/codex#19133).
-illo treats that as a backend failure and falls over to OpenRouter when a key
-is configured.
+illo treats that as a backend failure. Select OpenRouter directly, or explicitly
+permit the paid retry with `--allow-paid-fallback` when a key is configured.
 
 ### Fallback behavior
 
-When the Codex backend is unavailable or fails for **any** non-fatal reason —
-no usable CLI, `codex exec` errored or timed out, unsupported platform, or no
-retrievable image — illo:
-
-- falls back to **OpenRouter** when a key is configured (the manifest record
-  is tagged `backend: openrouter`); or
-- exits with a clear, actionable error naming both fixes (install +
-  `codex login`, or run `init` to set an OpenRouter key) when no key is set.
+When the Codex backend is unavailable or produces no valid fresh artifact, illo
+**fails closed by default**, even when an OpenRouter key is configured. It falls
+back to OpenRouter only when the caller explicitly supplies
+`--allow-paid-fallback`; that paid record is tagged `backend: openrouter`.
+Direct `--backend openrouter` generation is not a fallback and does not need the
+flag.
 
 A Codex-served record carries `cost: null` and no model id, and the engine
 never queries OpenRouter for its cost.
@@ -185,11 +193,12 @@ The host is "usable Grok" when **both** hold:
 Detection reads the credential file's **existence only, never its contents**
 (scanner-clean: no secret read, no secret-shaped env var — `$GROK_HOME` is a
 path, not a secret). The image tools' reachability can't be probed without a
-billed call, so a logged-out or image-ineligible account **soft-fails at
-generate time** (→ fallback), not at detection. Detection runs once per process
-and soft-falls to the next backend on any miss. `doctor` reports whether the CLI
-is usable, present-but-logged-out, or absent. Setup is the entire story:
-install the Grok CLI and run `grok login`.
+billed call, so a logged-out or image-ineligible account fails at generation
+time rather than detection. The capability-aware default can choose the next
+available backend when Grok is not detectable; once a Grok render starts, paid
+OpenRouter retry is opt-in. Detection runs once per process. `doctor` reports
+whether the CLI is usable, present-but-logged-out, or absent. Setup is the entire
+story: install the Grok CLI and run `grok login`.
 
 ### The image tool is automatic — no model selection
 
@@ -208,7 +217,9 @@ key color — so chroma-keying fails (opaque corners, heavy fringe). illo does
 **not** attempt cutouts on Grok: a `--cutout` render whose backend resolves to
 `grok` **redirects** to a cutout-capable backend — Codex if usable, else
 OpenRouter GPT Image 2 if a key is set — and prints a note; with neither it
-exits naming both fixes. The manifest records the backend that actually ran.
+exits naming both fixes. This pre-render capability redirect is intentional and
+does not require `--allow-paid-fallback`. The manifest records the backend that
+actually ran.
 
 ### Quota, transport, and character lock
 
@@ -227,19 +238,19 @@ file landed, else fetches the freshest image the tool dropped under
 
 ### Fallback behavior
 
-When the Grok backend is unavailable or fails for **any** non-fatal reason — no
-usable CLI, `grok` errored or timed out, or no retrievable image — illo falls
-back to **OpenRouter** when a key is configured (record tagged
-`backend: openrouter`), or exits naming both fixes (`grok login`, or `init` to
-set an OpenRouter key) when no key is set. A Grok-served record carries
-`cost: null` and no model id.
+When the Grok backend is unavailable or produces no retrievable image, illo
+**fails closed by default**, even with a configured OpenRouter key. It retries
+through OpenRouter only when `--allow-paid-fallback` is explicitly supplied
+(record tagged `backend: openrouter`). A Grok-served record carries `cost: null`
+and no model id.
 
 ## OpenRouter backend
 
 The pay-per-image path, billed to the user's OpenRouter account. It is
 **model-selectable** (`--model`; see `references/models.md` for the lineup,
-the friendly-name → id map, the aspect caveat, and 404/fallback handling), is
-the universal fallback for any host where a subscription CLI is unavailable, and
-is the redirect target for cutouts when the resolved backend is Grok. Its wire
-behavior is unchanged from a single-backend install — the multi-backend work
-is purely additive.
+the friendly-name → id map, the aspect caveat, and 404/fallback handling).
+Use it directly with `--backend openrouter` without any fallback flag. It is also
+the capability-aware default on a host with a configured key and no usable
+subscription CLI, the explicit paid retry target after a failed CLI render, and
+the intentional redirect target for Grok cutouts. Its wire behavior is unchanged
+from a single-backend install.
