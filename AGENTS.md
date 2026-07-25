@@ -179,7 +179,8 @@ pack name is globally unique** — names are the selection keys agents use
 ("use anvil"), and illo-characters' `index.json` is the ecosystem registry.
 Check it before naming a character. Reserved names: `blot` (ships with the
 skill), `illo`, and the look names (`riso`, `blueprint`, `woodcut`, `pixel`,
-`clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`).
+`clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`, `felt`, `diorama`,
+`sketchbook`, `bricks`, `fizz`, `bloom`, `snes`).
 
 ## Looks (style definitions)
 
