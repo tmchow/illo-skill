@@ -14,7 +14,7 @@ The methodology is the constant; **the character pack and palette are yours
 to set** — and every character pack carries its own print style. Out of the
 box the mascot is **Blot**, a deadpan ink-drop in **risograph**. A built-in
 **character builder** designs your own mascot with you (interview — including
-picking its look from the bundled library of sixteen ([below](#looks)) — then
+picking its look from the bundled library of seventeen ([below](#looks)) — then
 model-sheet candidates → pick → install). Want the same
 character in another look? Build a *style variant pack* (`blot-woodcut`):
 one pack, one look, so a catalog of characters never turns into a grid of
@@ -72,6 +72,7 @@ Every character pack picks exactly one look from the bundled library:
 | **bricks** | Photoreal toy-brick set — the one photographic look |
 | **fizz** | Psychedelic soda-pop skate-sticker screenprint |
 | **bloom** | Flat cel character in a soft, atmospherically-lit cozy scene |
+| **snes** | 16-bit console sprite editorial with soft dither and game-world staging |
 
 Looks are shared infrastructure, deliberately separate from characters: the
 definitions live in this skill (`references/styles/`), and a character pack
