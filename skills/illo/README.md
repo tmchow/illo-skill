@@ -235,11 +235,13 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
   scene that lands one takeaway. If the idea is thin, it asks a couple of quick
   questions first instead of guessing.
 - **Surprise / random** — "surprise me", "random", or scoped variants like
-  "surprise me with art quote using bray": invents or fetches a safe, shareable
-  saying (inspirational, educational, or interesting — not a two-word stub),
-  including warm topical hooks when they fit, picks a random installed
-  character unless named, and returns one image plus that caption-ready line.
-  Built for casual prompts and scheduled agents alike.
+  "surprise me with art quote using bray": rolls provenance (~1/3 verified
+  quote / topical hook / original; a `* quote` focus forces a cited quote),
+  builds three shareable saying candidates, then lets you pick (or
+  auto-picks the best with `--autopick` — preferred for schedulers), picks
+  register from the locked saying and a random installed character unless
+  named, and returns one image plus that caption-ready line. Built for casual
+  prompts and scheduled agents alike.
 - **Mini-comics** — a process, a before→after, a fail→fix told in 2–4 panels
   inside one image. The best shape when a sequence belongs together — and for
   social, where one self-contained image beats a thread.

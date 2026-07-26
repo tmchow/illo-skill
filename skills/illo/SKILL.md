@@ -7,14 +7,15 @@ description: >-
   structure itself is the point, or a transparent character cutout
   (pose-only compositing asset, no scene or text) — in one of seventeen bundled
   looks (sixteen print, plus a photoreal toy-brick set). Also handles
-  "surprise me" / "random" (optionally scoped to a focus or character): invents
-  or fetches a safe seed idea and renders one headless image. Triggers only
-  when the skill is directly invoked or "illo" is requested; never on generic
+  "surprise me" / "random" (optionally scoped to a focus or character): rolls
+  provenance, builds three saying candidates, picks via interactive choice or
+  auto-pick-best (`--autopick`), and renders one image. Triggers only when
+  the skill is directly invoked or "illo" is requested; never on generic
   illustrate / draw / make-an-image requests.
 # x-release-please-start-version
 version: 0.31.6
 # x-release-please-end
-argument-hint: "[idea or article URL] | build a character | install <character> | surprise me [focus] [using character]"
+argument-hint: "[idea or article URL] | build a character | install <character> | surprise me [focus] [--autopick] [using character]"
 author: Trevin Chow
 license: MIT
 metadata:
@@ -64,7 +65,7 @@ infographic, not a formal flowchart, not a UI mockup.
 |---|---|
 | **Illustrate an article / post / newsletter / URL** | Steps 0–7: route the source first (thesis → coverage: hero / hero+set / set / mini-comic — `references/composition.md`, "Source routing"), then shot list (hero row + anchors), one image per anchor, interleave by placement. |
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
-| **Surprise / random** — "surprise me", "random", "surprise me with art quote using bray" | Read `references/surprise.md` in full (character + register resolved there — ignore `defaultCharacter`), then Steps 0 + 3–7 as one headless image: invent or fetch a safe **saying** (sense-bar originals; multi-source verified citations only), deliver saying + image. Poster titles default off; mini-comics still get per-panel labels. |
+| **Surprise / random** — "surprise me", "random", "surprise me with art quote using bray", "surprise me --autopick" | Read `references/surprise.md` in full: Step 0 first, then character + provenance (ignore `defaultCharacter`; `* quote` forces a cited quote; else ~1/3 roll), build **three** safe candidates, interactive picker or auto-pick-best (`--autopick` preferred for schedulers), then register from the locked saying, then Steps 3–7 as one image. Deliver saying + image. Poster titles default off; mini-comics still get per-panel labels. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
 | **A traceable structure** — "show the flow", "diagram the pipeline", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "The explainer register"): a hand-built flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
 | **Social-ready art for X posts / article body images** | 16:9 (or 1:1 when square is explicitly useful), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
@@ -178,7 +179,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
-- `references/surprise.md` — surprise / random mode: scope parse, random character, saying bar + sense bar, deliberate register variety, poster titles off but mini-comic panel labels on, multi-source quote verification, safety filter, headless contract. Read in full before any surprise/random request.
+- `references/surprise.md` — surprise / random mode: preflight-first, scope parse, random character, provenance variety + three saying candidates, interactive picker or `--autopick` / auto-pick-best, register after the locked saying, saying bar + sense bar, multi-source quote verification, safety-before-offer, headless contract. Read in full before any surprise/random request.
 - `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
 - `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
@@ -279,14 +280,17 @@ never copy it.
 Three kinds of input, handled differently:
 
 - **Surprise / random** ("surprise me", "random", "surprise me with art quote
-  using bray", and close variants) — the ask is invent-and-render, not a
-  supplied thesis. **Stop and read `references/surprise.md` in full**, resolve
-  character and register there (ignore `defaultCharacter`; random when
-  unnamed), then continue Steps 0 + 3–7 as one headless image — Step 2 is
-  skipped because the pack is already chosen. Do not enter the thin-concept
-  Q&A path below. A prompt that already names a concrete idea
-  ("illustrate 'you are the bottleneck'") is **not** surprise mode even if
-  it also says "surprise me".
+  using bray", "surprise me --autopick", and close variants) — the ask is
+  invent-and-render, not a supplied thesis. **Stop and read
+  `references/surprise.md` in full**, run Step 0 first, then resolve character
+  and provenance there (ignore `defaultCharacter`; random character when
+  unnamed), build three saying candidates and lock one via picker or
+  auto-pick-best, pick register from the locked saying, then continue Steps
+  3–7 as one image — Steps 0 and 2 are skipped in that render pass because
+  preflight and pack are already done. Do not enter the thin-concept Q&A path
+  below. A prompt that already names a concrete idea ("illustrate 'you are
+  the bottleneck'") is **not** surprise mode even if it also says "surprise
+  me".
 - **A URL / article / paste / long post** carries its own context — but
   never generate from the first vivid detail. Route it first
   (`references/composition.md`, "Source routing"): classify the source's
