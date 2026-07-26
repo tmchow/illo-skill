@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.0](https://github.com/tmchow/illo-skill/compare/v0.31.6...v0.32.0) (2026-07-26)
+
+
+### Features
+
+* **illo:** roll surprise provenance and pick among three sayings ([#52](https://github.com/tmchow/illo-skill/issues/52)) ([ffab6b2](https://github.com/tmchow/illo-skill/commit/ffab6b233c2dd03022bdebbd9f569e47b09c5cef))
+
 ## [0.31.6](https://github.com/tmchow/illo-skill/compare/v0.31.5...v0.31.6) (2026-07-26)
 
 
