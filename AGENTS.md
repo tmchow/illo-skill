@@ -250,6 +250,9 @@ all PRs, including forks. Allowed types are `feat`, `fix`, `perf`, `revert`,
 `docs`, `style`, `refactor`, `test`, `build`, `ci`, and `chore`. If a PR changes
 anything under `skills/illo/**`, at least one non-merge commit must use
 `feat:`, `fix:`, `perf:`, or `revert:` so Release Please sees a release trigger.
+The generated Release Please PR is exempt from that release-trigger subset only
+when its event identifies the exact same-repo release branch and GitHub Actions
+bot author; its generated commit and PR title must still be Conventional.
 Use `docs:`, `chore:`, or `ci:` as appropriate for repo-only changes that
 should not trigger a skill release.
 

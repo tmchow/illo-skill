@@ -17,7 +17,7 @@ RELEASE_SUBJECT = re.compile(
 INSTALLED_SKILL_PREFIX = "skills/illo/"
 
 
-def validate(commits, changed_paths):
+def validate(commits, changed_paths, trusted_release_pr=False):
     """Return validation errors for (sha, subject, is_merge) commit tuples."""
     errors = []
     non_merge_commits = [commit for commit in commits if not commit[2]]
@@ -37,7 +37,7 @@ def validate(commits, changed_paths):
         or path.startswith(INSTALLED_SKILL_PREFIX)
         for path in changed_paths
     )
-    if changes_installed_skill and not any(
+    if changes_installed_skill and not trusted_release_pr and not any(
         RELEASE_SUBJECT.fullmatch(subject)
         for _sha, subject, _is_merge in non_merge_commits
     ):
@@ -75,10 +75,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", required=True, help="pull request base SHA")
     parser.add_argument("--head", required=True, help="pull request head SHA")
+    parser.add_argument(
+        "--trusted-release-pr",
+        action="store_true",
+        help="allow a trusted generated Release Please PR to change installed files",
+    )
     args = parser.parse_args()
 
     commits, changed_paths = load_pull_request(args.base, args.head)
-    errors = validate(commits, changed_paths)
+    errors = validate(commits, changed_paths, args.trusted_release_pr)
     if errors:
         for error in errors:
             print(f"::error::{error}")
@@ -94,7 +99,10 @@ def main():
         or path.startswith(INSTALLED_SKILL_PREFIX)
         for path in changed_paths
     ):
-        print("Installed-skill change includes a release-triggering commit.")
+        if args.trusted_release_pr:
+            print("Trusted generated release PR has conventional commit metadata.")
+        else:
+            print("Installed-skill change includes a release-triggering commit.")
     return 0
 
 
