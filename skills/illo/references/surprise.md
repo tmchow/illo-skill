@@ -161,7 +161,7 @@ demote from model memory alone.
   - **0 keepers** → abort cleanly; say so; do not render; do not invent.
   - **1–2 keepers** → that smaller set **is** the candidate set for this
     run (the only exception to “always three”). Interactive: offer those
-    keepers plus **“Three new ones”** (fresh search under the same cap).
+    keepers plus **“Three new ones”** (full refresh — see picker below).
     Auto-pick: lock the best of the keepers, then continue steps 7–8.
   - **Never** invent or pad to force a count of three.
 - **`topical_hook`:** after at most **10** candidate attempts still short of
@@ -360,10 +360,23 @@ miss):
   available interactive question tool (or, in plain chat, ask as a concise
   message and wait). Put **short labels** in the tool options (speaker name,
   a few cue words, or “Option A/B/C”); put the **full saying + citation** in
-  the accompanying message so long lines are not truncated. Unlimited refresh
-  (rebuild a fresh set in the same provenance mode + focus — no image cost;
-  forced quote still respects the 10-attempt cap per build). **Do not** call
+  the accompanying message so long lines are not truncated. **Do not** call
   `generate` until a saying is locked.
+- **“Three new ones” / refresh** — this is a **full re-roll**, not a deeper
+  search in the same pocket. Go back to procedure step 4:
+  1. **Re-pick provenance mode** unless the user's focus **forces**
+     `attributed_quote` (`* quote`). Prefer a *different* mode than the
+     set just shown when the roll allows (avoid showing three more
+     originals after three originals unless the roll lands there again).
+  2. **Change the topic / event / angle** — do not stay on the same subject,
+     news hook, or quote cluster. Unscoped: pick a fresh safe domain.
+     Focused (e.g. `art`, `productivity`): stay inside the focus, but a
+     different corner of it. Forced quote: stay on attributed quotes in
+     that topic (or any safe domain if bare `quote`), but different
+     speakers/lines — not near-duplicates of what was just offered.
+  3. Build a new candidate set (10-attempt cap still applies per build).
+  4. Present the picker again. Unlimited refreshes; no image cost.
+  Discard the previous set — do not mix old keepers into the new offer.
 - **Auto-pick path** (see above): compare the keepers; lock the best; then
   continue at procedure steps 7–8. No question UI.
 
