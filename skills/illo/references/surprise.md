@@ -161,7 +161,7 @@ demote from model memory alone.
   - **0 keepers** → abort cleanly; say so; do not render; do not invent.
   - **1–2 keepers** → that smaller set **is** the candidate set for this
     run (the only exception to “always three”). Interactive: offer those
-    keepers plus **“Three new ones”** (fresh search under the same cap).
+    keepers plus **“Three new ones”** (full refresh — see picker below).
     Auto-pick: lock the best of the keepers, then continue steps 7–8.
   - **Never** invent or pad to force a count of three.
 - **`topical_hook`:** after at most **10** candidate attempts still short of
@@ -350,6 +350,41 @@ paraphrases), the safety filter, **and** have a named physical move available
 (plus a verified citation whenever a name is attached). Never "tone down" a
 banned topic into the picture.
 
+### Parallel candidate verification (optional)
+
+When provenance is **`attributed_quote`** or **`topical_hook`** and the host
+can run subagents / parallel workers, **may** fan out verification. Parallel
+is only an acceleration of the same keeper rules and search budget as the
+serial path — not a shorter checklist.
+
+- The **main agent** still owns scope parse, preflight, character,
+  provenance roll, assembling keepers, the picker / auto-pick, register,
+  thesis, image generate, QA, and delivery.
+- Spawn workers in **waves of up to three** (one candidate line or hook
+  each). Each worker runs the **full** keeper gate, same as serial:
+  fetch → multi-source verify (or event confirm) → saying bar → sense bar
+  when the line is a topical paraphrase → safety → physical-move check
+  (can the mascot perform an honest move under some register?) → return
+  keeper (saying + citation) or reject reason. Keep search noise in the
+  workers.
+- **Search budget still applies:** each worker attempt counts toward the
+  **10** candidate attempts for this build. Accumulate keepers across
+  waves. After each wave: if the **total** keepers for this build is
+  already **three** (or more — then keep only the best three), **stop** —
+  do not launch another wave. If total keepers are still under three and
+  budget remains, launch another wave sized to the **shortfall** (need 2
+  more → at most 2 workers) with **fresh** distinct candidates, or finish
+  remaining attempts serially. Demote / forced-quote shortfall / abort
+  rules are unchanged and only fire after the budget is exhausted with
+  fewer than three keepers.
+- On **“Three new ones”**, re-roll provenance/topic on the main agent
+  first; fan out again only if the new mode is sourced (new 10-attempt
+  budget for that build).
+- **`original`** mode: invent on the main agent (cheap enough that fan-out
+  is usually not worth it).
+- If the host has no subagent / parallel support: verify serially on the
+  main agent.
+
 ### Saying candidates + picker
 
 After the candidate set is ready (three, or 1–2 on a forced-quote budget
@@ -360,10 +395,23 @@ miss):
   available interactive question tool (or, in plain chat, ask as a concise
   message and wait). Put **short labels** in the tool options (speaker name,
   a few cue words, or “Option A/B/C”); put the **full saying + citation** in
-  the accompanying message so long lines are not truncated. Unlimited refresh
-  (rebuild a fresh set in the same provenance mode + focus — no image cost;
-  forced quote still respects the 10-attempt cap per build). **Do not** call
+  the accompanying message so long lines are not truncated. **Do not** call
   `generate` until a saying is locked.
+- **“Three new ones” / refresh** — this is a **full re-roll**, not a deeper
+  search in the same pocket. Go back to procedure step 4:
+  1. **Re-pick provenance mode** unless the user's focus **forces**
+     `attributed_quote` (`* quote`). Prefer a *different* mode than the
+     set just shown when the roll allows (avoid showing three more
+     originals after three originals unless the roll lands there again).
+  2. **Change the topic / event / angle** — do not stay on the same subject,
+     news hook, or quote cluster. Unscoped: pick a fresh safe domain.
+     Focused (e.g. `art`, `productivity`): stay inside the focus, but a
+     different corner of it. Forced quote: stay on attributed quotes in
+     that topic (or any safe domain if bare `quote`), but different
+     speakers/lines — not near-duplicates of what was just offered.
+  3. Build a new candidate set (10-attempt cap still applies per build).
+  4. Present the picker again. Unlimited refreshes; no image cost.
+  Discard the previous set — do not mix old keepers into the new offer.
 - **Auto-pick path** (see above): compare the keepers; lock the best; then
   continue at procedure steps 7–8. No question UI.
 
