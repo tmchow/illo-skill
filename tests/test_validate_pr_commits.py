@@ -79,6 +79,34 @@ class PullRequestCommitValidationTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("require at least one", errors[0])
 
+    def test_trusted_generated_release_metadata_is_valid(self):
+        errors = self.validator.validate(
+            [self.commit("chore(main): release 0.31.6")],
+            ["skills/illo/SKILL.md", "version.txt"],
+            trusted_release_pr=True,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_fork_like_release_metadata_without_trusted_mode_is_rejected(self):
+        errors = self.validator.validate(
+            [self.commit("chore(main): release 0.31.6")],
+            ["skills/illo/SKILL.md", "version.txt"],
+        )
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("require at least one", errors[0])
+
+    def test_trusted_generated_release_still_requires_conventional_subject(self):
+        errors = self.validator.validate(
+            [self.commit("release 0.31.6")],
+            ["skills/illo/SKILL.md", "version.txt"],
+            trusted_release_pr=True,
+        )
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("non-conventional", errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()

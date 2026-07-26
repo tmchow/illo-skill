@@ -35,4 +35,10 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: python3 .github/scripts/validate_pr_commits.py --base "$BASE_SHA" --head "$HEAD_SHA"
+          TRUSTED_RELEASE_PR: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'github-actions[bot]' && github.event.pull_request.user.type == 'Bot' && github.event.pull_request.head.ref == 'release-please--branches--main--components--illo' }}
+        run: |
+          args=(--base "$BASE_SHA" --head "$HEAD_SHA")
+          if [[ "$TRUSTED_RELEASE_PR" == "true" ]]; then
+            args+=(--trusted-release-pr)
+          fi
+          python3 .github/scripts/validate_pr_commits.py "${args[@]}"
