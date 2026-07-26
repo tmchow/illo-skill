@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.1](https://github.com/tmchow/illo-skill/compare/v0.32.0...v0.32.1) (2026-07-26)
+
+
+### Bug Fixes
+
+* **illo:** re-roll provenance and topic on surprise refresh ([#54](https://github.com/tmchow/illo-skill/issues/54)) ([3934b3a](https://github.com/tmchow/illo-skill/commit/3934b3a1c14717668d1b775f4a00f57b735f5884))
+
 ## [0.32.0](https://github.com/tmchow/illo-skill/compare/v0.31.6...v0.32.0) (2026-07-26)
 
 
