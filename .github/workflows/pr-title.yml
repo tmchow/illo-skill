@@ -1,4 +1,4 @@
-name: Conventional PR title
+name: Conventional PR metadata
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 permissions: {}
 
 jobs:
-  validate:
+  title:
     runs-on: ubuntu-latest
     steps:
       - name: Validate Conventional Commit title
@@ -20,3 +20,19 @@ jobs:
             echo "Allowed types: feat, fix, perf, revert, docs, style, refactor, test, build, ci, chore."
             exit 1
           fi
+
+  commits:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out pull request history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate Conventional Commit subjects
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .github/scripts/validate_pr_commits.py --base "$BASE_SHA" --head "$HEAD_SHA"

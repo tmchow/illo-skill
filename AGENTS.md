@@ -240,14 +240,18 @@ skill, six manifests, one version:
   directly, and the repo carries the `agent-skills` topic so
   `gh skill search` finds it.
 
-**Every PR title must use Conventional Commit format** because squash merges
-make the PR title the commit that Release Please reads. The
-`.github/workflows/pr-title.yml` check enforces this for all PRs, including
-forks. Allowed types are `feat`, `fix`, `perf`, `revert`, `docs`, `style`,
-`refactor`, `test`, `build`, `ci`, and `chore`. Use
-`feat: add a new print look` or `fix: correct rendering guidance` for
-installed skill changes; use `docs:`, `chore:`, or `ci:` as appropriate for
-repo-only changes that should not trigger a skill release.
+**Every PR title and every non-merge PR commit subject must use Conventional
+Commit format.** PR-title validation preserves useful release metadata when a
+squash merge uses the PR title, but it does not protect merge-commit or rebase
+flows by itself. Under the repository's merge-commit settings, Release Please
+may skip the generated `Merge pull request ...` wrapper and inspect its child
+commits instead. The `.github/workflows/pr-title.yml` checks both surfaces for
+all PRs, including forks. Allowed types are `feat`, `fix`, `perf`, `revert`,
+`docs`, `style`, `refactor`, `test`, `build`, `ci`, and `chore`. If a PR changes
+anything under `skills/illo/**`, at least one non-merge commit must use
+`feat:`, `fix:`, `perf:`, or `revert:` so Release Please sees a release trigger.
+Use `docs:`, `chore:`, or `ci:` as appropriate for repo-only changes that
+should not trigger a skill release.
 
 **Release Please is the release authority.** Ordinary feature/fix PRs should
 not edit version fields. On pushes to `main`,
