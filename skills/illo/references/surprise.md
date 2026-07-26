@@ -350,6 +350,28 @@ paraphrases), the safety filter, **and** have a named physical move available
 (plus a verified citation whenever a name is attached). Never "tone down" a
 banned topic into the picture.
 
+### Parallel candidate verification (optional)
+
+When provenance is **`attributed_quote`** or **`topical_hook`** and the host
+can run subagents / parallel workers, **may** fan out verification:
+
+- The **main agent** still owns scope parse, preflight, character,
+  provenance roll, the picker / auto-pick, register, thesis, image
+  generate, QA, and delivery.
+- Spawn up to **three** workers in parallel — one candidate line or hook
+  each. Each worker: fetch → multi-source verify (or event confirm) →
+  saying bar → safety → return keeper or reject. Keep search noise in the
+  workers; return only the kept saying + citation (or a reject reason).
+- The main agent assembles keepers, applies the search budget / demotion
+  rules, then runs the picker (or auto-pick). On **“Three new ones”**,
+  re-roll provenance/topic on the main agent first; fan out again only if
+  the new mode is sourced.
+- **`original`** mode: invent on the main agent (cheap enough that fan-out
+  is usually not worth it).
+- If the host has no subagent / parallel support: do the same verification
+  serially on the main agent — this section is an acceleration, not a
+  requirement.
+
 ### Saying candidates + picker
 
 After the candidate set is ready (three, or 1–2 on a forced-quote budget
