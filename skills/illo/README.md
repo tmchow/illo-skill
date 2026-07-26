@@ -238,10 +238,10 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
   "surprise me with art quote using bray": rolls provenance (~1/3 verified
   quote / topical hook / original; a `* quote` focus forces a cited quote),
   builds three shareable saying candidates, then lets you pick (or
-  auto-picks the best with `--autopick` / clear intent / no-question hosts),
-  picks a random installed character unless named, and returns one image plus
-  that caption-ready line. Built for casual prompts and scheduled agents
-  alike.
+  auto-picks the best with `--autopick` — preferred for schedulers), picks
+  register from the locked saying and a random installed character unless
+  named, and returns one image plus that caption-ready line. Built for casual
+  prompts and scheduled agents alike.
 - **Mini-comics** — a process, a before→after, a fail→fix told in 2–4 panels
   inside one image. The best shape when a sequence belongs together — and for
   social, where one self-contained image beats a thread.

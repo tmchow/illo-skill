@@ -32,27 +32,35 @@ Surprise mode stays non-interrogative about taste and destination:
   user explicitly asked for options.
 - Always **one** image.
 - Resolve palette via normal Step 4 defaults (no destination interrogation).
-- Still run Step 0 preflight. If `doctor` reports `backend: NEEDS CHOICE`,
-  surface that choice — it is a hard blocker, not a taste question.
 
 **Exception — saying picker:** in interactive sessions, present three saying
 candidates and wait for a choice (or refresh) before any render — unless
-the run is on the **auto-pick path** (below). Auto-pick / no-question hosts
-still **must** build three candidates and judge the best; they only skip
-the question UI.
+the run is on the **auto-pick path** (below). Auto-pick hosts still **must**
+build three candidates and judge the best; they only skip the question UI.
+
+Scheduled / timer callers should pass **`--autopick`** so the path is
+unambiguous. Do not rely on guessing whether the host can ask questions —
+prefer the token for automation; use the no-question fallback only when the
+host truly cannot present a choice.
 
 ## Procedure order
 
-Execute in this order — do not invent the saying before register and
-provenance mode are chosen:
+Execute in this order:
 
-1. Parse scopes → resolve **character**; note `--autopick` if present
-2. Pick **register** (below)
-3. Pick **provenance mode** (below)
-4. Build **three** saying candidates for that mode (never a single line)
-5. **Saying picker** (interactive) **or** judge-and-lock the best (auto-pick)
-6. Apply the **safety filter**, then lock the **thesis**
-7. Render via Steps 0 + 3–7 (skip Step 2 — character is already resolved)
+1. Parse scopes → note `--autopick` if present
+2. **Step 0 preflight** (`doctor`) — resolve hard blockers (including
+   `backend: NEEDS CHOICE`) **before** any saying work or picker. Use the
+   installed-character list from this check for character resolution below.
+3. Resolve **character** (below)
+4. Pick **provenance mode** (below)
+5. Build **three** saying candidates for that mode (never a single line) —
+   each already cleared the **safety filter**, saying bar, and (when
+   applicable) sense bar / verification gate
+6. **Saying picker** (interactive) **or** judge-and-lock the best (auto-pick)
+7. Pick **register** shaped to the **locked** saying (below) — for
+   `attributed_quote`, never rewrite the quote to fit a register
+8. Lock the **thesis**, then render via Steps 3–7 (skip Step 0 — already
+   done; skip Step 2 — character is already resolved)
 
 ## Parse scopes
 
@@ -73,7 +81,9 @@ Strip the trigger words, then split what remains into **character**,
    domain.
    - If the focus **ends with** `quote` (`art quote`, `design quote`, …):
      that **forces** provenance mode `attributed_quote`; the words before
-     `quote` are the topic narrower (`art`, `design`, …).
+     `quote` are the topic narrower (`art`, `design`, …). If there are no
+     words before `quote` (focus is just `quote`), treat the topic as **any
+     safe domain**.
 
 ### Character when unnamed
 
@@ -88,60 +98,35 @@ the chosen pack in the delivery text.
 Skip the interactive saying picker — but **still build three candidates and
 lock the strongest** — when **any** of these hold:
 
-1. **`--autopick`** appeared in the prompt (sole token match).
+1. **`--autopick`** appeared in the prompt (sole token match). Prefer this
+   for scheduled / timer prompts.
 2. **Intent reasoning** — in an interactive session, the whole prompt
    clearly asks you to choose / not ask / proceed without options. Reason
    over intent; do **not** use a phrase checklist. Ambiguous → keep the
    picker.
-3. **No interactive question capability** — scheduled/timer host genuinely
-   cannot ask → auto-pick without requiring `--autopick`.
+3. **No interactive question capability** — the host genuinely cannot
+   present a choice → auto-pick without requiring `--autopick`. Treat this
+   as a last resort; automation should still send `--autopick`.
 
 On this path: score the three against the saying bar, the sense bar (when
-applicable), drawability for the chosen register, and the share test; lock
-the strongest; then generate. Brief internal judgment (which won and why)
-before render. Do **not** invent a fourth line instead of comparing the
-three. Still report the chosen saying in delivery.
+applicable), drawability, and the share test; lock the strongest; then
+continue. Brief internal judgment (which won and why) before render. Do
+**not** invent a fourth line instead of comparing the three. Still report
+the chosen saying in delivery.
 
 Example scheduled prompt: `surprise me with art quote --autopick using bray`
 
-## Register variety (pick before provenance and the saying)
-
-Surprise runs must **not** collapse into the same picture shape every time
-(one mascot + one prop + a big title). Pick the **register first**, then
-shape provenance candidates and the thesis to earn it — do not invent a
-single-beat claim and then default to editorial every run.
-
-Choose among these with deliberate variety across runs (and within a
-scheduled series). A simple rotation works: editorial → mini-comic →
-explainer → editorial… unless the user's focus forces a shape (e.g. "as a
-comic", "show the flow"):
-
-- **Editorial** — one caught scene. Still the most common, but not automatic.
-- **Mini-comic** — 2–4 panels in one image when the saying is a short
-  progression (stuck → try → land; closed → open → light). Shape candidates
-  so they *have* beats — do not demote a progression into a single
-  freeze-frame. Panel lettering follows the house mini-comic rules below
-  (not silence).
-- **Explainer** — a hand-built flow / fan-out / timeline / loop / stack when
-  the saying teaches a structure (how care compounds, how a craft works, how
-  an archive becomes a discovery). Shape candidates so the structure *is*
-  the point — then follow `references/composition.md`, "The explainer
-  register", including short station callouts.
-- **Never cutout** — cutouts carry no idea.
-
-If the chosen register and a candidate saying fight each other, rewrite the
-candidate or pick a different register — do not silently fall back to
-editorial+title.
-
 ## Provenance variety (pick before building candidates)
 
-Surprise runs must **not** always invent originals. After register, pick a
-**provenance mode**, then build three candidates for that mode only.
+Surprise runs must **not** always invent originals. Pick a **provenance
+mode** before building candidates, then build three for that mode only.
 
 Modes:
 
 - **`attributed_quote`** — a real line from a real person / work; cite only
-  after the verification gate. Delivery form: `"{saying}" — Name`.
+  after the verification gate. Delivery form: `"{saying}" — Name`. Short
+  stubs still fail the saying bar — prefer lines with real impact, not
+  two-to-four-word catchphrases.
 - **`topical_hook`** — not a verbatim quote; grounded in a real event,
   discovery, or named practice. Credit with `Inspired by …` / `After …`.
 - **`original`** — invented for this run; sense bar required; **no** citation.
@@ -149,23 +134,70 @@ Modes:
 **How to pick the mode:**
 
 1. Focus ends with `quote` → **force** `attributed_quote` (topic = words
-   before `quote`). Inventing an uncited “quote-shaped” original is
-   **forbidden** on this path.
+   before `quote`, or any safe domain if bare `quote`). Inventing an
+   uncited “quote-shaped” original is **forbidden** on this path.
 2. Otherwise (unscoped or a non-quote focus such as `productivity`,
    `space`): **roll uniformly** among the three modes (~1 in 3 cited
    quotes). A simple rotation across scheduled runs also works. Constrain
    candidates to the focus domain when one is present.
 
-When a **rolled** `attributed_quote` cannot land three verified candidates
-after reasonable search, **demote that run to `original`** and build three
-sense-bar originals instead. When mode was **forced** by a `* quote` focus,
-do **not** demote — keep searching / widen slightly within the topic until
-three verified options exist.
+### Search budget and demotion
+
+When building candidates for a sourced mode, **attempt real fetch and
+verification** (web search / primary sources) before giving up — do not
+demote from model memory alone.
+
+- **Rolled `attributed_quote`:** after at most **10** candidate attempts
+  (fetch → verify → saying bar → safety) still short of three keepers,
+  **demote that run to `original`** and build three sense-bar originals
+  instead.
+- **Forced `* quote` focus:** do **not** demote to invent. Cap at **10**
+  candidate attempts; widen slightly within the topic as needed. If fewer
+  than three verified keepers land, stop and report the failure (offer
+  whatever verified keepers you have, or abort cleanly) — **never** invent
+  an uncited stand-in.
+- **`topical_hook`:** after at most **10** candidate attempts still short of
+  three safe credited hooks, **demote that run to `original`** and build
+  three sense-bar originals instead.
+
+## Register variety (pick after the saying is locked)
+
+Surprise runs must **not** collapse into the same picture shape every time
+(one mascot + one prop + a big title). Pick the **register after** the
+saying is locked, shaped so the locked line earns it — do not invent a
+single-beat claim and then default to editorial every run.
+
+Choose among these with deliberate variety across runs (and within a
+scheduled series). A simple rotation works: editorial → mini-comic →
+explainer → editorial… unless the user's focus forces a shape (e.g. "as a
+comic", "show the flow") or the locked saying clearly demands one shape:
+
+- **Editorial** — one caught scene. Still the most common, but not automatic.
+- **Mini-comic** — 2–4 panels in one image when the saying is a short
+  progression (stuck → try → land; closed → open → light). For originals /
+  topical hooks, shape the saying so it *has* beats when this register
+  wins. Panel lettering follows the house mini-comic rules below (not
+  silence).
+- **Explainer** — a hand-built flow / fan-out / timeline / loop / stack when
+  the saying teaches a structure. For originals / topical hooks, shape the
+  saying so the structure *is* the point — then follow
+  `references/composition.md`, "The explainer register", including short
+  station callouts.
+- **Never cutout** — cutouts carry no idea.
+
+**Register vs saying fights:**
+
+- **`original` / `topical_hook`:** rewrite the saying **or** pick a different
+  register — do not silently fall back to editorial+title.
+- **`attributed_quote`:** the verified wording is frozen — **never** rewrite,
+  “improve,” or compress the quote to fit a register. Change the register
+  (or the staging/thesis) instead; if no register fits honestly, drop that
+  candidate before offer/auto-pick and find another verified line.
 
 ## Seed discovery — three layers
 
-There is **no** canned topic bank. With register and provenance mode
-already chosen, build three related pieces, then render:
+There is **no** canned topic bank. With provenance mode chosen and three
+candidates ready (then one locked), build:
 
 | Layer | Role | Lives where |
 |---|---|---|
@@ -192,9 +224,11 @@ sentences, or one dense sentence with a turn — that is at least one of:
 - **interesting** — a vivid observation, gentle wit, or wonder (topical
   science and craft count)
 
-Hard reject as a saying (these may still be *titles*):
+Hard reject as a saying (these may still be *titles*) — **including
+attributed quotes**:
 
-- Two-to-four-word stubs: "The spike settles", "Roll again", "First light"
+- Two-to-four-word stubs: "The spike settles", "Roll again", "First light",
+  "Stay hungry"
 - Jargon shorthand with no human stake: "check once", "steep", "provision"
 - Vague mood without a claim: "be kind", "keep going", "stay curious"
 
@@ -208,9 +242,10 @@ Thin → rich (shape only — invent fresh lines every run; do not reuse these):
   to steep."
 
 Famous / recalled quotes work when provenance mode is `attributed_quote`
-and they clear the saying bar **and** the verification gate. Originals only
-when mode is `original` (or after a rolled quote mode demotes). Never imply
-a line is a famous quote when it is not.
+and they clear the saying bar **and** the verification gate. Short catchphrases
+are not rescued by fame. Originals only when mode is `original` (or after a
+rolled sourced mode demotes). Never imply a line is a famous quote when it
+is not.
 
 ### Sense bar (critical evaluation — especially originals)
 
@@ -260,9 +295,9 @@ enough. Mode selects which path to build candidates on:
    - The wording must match closely enough to be honest — do not "improve"
      a quote and keep the name.
    - If sources disagree, the trail is murky, or only viral lists agree:
-     **do not attribute** that candidate — drop it and find another
-     verifiable line (forced quote focus) or, when mode was only rolled,
-     demote the run to `original` after reasonable search fails.
+     **do not attribute** that candidate — drop it and count it against the
+     search budget; find another verifiable line (forced quote focus) or
+     demote per **Search budget and demotion** when mode was only rolled.
 2. **`topical_hook`** — not a verbatim quote; grounded in a real event,
    discovery, or named practice. Delivery: the saying, then
    `Inspired by …` / `After …`. Confirm the event against a reputable
@@ -278,52 +313,52 @@ a classic.
 
 ### How to build three saying candidates
 
-Always produce **three distinct** candidates for the **provenance mode and
-register already chosen**. Never short-circuit to a single line and render.
-
-Shape every candidate for the register (beats for mini-comic, structure for
-explainer, single stake for editorial):
+Always produce **three distinct** candidates for the **provenance mode**
+already chosen. Never short-circuit to a single line and render. Apply the
+**safety filter** to every candidate **before** it is offered or
+auto-picked — the user must never choose a line that then fails safety.
 
 1. Prefer a **fresh, drawable moment** with a human stake that fits the mode.
 2. **`attributed_quote`:** fetch/recall candidates in the topic (or any safe
-   domain if unscoped); each must pass the multi-source verification gate
-   and the saying bar before it is offered or auto-picked. Illustrate the
-   *idea*, not a wall of text on the canvas. Forced `* quote` focus: invent
-   is forbidden — keep searching until three verified lines exist.
-3. **`topical_hook`:** may fetch (web search, news, pop culture) for three
-   distinct safe hooks; compress each into a saying that teaches or wonders
-   (not a headline stub); sense bar on paraphrases; credit only when the
-   provenance gate passes.
+   domain if unscoped / bare `quote`); each must pass the multi-source
+   verification gate, the saying bar, and safety before it is offered or
+   auto-picked. Illustrate the *idea*, not a wall of text on the canvas.
+   Respect the **search budget** above. Wording stays frozen once verified.
+3. **`topical_hook`:** may fetch (web search, news, pop culture) for distinct
+   safe hooks; compress each into a saying that teaches or wonders (not a
+   headline stub); sense bar on paraphrases; credit only when the
+   provenance gate passes. Respect the **search budget** above.
 4. **`original`:** invent three distinct sense-bar originals; no citation;
    no half-remembered classics smuggled in.
 5. Reject any candidate that cannot become a **physical move the mascot
-   performs** (`references/composition.md`, "Turn the idea into a move") in
-   the chosen register. Abstract vibes without a move → invent a concrete
-   staging, then rewrite the candidate so it still names the stake.
+   performs** (`references/composition.md`, "Turn the idea into a move")
+   under some honest register. For quotes, drop the candidate rather than
+   rewriting the line.
 
 Each of the three must clear the saying bar, the sense bar (for originals /
-paraphrases), the safety filter, **and** have a named physical move that
-fits the chosen register (plus a verified citation whenever a name is
-attached). Never "tone down" a banned topic into the picture.
+paraphrases), the safety filter, **and** have a named physical move available
+(plus a verified citation whenever a name is attached). Never "tone down" a
+banned topic into the picture.
 
 ### Saying candidates + picker
 
 After the three candidates are ready:
 
-- **Interactive (default)** when the host can ask: present all three plus
-  **“Three new ones”** using the platform's blocking-question capability
-  (`AskUserQuestion` in Claude Code, the equivalent elsewhere; plain chat =
-  ask as a concise message and wait). Show citations on quote options.
-  Unlimited refresh (rebuild three fresh candidates in the same provenance
-  mode + focus — no image cost). **Do not** call `generate` until a saying
-  is locked.
+- **Interactive (default)** when the host can ask and the run is not on the
+  auto-pick path: present all three plus **“Three new ones”** using the
+  available interactive question tool (or, in plain chat, ask as a concise
+  message and wait). Put **short labels** in the tool options (speaker name,
+  a few cue words, or “Option A/B/C”); put the **full saying + citation** in
+  the accompanying message so long lines are not truncated. Unlimited refresh
+  (rebuild three fresh candidates in the same provenance mode + focus — no
+  image cost). **Do not** call `generate` until a saying is locked.
 - **Auto-pick path** (see above): compare the three; lock the best; then
   continue. No question UI.
 
 ## Safety filter
 
-Apply **before** locking the thesis (and reject unsafe candidates before
-offering them).
+Apply to **every candidate before** it is offered or auto-picked (and again
+as a final check before thesis lock if anything changed).
 
 **Allow:** warmth, quiet joy, curiosity, craft / making, gentle absurdity,
 playful point-of-view disagreement that stays kind, celebration of safe
@@ -339,8 +374,8 @@ achievements, nature, learning, collaboration.
 
 **Borderline current events:** keep only the **celebratory or wondrous**
 face (the launch succeeded; the discovery landed) — never the controversy
-around it. If unsure whether a seed is safe, invent something else (or, on
-a forced quote path, pick a different verified line).
+around it. If unsure whether a seed is safe, drop that candidate (or, on a
+forced quote path, pick a different verified line within the search budget).
 
 ## Thesis lock
 
@@ -353,6 +388,9 @@ The thesis is the *move* (or panel beats / structure type) compressed from
 the saying — not a shorter substitute for the saying. Example: saying = a
 rough-patch paragraph; mini-comic thesis = "panel 1 bolt wild → panel 2
 mascot steadies it → panel 3 bolt small and calm."
+
+For attributed quotes, the thesis/staging carries the picture; the quote
+text in delivery stays verbatim.
 
 ## On-image text — no poster title; comics still letter
 
@@ -377,10 +415,10 @@ lettering.
   requires (`composition.md`); still no poster title above the diagram.
 - Never hand-letter the full saying onto the image.
 
-Then continue with Steps 0 + 3–7 as a **single** image (character already
-resolved above — skip Step 2 so `defaultCharacter` cannot override).
-Explainer and mini-comic rows still follow those registers' shot-list /
-structure rules.
+Then continue with Steps 3–7 as a **single** image (preflight and character
+already resolved above — skip Steps 0 and 2 so `defaultCharacter` cannot
+override). Explainer and mini-comic rows still follow those registers'
+shot-list / structure rules.
 
 ## Delivery
 
