@@ -240,6 +240,15 @@ skill, six manifests, one version:
   directly, and the repo carries the `agent-skills` topic so
   `gh skill search` finds it.
 
+**Every PR title must use Conventional Commit format** because squash merges
+make the PR title the commit that Release Please reads. The
+`.github/workflows/pr-title.yml` check enforces this for all PRs, including
+forks. Allowed types are `feat`, `fix`, `perf`, `revert`, `docs`, `style`,
+`refactor`, `test`, `build`, `ci`, and `chore`. Use
+`feat: add a new print look` or `fix: correct rendering guidance` for
+installed skill changes; use `docs:`, `chore:`, or `ci:` as appropriate for
+repo-only changes that should not trigger a skill release.
+
 **Release Please is the release authority.** Ordinary feature/fix PRs should
 not edit version fields. On pushes to `main`,
 `.github/workflows/release-please.yml` maintains a release PR that bumps
