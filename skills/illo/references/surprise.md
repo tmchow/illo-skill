@@ -33,10 +33,11 @@ Surprise mode stays non-interrogative about taste and destination:
 - Always **one** image.
 - Resolve palette via normal Step 4 defaults (no destination interrogation).
 
-**Exception — saying picker:** in interactive sessions, present three saying
+**Exception — saying picker:** in interactive sessions, present the saying
 candidates and wait for a choice (or refresh) before any render — unless
 the run is on the **auto-pick path** (below). Auto-pick hosts still **must**
-build three candidates and judge the best; they only skip the question UI.
+build the candidate set and judge the best, then continue through register
+and thesis; they only skip the question UI.
 
 Scheduled / timer callers should pass **`--autopick`** so the path is
 unambiguous. Do not rely on guessing whether the host can ask questions —
@@ -53,14 +54,16 @@ Execute in this order:
    installed-character list from this check for character resolution below.
 3. Resolve **character** (below)
 4. Pick **provenance mode** (below)
-5. Build **three** saying candidates for that mode (never a single line) —
-   each already cleared the **safety filter**, saying bar, and (when
-   applicable) sense bar / verification gate
+5. Build saying candidates for that mode — **three** by default; each already
+   cleared the **safety filter**, saying bar, and (when applicable) sense
+   bar / verification gate. Fewer than three is allowed **only** on a
+   forced `* quote` budget miss (see **Search budget and demotion**).
 6. **Saying picker** (interactive) **or** judge-and-lock the best (auto-pick)
 7. Pick **register** shaped to the **locked** saying (below) — for
    `attributed_quote`, never rewrite the quote to fit a register
 8. Lock the **thesis**, then render via Steps 3–7 (skip Step 0 — already
-   done; skip Step 2 — character is already resolved)
+   done; skip Step 2 — character is already resolved). Auto-pick does **not**
+   skip steps 7–8.
 
 ## Parse scopes
 
@@ -93,10 +96,10 @@ character list, then **add shipped `blot`** if it is not already present.
 Pick **uniformly at random** (e.g. a one-liner over the name list). Name
 the chosen pack in the delivery text.
 
-### Auto-pick path (three → best, no question UI)
+### Auto-pick path (candidates → best, no question UI)
 
-Skip the interactive saying picker — but **still build three candidates and
-lock the strongest** — when **any** of these hold:
+Skip the interactive saying picker — but **still build the candidate set
+and lock the strongest** — when **any** of these hold:
 
 1. **`--autopick`** appeared in the prompt (sole token match). Prefer this
    for scheduled / timer prompts.
@@ -108,11 +111,12 @@ lock the strongest** — when **any** of these hold:
    present a choice → auto-pick without requiring `--autopick`. Treat this
    as a last resort; automation should still send `--autopick`.
 
-On this path: score the three against the saying bar, the sense bar (when
-applicable), drawability, and the share test; lock the strongest; then
-continue. Brief internal judgment (which won and why) before render. Do
-**not** invent a fourth line instead of comparing the three. Still report
-the chosen saying in delivery.
+On this path: score the keepers (normally three; see forced-quote budget
+miss below) on drawability and the share test — saying bar, sense bar, and
+**safety already cleared at candidate build**. Lock the strongest, then
+**continue the procedure at steps 7–8** (register → thesis → render). Do
+**not** jump straight to `generate`. Do **not** invent an extra line to pad
+the set. Still report the chosen saying in delivery.
 
 Example scheduled prompt: `surprise me with art quote --autopick using bray`
 
@@ -153,9 +157,13 @@ demote from model memory alone.
   instead.
 - **Forced `* quote` focus:** do **not** demote to invent. Cap at **10**
   candidate attempts; widen slightly within the topic as needed. If fewer
-  than three verified keepers land, stop and report the failure (offer
-  whatever verified keepers you have, or abort cleanly) — **never** invent
-  an uncited stand-in.
+  than three verified keepers land after the cap:
+  - **0 keepers** → abort cleanly; say so; do not render; do not invent.
+  - **1–2 keepers** → that smaller set **is** the candidate set for this
+    run (the only exception to “always three”). Interactive: offer those
+    keepers plus **“Three new ones”** (fresh search under the same cap).
+    Auto-pick: lock the best of the keepers, then continue steps 7–8.
+  - **Never** invent or pad to force a count of three.
 - **`topical_hook`:** after at most **10** candidate attempts still short of
   three safe credited hooks, **demote that run to `original`** and build
   three sense-bar originals instead.
@@ -311,12 +319,14 @@ enough. Mode selects which path to build candidates on:
 **Never** invent a fake author, misattribute a line, or dress an original as
 a classic.
 
-### How to build three saying candidates
+### How to build saying candidates
 
-Always produce **three distinct** candidates for the **provenance mode**
-already chosen. Never short-circuit to a single line and render. Apply the
-**safety filter** to every candidate **before** it is offered or
-auto-picked — the user must never choose a line that then fails safety.
+Produce **three distinct** candidates for the **provenance mode** already
+chosen — except the forced `* quote` budget-miss case above (1–2 verified
+keepers, or abort on zero). Never invent a line just to hit three, and never
+short-circuit past the picker/auto-pick into render. Apply the **safety
+filter** to every candidate **before** it is offered or auto-picked — the
+user must never choose a line that then fails safety.
 
 1. Prefer a **fresh, drawable moment** with a human stake that fits the mode.
 2. **`attributed_quote`:** fetch/recall candidates in the topic (or any safe
@@ -335,25 +345,27 @@ auto-picked — the user must never choose a line that then fails safety.
    under some honest register. For quotes, drop the candidate rather than
    rewriting the line.
 
-Each of the three must clear the saying bar, the sense bar (for originals /
+Each keeper must clear the saying bar, the sense bar (for originals /
 paraphrases), the safety filter, **and** have a named physical move available
 (plus a verified citation whenever a name is attached). Never "tone down" a
 banned topic into the picture.
 
 ### Saying candidates + picker
 
-After the three candidates are ready:
+After the candidate set is ready (three, or 1–2 on a forced-quote budget
+miss):
 
 - **Interactive (default)** when the host can ask and the run is not on the
-  auto-pick path: present all three plus **“Three new ones”** using the
+  auto-pick path: present every keeper plus **“Three new ones”** using the
   available interactive question tool (or, in plain chat, ask as a concise
   message and wait). Put **short labels** in the tool options (speaker name,
   a few cue words, or “Option A/B/C”); put the **full saying + citation** in
   the accompanying message so long lines are not truncated. Unlimited refresh
-  (rebuild three fresh candidates in the same provenance mode + focus — no
-  image cost). **Do not** call `generate` until a saying is locked.
-- **Auto-pick path** (see above): compare the three; lock the best; then
-  continue. No question UI.
+  (rebuild a fresh set in the same provenance mode + focus — no image cost;
+  forced quote still respects the 10-attempt cap per build). **Do not** call
+  `generate` until a saying is locked.
+- **Auto-pick path** (see above): compare the keepers; lock the best; then
+  continue at procedure steps 7–8. No question UI.
 
 ## Safety filter
 
