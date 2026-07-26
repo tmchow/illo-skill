@@ -368,12 +368,15 @@ serial path — not a shorter checklist.
   keeper (saying + citation) or reject reason. Keep search noise in the
   workers.
 - **Search budget still applies:** each worker attempt counts toward the
-  **10** candidate attempts for this build. If a wave returns fewer than
-  three keepers and budget remains, launch another wave (or finish
-  remaining attempts serially) with **fresh** distinct candidates — do not
-  stop after the first wave of three. Demote / forced-quote shortfall /
-  abort rules are unchanged and only fire after the budget is exhausted (or
-  three keepers land).
+  **10** candidate attempts for this build. Accumulate keepers across
+  waves. After each wave: if the **total** keepers for this build is
+  already **three** (or more — then keep only the best three), **stop** —
+  do not launch another wave. If total keepers are still under three and
+  budget remains, launch another wave sized to the **shortfall** (need 2
+  more → at most 2 workers) with **fresh** distinct candidates, or finish
+  remaining attempts serially. Demote / forced-quote shortfall / abort
+  rules are unchanged and only fire after the budget is exhausted with
+  fewer than three keepers.
 - On **“Three new ones”**, re-roll provenance/topic on the main agent
   first; fan out again only if the new mode is sourced (new 10-attempt
   budget for that build).
