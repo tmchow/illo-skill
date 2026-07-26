@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.31.6](https://github.com/tmchow/illo-skill/compare/v0.31.5...v0.31.6) (2026-07-26)
+
+
+### Bug Fixes
+
+* validate release commit metadata ([4c61975](https://github.com/tmchow/illo-skill/commit/4c61975ef3065a8294e263d04e4018ed0b12d83c))
+* validate release commit metadata ([0d78b0b](https://github.com/tmchow/illo-skill/commit/0d78b0b4d67d7ac6fd1fbdecf328dfbdb54f8048))
+
 ## [0.31.5](https://github.com/tmchow/illo-skill/compare/v0.31.4...v0.31.5) (2026-07-14)
 
 
