@@ -59,7 +59,11 @@ Do **not** add a separate "real alpha channel / OUTPUT FORMAT" block — transpa
 is extracted by illo's `--cutout` script, not from the model on Codex.
 
 Do **not** append a WATERMARK line. Do **not** pass a finished editorial image
-as a style anchor — only the character model sheet as `--ref`.
+as a style anchor — only the character model sheet as `--ref`. The
+anatomy-action feasibility gate (`composition.md`) applies to cutout poses
+too: map any held object or contact fragment to a declared contact surface
+before prompting, and re-pose — an open-hand wave, a body lean, a foot
+brace — instead of inventing grip a pressure-only character doesn't have.
 
 ```text
 A 1:1 square character cutout — transparent compositing asset, NOT an editorial scene.
@@ -100,8 +104,9 @@ Composition (mini-comic, {2–4} panels in ONE image, read left to right, separa
 
 When the shot list declared the **explainer register** (`composition.md`,
 "The explainer register"), replace the Composition and TEXT HIERARCHY lines with the
-two below — CHARACTER, LINE LANGUAGE, STYLE, and PALETTE are unchanged, so
-the structure is drawn in the active look. Resolve the semantic ink hexes
+two below — CHARACTER, INTERACTION GEOMETRY, LINE LANGUAGE, STYLE, and
+PALETTE are unchanged, so the structure is drawn in the active look and the
+mascot's station move keeps its validated contact map. Resolve the semantic ink hexes
 (flow, warning) from `palettes.md` first.
 
 If the artifact job needs a primary announcement/hero read, revisit the

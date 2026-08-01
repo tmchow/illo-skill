@@ -70,7 +70,11 @@ its style's file** — everything else here still applies.
     never a second hand and the working arm must stay visually short.
   - **No fused props** — a tool/object connects through a declared contact
     surface (separated from the torso) or sits in the scene; it is never
-    pressed flat against the body or sprouting from it. Watch the case where
+    pressed flat against the body or sprouting from it. Exception: when the
+    character's interaction model declares **body contact as the operating
+    mechanism** (a body-press, a load resting against the torso or back),
+    judge that contact against the declared surface — deliberate body
+    contact is not fusion. Watch the case where
     the mascot is given more props than it has contact surfaces: the extra
     one tends to fuse to the torso — keep operated props to **one per
     contact surface** and let any others rest in the world.

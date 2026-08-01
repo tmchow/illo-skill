@@ -82,9 +82,12 @@ left foot  -> ground -> below body -> supports weight
 both arms  -> no contact -> low at the sides, outside the machine
 ```
 
-Confirm each active part is a declared contact surface, can plausibly reach
-the contact without changing its locked proportions, and that no object or
-route must cross a protected region or fuse with the body. **Re-stage — a
+The gate applies in **both registers**: an explainer's mascot move — its
+station, jam, sorter, or hauler role — maps its contacts the same way
+before the structure locks. Confirm each active part is a declared contact
+surface, can plausibly reach the contact without changing its locked
+proportions, and that no object or route must cross a protected region or
+fuse with the body. **Re-stage — a
 different verb, object, orientation, or contact method — instead of
 prompting harder** when the map fails: a required surface the pack doesn't
 declare (undeclared fingers, hands, joints), a contact beyond the reach
@@ -156,7 +159,7 @@ Budget (replaces the Restraint section's editorial numbers for this image):
   never on a colored fill. Stations may be named; don't also caption them.
 - **The mascot is a working part** of the structure — a station, the jam,
   the sorter, the hauler between stops — and passes the same load-bearing
-  test (`character.md`).
+  test (`character.md`) and the anatomy-action feasibility gate (above).
 - Negative space floor stays (≥ ~35%); the structure may spread wider than
   an editorial subject (~40–70% of the frame) but keeps one calm region.
 - The fresh-metaphor rule applies unchanged: reinvent the structure's
