@@ -62,7 +62,8 @@ Do **not** append a WATERMARK line. Do **not** pass a finished editorial image
 as a style anchor — only the character model sheet as `--ref`. The
 anatomy-action feasibility gate (`composition.md`) applies to cutout poses
 too: map any held object or contact fragment to a declared contact surface
-before prompting, and re-pose — an open-hand wave, a body lean, a foot
+before prompting, emit the validated map as the template's INTERACTION
+GEOMETRY block, and re-pose — an open-hand wave, a body lean, a foot
 brace — instead of inventing grip a pressure-only character doesn't have.
 
 ```text
@@ -73,6 +74,11 @@ Composition (cutout — contact continuity): ONLY the mascot{, plus minimal cont
 POSE: {neutral standing / waving / pointing left / sitting on {minimal seat fragment} / hand on table edge / holding {object} / etc.}.
 
 CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. Only the character's own locked parts touch its silhouette; held objects connect only through a declared contact surface (a hand only when the locked design has hands). Preserve the character sheet's limb proportions — stubby limbs stay stubby, never stretched across the frame.
+
+INTERACTION GEOMETRY ({from the validated contact map; omit lines with nothing to say — a plain standing pose may need only the support line}):
+- Active contact: {character part} touches/holds {object or contact fragment} at {location}.
+- Support contact: {feet/base} rest on {surface, or nothing beyond the transparent ground margin}.
+- Inactive parts: {parts} stay {specific position} and touch nothing; protected regions keep only their locked marks.
 
 LINE LANGUAGE: draw the mascot and any contact objects in ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line), not thin scratchy sketch lines.
 
