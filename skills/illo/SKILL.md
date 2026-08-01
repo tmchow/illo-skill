@@ -13,7 +13,7 @@ description: >-
   the skill is directly invoked or "illo" is requested; never on generic
   illustrate / draw / make-an-image requests.
 # x-release-please-start-version
-version: 0.32.1
+version: 0.33.0
 # x-release-please-end
 argument-hint: "[idea or article URL] | build a character | install <character> | surprise me [focus] [--autopick] [using character]"
 author: Trevin Chow

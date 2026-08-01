@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.0](https://github.com/tmchow/illo-skill/compare/v0.32.1...v0.33.0) (2026-08-01)
+
+
+### Features
+
+* **illo:** add interaction models and an anatomy-action feasibility gate ([#56](https://github.com/tmchow/illo-skill/issues/56)) ([2ed420a](https://github.com/tmchow/illo-skill/commit/2ed420a3094179078daf48e27ffb743b42c0895b))
+
 ## [0.32.1](https://github.com/tmchow/illo-skill/compare/v0.32.0...v0.32.1) (2026-07-26)
 
 
