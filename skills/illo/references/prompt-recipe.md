@@ -22,7 +22,14 @@ A {aspect, e.g. 16:9 horizontal} editorial illustration that explains ONE idea: 
 
 Composition ({staging from composition.md}): {the scene — where the mascot is, the move it performs, the one or two built objects, how things flow}. Generous negative space (keep ~35%+ of the canvas empty); the subject is large and confident, ~50–70% of the frame. {If using a primary title: reserve a clear title field in the calm paper area before placing the subject; keep a generous gutter between the title field, mascot, props, and labels.}
 
-CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. The mascot is a solid OPAQUE shape in front of the scene — no ground line, table edge, horizon, or prop passes through its body; background lines stop at its silhouette. Its limbs join the body cleanly at sensible points, exactly the count its design specifies (no extra, floating, or mid-body arms/legs). Only the mascot's own parts touch its outline: any tool is HELD in a hand and clearly separated from the torso, or rests in the scene — never pressed flat against the body or sprouting from it. Hold at most one prop per hand; any extra object sits on the table or ground. Preserve the character sheet's limb proportions: a stubby arm stays stubby and nearby, never stretched into a long bar/cable/lever or across the whole scene; handles, horns, tails, ears, or accent carriers are not extra hands unless the character pack explicitly says so.
+CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. The mascot is a solid OPAQUE shape in front of the scene — no ground line, table edge, horizon, or prop passes through its body; background lines stop at its silhouette. Its limbs join the body cleanly at sensible points, exactly the count its design specifies (no extra, floating, or mid-body arms/legs). Only the mascot's own parts touch its outline: any operated object connects only through a contact surface the character's design declares — a hand only when hands are part of the locked design, otherwise the named limb tip, paw, hoof, foot, wheel, tail, handle, or body edge — kept visually distinct from the torso unless body contact is the declared mechanism, or the object rests in the scene; never pressed flat against the body or sprouting from it. Use at most one operated prop per declared contact surface; any extra object sits on the table or ground. Preserve the character sheet's limb proportions: a stubby arm stays stubby and nearby, never stretched into a long bar/cable/lever or across the whole scene; handles, horns, tails, ears, or accent carriers are not extra hands unless the character pack explicitly says so.
+
+INTERACTION GEOMETRY ({from the contact map validated by composition.md's feasibility gate}):
+- Active contact: {character part} touches {object part} at {location} to produce {motion}.
+- Support contact: {character part or base} rests on {surface}.
+- Inactive parts: {parts} stay {specific position, e.g. low at the sides} and touch nothing.
+- Protected regions: only {the locked face marks} appear inside {region}; every scene, prop, and limb stroke stays outside it.
+- Occlusion: {object or route} stops at the mascot silhouette and resumes only beyond it.
 
 LINE LANGUAGE: draw EVERYTHING — mascot, objects, arrows — in ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line), not thin scratchy sketch lines.
 
@@ -61,7 +68,7 @@ Composition (cutout — contact continuity): ONLY the mascot{, plus minimal cont
 
 POSE: {neutral standing / waving / pointing left / sitting on {minimal seat fragment} / hand on table edge / holding {object} / etc.}.
 
-CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. Only the character's own locked parts touch its silhouette; held objects connect through the hand. Preserve the character sheet's limb proportions — stubby limbs stay stubby, never stretched across the frame.
+CHARACTER (locked, keep exactly on the reference model): {the active character's prompt spec, with its value rule resolved for this palette}. Only the character's own locked parts touch its silhouette; held objects connect only through a declared contact surface (a hand only when the locked design has hands). Preserve the character sheet's limb proportions — stubby limbs stay stubby, never stretched across the frame.
 
 LINE LANGUAGE: draw the mascot and any contact objects in ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line), not thin scratchy sketch lines.
 
@@ -120,6 +127,10 @@ CALLOUTS: exactly {3–6} short hand-lettered English callouts — {"…", "…"
 ## Notes that keep it on-style
 
 - One idea, one structure. Never combine images.
+- INTERACTION GEOMETRY stays positive and concise — concrete spatial
+  ownership in those five lines, never expanded into a list of synonymous
+  negatives. If the geometry can't be stated cleanly, the move failed the
+  feasibility gate — re-stage it (`composition.md`).
 - Reference conditioning beats the PALETTE line for the character's accent
   part: when the resolved accent differs from the hue on the pack's model
   sheet, say so inside the CHARACTER block — "the {accent part} uses THIS

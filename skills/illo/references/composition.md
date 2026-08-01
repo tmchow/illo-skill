@@ -63,6 +63,41 @@ Then put **the mascot in the move** — wedged in it, cranking it, plugging it,
 hauling across it — never posed politely beside it (see the load-bearing test
 in `character.md`).
 
+## Anatomy-action feasibility gate
+
+Before locking the move, map every required contact to a part the active
+character actually has — its interaction model (`character.md`). Write the
+map as one line per contact:
+
+```text
+character part -> object part -> contact location -> resulting motion
+```
+
+including a support line (what bears the weight) and where every inactive
+limb rests. Example — the move "drive the press":
+
+```text
+right foot -> pedal  -> below body -> drives the press
+left foot  -> ground -> below body -> supports weight
+both arms  -> no contact -> low at the sides, outside the machine
+```
+
+Confirm each active part is a declared contact surface, can plausibly reach
+the contact without changing its locked proportions, and that no object or
+route must cross a protected region or fuse with the body. **Re-stage — a
+different verb, object, orientation, or contact method — instead of
+prompting harder** when the map fails: a required surface the pack doesn't
+declare (undeclared fingers, hands, joints), a contact beyond the reach
+class, more simultaneous contacts than the character has surfaces, a route
+through the face, ambiguous stroke ownership near the face or torso, or a
+move that only works by fusing the object into the body. A load-bearing
+move must be both conceptually necessary and physically drawable by this
+character.
+
+The validated map becomes the prompt's INTERACTION GEOMETRY block
+(`prompt-recipe.md`) and is the standard QA judges topology against
+(`quality-bar.md`).
+
 ## Stagings that tend to land
 
 Reach for whichever fits; these are starting angles, not a taxonomy to label on

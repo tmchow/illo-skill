@@ -54,6 +54,10 @@ push back early:
 - A face beyond the deadpan default must be specified in render-checkable
   terms — exact shapes, not moods. "Smiling warmly" drifts; "a thin flat
   structure-ink mouth" locks.
+- Can it physically perform a move? Walk the interaction-model fields
+  (`character.md`) against one sample action — what touches, what supports,
+  how far it reaches. A character with no workable contact surface can't be
+  load-bearing; fix the design now, not per-image.
 - Does the silhouette stay readable at thumbnail size?
 - Is it distinct from a visual cliché the reader already knows (a generic
   file icon, an emoji, a famous mascot)? Collisions read as borrowed IP.
@@ -81,6 +85,17 @@ Aliases: {subject + synonyms, comma-separated — omit this line if the name alr
   deadpan, no eyebrows, no mouth}.
 - **Accent carrier**: {the one accent part} — the only accent-colored part.
 - {limbs — house default: small stubby arms and legs}.
+
+## Interaction model
+
+- Contact surfaces: {parts that may touch/operate objects, and how — e.g.
+  "rounded arm tips: press and carry only, no grasp"}.
+- Reach: {fixed | stubby | short | normal | long | articulated | body-contact only}.
+- Grip: {none | pressure/contact only | hook | pinch | grasp}.
+- Support/locomotion: {feet | paws | wheels | base | body mass | flight}.
+- Protected regions: {e.g. the face interior — only the locked marks appear there}.
+- Special operators: {a tail, horn, handle, or mouth that may operate
+  objects — omit the line if none}.
 
 ## Prompt spec (drop into the CHARACTER slot)
 

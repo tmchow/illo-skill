@@ -82,6 +82,34 @@ character out of the sketch.** If the picture still explains itself, it was a
 sticker — rebuild the scene so the move can't happen without the character in
 it.
 
+### The interaction model (what the character can physically do)
+
+Every character has an interaction model — the packs that declare one (an
+optional `## Interaction model` section in their spec) state it; for every
+other pack, derive it conservatively from the locked design before planning
+any move. Its fields:
+
+- **Contact surfaces** — which locked parts may touch or operate objects,
+  and how (a rounded arm tip presses and carries; a hand grasps).
+- **Reach** — fixed, stubby, short, normal, long, articulated, or
+  body-contact only. A stubby limb cannot make a cross-torso or
+  far-from-body contact.
+- **Grip** — none, pressure/contact only, hook, pinch, or grasp.
+- **Support / locomotion** — feet, paws, wheels, base, body mass, flight.
+- **Protected regions** — areas scene/prop/limb strokes must never enter
+  (most packs: the face interior).
+- **Special operators** — a tail, horn, handle, antenna, or mouth may
+  operate an object **only when the pack names it as a contact surface**;
+  undeclared parts are non-operational.
+
+Derivation is conservative, never generous: do not infer hands, fingers, or
+joints from a bare "arms" declaration; when capability is ambiguous, prefer
+body-weight, pressing, carrying, leaning, and passive contact over invented
+dexterity. Human anatomy is not the default. This model is what the
+anatomy-action feasibility gate (`composition.md`) validates moves against,
+and what "declared contact surface" means everywhere in the prompt recipe
+and quality bar.
+
 ### Personality
 
 The house default: an earnest, low-key operator doing something slightly
@@ -129,6 +157,17 @@ Cutout chroma: **magenta**
 - **Accent carrier**: the **droplet tip** — the only accent-colored part.
 - Small stubby arms and legs.
 
+### Blot's interaction model
+
+- Contact surfaces: the rounded arm tips (press, push, pat, carry — no
+  fingers, no grasp) and the feet (stand, press a pedal, brace).
+- Reach: stubby — contacts stay close beside or below the body, never
+  across the torso or far from it.
+- Grip: pressure/contact only; Blot hugs or balances a carried object.
+- Support/locomotion: the two stubby legs.
+- Protected regions: the face interior — only the two dot eyes appear there.
+- Special operators: none; the accent tip is not a limb.
+
 ### Blot's value rule
 
 - **Dark/bold palettes**: the body is filled solid with the structure ink (a
@@ -158,9 +197,10 @@ the pack name, and the `doctor` subcommand lists what's installed:
   pack's one look — a bundled or custom style; absent = riso), an optional
   **`Cutout chroma: green|magenta`** line (the pack's cutout screen color —
   absent = magenta; see `references/cutout.md`), an optional `Aliases:` line
-  (subject synonyms for "use ox"-style selection; see Naming above), and
-  (optionally) personality notes. Everything in "Rules for any character"
-  above still applies.
+  (subject synonyms for "use ox"-style selection; see Naming above), an
+  optional **`## Interaction model`** section (fields above — packs without
+  one get the conservative derivation), and (optionally) personality notes.
+  Everything in "Rules for any character" above still applies.
 - `reference.png` — the character's model sheet, passed as `--ref` in place
   of the default's. It is rendered **in the pack's style**, so sheet and
   scenes always match.

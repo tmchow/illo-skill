@@ -51,9 +51,10 @@ its style's file** — everything else here still applies.
   covers every case: **only the character's own locked design parts touch its
   silhouette** — limbs, the accent carrier, locked accessories, nothing else.
   Everything else is
-  either *clearly held in a hand with visible separation from the body* or
-  *resting in the scene* (on the table, the ground). Trace the outline and
-  check the three ways that breaks:
+  either *clearly connected through a declared contact surface
+  (`character.md`, the interaction model) with visible separation from the
+  body* or *resting in the scene* (on the table, the ground). Trace the
+  outline and check the three ways that breaks:
   - **Occlusion / opacity** — nothing from behind passes *through* the body.
     A ground line, horizon, table edge, belt, shelf, or prop must **stop at
     the silhouette**, not cut across the waist/torso. The mascot (and every
@@ -67,11 +68,12 @@ its style's file** — everything else here still applies.
     character sheet: a stubby arm cannot become a long bar, cable, lever, or
     bridge across the scene. For one-arm / handle characters, the handle is
     never a second hand and the working arm must stay visually short.
-  - **No fused props** — a tool/object is held in a hand (separated from the
-    torso) or sits in the scene; it is never pressed flat against the body
-    or sprouting from it. Watch the case where the mascot is given more
-    props than it has hands: the extra one tends to fuse to the torso — keep
-    held props to **one per hand** and let any others rest in the world.
+  - **No fused props** — a tool/object connects through a declared contact
+    surface (separated from the torso) or sits in the scene; it is never
+    pressed flat against the body or sprouting from it. Watch the case where
+    the mascot is given more props than it has contact surfaces: the extra
+    one tends to fuse to the torso — keep operated props to **one per
+    contact surface** and let any others rest in the world.
   - **Line topology / collisions** — trace facial strokes and every route-like
     line (wire, arrow, path, ground line, cable) through contacts near the
     character. A stroke must keep one clear owner and readable endpoints. It is a
@@ -199,11 +201,24 @@ style QA deltas) still applies to the character cluster.
 - A line passes through the mascot's body, a limb roots wrong / is
   doubled/floating, or a prop is fused flat to the torso instead of held →
   re-roll (these resist edits; a fresh render is cleaner). If the re-roll
-  keeps fusing a prop, the scene likely has more tools than hands — drop one
-  or rest it on the table.
+  keeps fusing a prop, the scene likely has more tools than contact
+  surfaces — drop one or rest it on the table.
 - Accent spread across the body/background, or label text on an accent fill → fix.
 - Derived/custom palette colors off-target → eyedrop vs the target hex; re-roll or snap in post.
 - Misspelled labels → prefer an edit; if widespread, re-roll with fewer/shorter labels.
+
+## Topology failure response
+
+Not every structural failure is random drift — distinguish the two before
+spending the next render. When a failed render's contact geometry was itself
+infeasible — a limb stretched past its reach class, undeclared grip anatomy
+(invented fingers/hands), a prop or route crossing the body or face,
+ambiguous stroke ownership near the face or torso — the pose is the problem:
+re-stage immediately through the feasibility gate (`composition.md`) rather
+than re-rolling the same prompt. If one clean re-roll repeats the same
+topology failure, changing the physical move is **mandatory**; appending
+more negative constraints to the same pose is not an acceptable third
+attempt.
 
 ## Iteration moves
 
