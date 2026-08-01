@@ -203,8 +203,10 @@ style QA deltas) still applies to the character cluster.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
 - A line passes through the mascot's body, a limb roots wrong / is
-  doubled/floating, or a prop is fused flat to the torso instead of held →
-  re-roll (these resist edits; a fresh render is cleaner). If the re-roll
+  doubled/floating, or a prop is fused flat to the torso instead of
+  connected through a declared contact surface (declared body contact is
+  not fusion — see the exception above) → re-roll (these resist edits; a
+  fresh render is cleaner). If the re-roll
   keeps fusing a prop, the scene likely has more tools than contact
   surfaces — drop one or rest it on the table.
 - Accent spread across the body/background, or label text on an accent fill → fix.
@@ -216,7 +218,8 @@ style QA deltas) still applies to the character cluster.
 Not every structural failure is random drift — distinguish the two before
 spending the next render. When a failed render's contact geometry was itself
 infeasible — a limb stretched past its reach class, undeclared grip anatomy
-(invented fingers/hands), a prop or route crossing the body or face,
+(invented fingers/hands), a prop or route crossing the body or face
+where the interaction model declares no such contact,
 ambiguous stroke ownership near the face or torso — the pose is the problem:
 re-stage immediately through the feasibility gate (`composition.md`) rather
 than re-rolling the same prompt. If one clean re-roll repeats the same
