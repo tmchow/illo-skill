@@ -173,11 +173,11 @@ Do not load everything at once. Pull the file that matches the step:
 
 - `references/visual-style.md` — riso, the house default look: the risograph technique, line language, paper/ink, hard do/don'ts.
 - `references/styles/<name>.md` — the rest of the look library (`blueprint`, `woodcut`, `pixel`, `clay`, `manila`, `chalk`, `phosphor`, `enamel`, `gouache`, `felt`, `diorama`, `sketchbook`, `bricks`, `fizz`, `bloom`, `snes`), consumed by character packs. Read the active character's style file in full before generating.
-- `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette), the default character **Blot**, and the custom-pack format. Read before any character work.
+- `references/character.md` — the character rules (the load-bearing test, anti-complexity guardrails, value-follows-palette, the **interaction model** — declared per pack or derived conservatively from the locked design and reference sheet), the default character **Blot**, and the custom-pack format. Read before any character work.
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
-- `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the no-recycled-composition rule, and the shot-list format.
+- `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the **anatomy-action feasibility gate** (validate the contact map against the character's interaction model before rendering), the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
 - `references/surprise.md` — surprise / random mode: preflight-first, scope parse, random character, provenance variety + three saying candidates (optional parallel verify for sourced modes), interactive picker or `--autopick` / auto-pick-best, full re-roll on refresh, register after the locked saying, saying bar + sense bar, multi-source quote verification, safety-before-offer, headless contract. Read in full before any surprise/random request.
 - `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
@@ -274,6 +274,25 @@ so there, seed the config from the workspace secret once (the "Cloud & CI"
 one-liner in README.md). On a personal machine an ambient env var proves
 nothing about intent (it may belong to other tools) — the rule stands:
 never copy it.
+
+**Optional pack-freshness offer (preflight, consent-first).** When this run
+will render with an installed community pack (`doctor` lists packs; installs
+carry a `.version` stamp), optionally check freshness:
+`python3 "$SKILL_DIR/scripts/illo.py" packs list` flags stale installs
+(`[installed 1.0.0 — 1.0.2 available]`). The check may run here, but the
+**offer fires once the active pack is known** — after Step 2 resolves the
+character (or after surprise mode's character roll), immediately before
+the first render that uses it. If that resolved pack is stale, offer
+**once** — via the platform's blocking-question capability, as
+in the config migration above — to refresh it before rendering, and run
+`packs update <name>` only on an explicit yes (updating overwrites the
+local copy; the hand-edit warning and `--as` alternative are in
+`references/pack-sharing.md`). Never update silently, and never block on
+this: a "no", an offline host, a registry error, or a headless/scheduler
+run (e.g. surprise `--autopick`) all continue with the pinned copy — a pack
+without a declared `## Interaction model` still plans safely via the
+conservative derivation (`references/character.md`). Skip the check
+entirely when no community-installed pack is involved.
 
 ### 1. Read the input — and clarify a thin concept (briefly)
 
