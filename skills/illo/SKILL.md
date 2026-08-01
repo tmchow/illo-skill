@@ -279,8 +279,11 @@ never copy it.
 will render with an installed community pack (`doctor` lists packs; installs
 carry a `.version` stamp), optionally check freshness:
 `python3 "$SKILL_DIR/scripts/illo.py" packs list` flags stale installs
-(`[installed 1.0.0 — 1.0.2 available]`). If a pack this session will use is
-stale, offer **once** — via the platform's blocking-question capability, as
+(`[installed 1.0.0 — 1.0.2 available]`). The check may run here, but the
+**offer fires once the active pack is known** — after Step 2 resolves the
+character (or after surprise mode's character roll), immediately before
+the first render that uses it. If that resolved pack is stale, offer
+**once** — via the platform's blocking-question capability, as
 in the config migration above — to refresh it before rendering, and run
 `packs update <name>` only on an explicit yes (updating overwrites the
 local copy; the hand-edit warning and `--as` alternative are in

@@ -79,6 +79,7 @@ INTERACTION GEOMETRY ({from the validated contact map; omit lines with nothing t
 - Active contact: {character part} touches/holds {object or contact fragment} at {location}.
 - Support contact: {character part or base} rests on {surface or seat fragment, or nothing beyond the transparent ground margin}.
 - Inactive parts: {parts} stay {specific position} and touch nothing; protected regions keep only their locked marks.
+- Occlusion: {any object or fragment passing behind the body} stops at the mascot silhouette and resumes only beyond it.
 
 LINE LANGUAGE: draw the mascot and any contact objects in ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line), not thin scratchy sketch lines.
 
