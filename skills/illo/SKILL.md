@@ -275,6 +275,22 @@ one-liner in README.md). On a personal machine an ambient env var proves
 nothing about intent (it may belong to other tools) — the rule stands:
 never copy it.
 
+**Optional pack-freshness offer (preflight, consent-first).** When this run
+will render with an installed community pack (`doctor` lists packs; installs
+carry a `.version` stamp), optionally check freshness:
+`python3 "$SKILL_DIR/scripts/illo.py" packs list` flags stale installs
+(`[installed 1.0.0 — 1.0.2 available]`). If a pack this session will use is
+stale, offer **once** — via the platform's blocking-question capability, as
+in the config migration above — to refresh it before rendering, and run
+`packs update <name>` only on an explicit yes (updating overwrites the
+local copy; the hand-edit warning and `--as` alternative are in
+`references/pack-sharing.md`). Never update silently, and never block on
+this: a "no", an offline host, a registry error, or a headless/scheduler
+run (e.g. surprise `--autopick`) all continue with the pinned copy — a pack
+without a declared `## Interaction model` still plans safely via the
+conservative derivation (`references/character.md`). Skip the check
+entirely when no community-installed pack is involved.
+
 ### 1. Read the input — and clarify a thin concept (briefly)
 
 Three kinds of input, handled differently:
