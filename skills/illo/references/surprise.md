@@ -82,8 +82,10 @@ Strip the trigger words, then split what remains into **character**,
    do **not** fall through to `defaultCharacter`). On one clear match, use
    it; on several, pick the closest name match without asking; on none, say
    the name was unknown and fall through to random.
-   Character personality supplies point of view and staging, not a requirement
-   that the saying be about the mascot's job.
+   Character personality supplies point of view and staging, **not the
+   subject**. Hunt the saying first. Unique-to-character is the wrong bar — a
+   good line can be played by more than one pack and should look different in
+   each.
 3. **Focus** — everything else that scopes subject matter: `art quote`,
    `productivity`, `space`, `cooking`, `design`, etc. Unscoped = any safe
    domain.
@@ -99,7 +101,11 @@ Ignore config `defaultCharacter` in this mode (surprise means variety;
 explicit names still win). Build the pool from `doctor`'s installed
 character list, then **add shipped `blot`** if it is not already present.
 Pick **uniformly at random** (e.g. a one-liner over the name list). Name
-the chosen pack in the delivery text.
+the character **once, in plain English**: pack name plus what they are
+("Inch, the chalk inchworm"). Do not assume the user knows the roster. Do not
+status-ping with the name alone ("Inch."), do not say "Still Inch," and do not
+ask "which one should <name> draw?" After that one introduction, just show the
+lines and ask which one.
 
 ### Auto-pick path (candidates → best, no question UI)
 
@@ -173,29 +179,26 @@ demote from model memory alone.
   three safe credited hooks, **demote that run to `original`** and build
   three sense-bar originals instead.
 
-## Register variety (pick after the saying is locked)
+## Register (pick after the saying is locked)
 
-Surprise runs must **not** collapse into the same picture shape every time
-(one mascot + one prop + a big title). Pick the **register after** the
-saying is locked, shaped so the locked line earns it — do not invent a
-single-beat claim and then default to editorial every run.
+Pick the **register the locked line earns**. Do **not** rotate scene / comic /
+diagram for variety. A rotation puts a one-beat epigram in a comic and a
+distinction like "deploy is not release" in a diagram it does not need.
 
-Choose among these with deliberate variety across runs (and within a
-scheduled series). A simple rotation works: editorial → mini-comic →
-explainer → editorial… unless the user's focus forces a shape (e.g. "as a
-comic", "show the flow") or the locked saying clearly demands one shape:
+Honor an explicit user shape ("as a comic", "show the flow"). Otherwise:
 
-- **Editorial** — one caught scene. Still the most common, but not automatic.
-- **Mini-comic** — 2–4 panels in one image when the saying is a short
-  progression (stuck → try → land; closed → open → light). For originals /
-  topical hooks, shape the saying so it *has* beats when this register
-  wins. Panel lettering follows the house mini-comic rules below (not
-  silence).
-- **Explainer** — a hand-built flow / fan-out / timeline / loop / stack when
-  the saying teaches a structure. For originals / topical hooks, shape the
-  saying so the structure *is* the point — then follow
-  `references/composition.md`, "The explainer register", including short
-  station callouts.
+- **Editorial** — the default. One caught scene. Use this unless the saying
+  itself is a short progression or **is** a structure.
+- **Mini-comic** — only when the saying is already a short progression
+  (ask → ignore → already walking; approach → back off). Do not invent beats
+  to justify a comic. For originals / topical hooks, only keep this register
+  if the line already has those beats. Panel lettering follows the house
+  mini-comic rules below (not silence).
+- **Explainer** — only when the saying **is** a structure (a flow, fan-out,
+  timeline, loop, or stack). A distinction or metaphor is not a structure.
+  "One station, one job" and "deploy is not release" are editorial. Then
+  follow `references/composition.md`, "The explainer register", including
+  short station callouts.
 - **Never cutout** — cutouts carry no idea.
 
 **Register vs saying fights:**
@@ -224,38 +227,54 @@ thesis turns that saying into a physical move. Cite only when there is a
 real source — silence means original. The title is never a substitute for
 the saying.
 
-### Saying bar (reject thin stubs and moralizing turns)
+### Saying bar (two keeper shapes)
 
-Ask: *Would this line still earn a pause if the image were covered?* If not,
+Ask: *Would you put this under an image and send it to someone?* If not,
 re-roll that candidate before offering or auto-picking.
 
-A good saying is interesting by default: a vivid observation, gentle wit,
-tension, surprise, wonder, or one compact sentence with a turn. Educational
-works when the insight is specific. Inspirational is hard mode — keep it only
-when it is precise and unsentimental, not advice-padding.
+A keeper is **one of two shapes**. Anything else is a miss, even if it is
+specific, clever, or true.
 
-It can be one sentence, or two short sentences when the second is a punchline
-or revelation. A saying need not advise anyone, solve anything, or change a
-reader's behavior.
+1. **Epigram** — a complete line with a turn, usually about people (vanity,
+   ambition, temptation, hypocrisy). You get it without the picture. Real
+   quotes preferred when they have this shape. Invented lines must sound
+   stealable, not like a caption you made up in the room.
+   - ✓ "People don't really read your books; they only say they do to keep
+     you from feeling bad."
+   - ✓ "I can resist everything except temptation."
+   - ✓ "A boombox is a private object with public ambitions."
+2. **Short metaphor** — a compressed drawable claim. Short is fine, even a
+   few words, **if it names a picture**. Work and shipping metaphors count.
+   Mood slogans do not.
+   - ✓ "Scope creep has a smell."
+   - ✓ "You are the bottleneck."
+   - ✓ "Replatform with zero downtime."
+   - ✓ "Many inputs, one decision."
 
-Hard reject as a saying (these may still be *titles*) — **including
-attributed quotes**:
+Hard reject as a saying — **including attributed quotes**:
 
-- Two-to-four-word stubs: "The spike settles", "Roll again", "First light",
-  "Stay hungry"
-- Jargon shorthand with no human stake: "check once", "steep", "provision"
-- Vague mood without a claim: "be kind", "keep going", "stay curious"
-- **Moralizing turn:** a concrete fact, image, joke, or observation followed
-  by a generalized lesson about life, work, courage, patience, persistence, or
-  similar. Delete the lesson and judge what remains. A last sentence can be a
-  punchline or revelation; reject the moral, not the position of the sentence.
+- Vague mood / advice stubs: "Stay hungry", "be kind", "keep going",
+  "stay curious", "keep showing up"
+- Jargon with no picture: "check once", "steep", "provision"
+- **Moralizing turn:** a fact or joke followed by a lesson about life, work,
+  courage, patience, or persistence. Delete the lesson and judge what remains.
+  A last sentence can be a punchline; reject the moral, not the position.
+- **Inert caption:** a specific object or moment with no turn ("The library
+  stamp is still set to last Tuesday.")
+- **Lecture:** an explanatory sentence that teaches a subject ("there is no
+  more open door into natural philosophy than a candle")
+- **Fact pairing that isn't a saying:** two clever facts with no human turn
+  ("Hubble found the lion. Webb found the whiskers.")
+
+Do **not** reject a short metaphor for being short. "Scope creep has a smell"
+is a keeper. "Keep going" is not.
 
 Thin → rich (shape only — invent fresh lines every run; do not reuse these):
 
-- ✗ "First light." → ✓ "Hubble found the lion. Webb found the whiskers."
-- ✗ "Turn it up." → ✓ "A boombox is a private object with public ambitions."
-- ✗ "Keep going." → ✓ "The sourdough starter has a calendar but no alarm
-  clock."
+- ✗ "Keep going." → ✓ "Scope creep has a smell."
+- ✗ "Stay hungry." → ✓ "You are the bottleneck."
+- ✗ "The stamp is still on Tuesday." → ✓ "A boombox is a private object with
+  public ambitions."
 
 Famous / recalled quotes work when provenance mode is `attributed_quote`
 and they clear the saying bar **and** the verification gate. Short catchphrases
@@ -284,8 +303,8 @@ planning — reject and rewrite on any fail:
 5. **Honest originality** — Do not smuggle a half-remembered famous quote
    as an "original." If it might be someone else's line, verify or rewrite
    until it is clearly yours.
-6. **Share test** — Would you post this under the image without cringing or
-   needing a footnote to explain what you meant? If not, reject.
+6. **Share test** — Would you put this under an image and send it to someone?
+   Not "is it inoffensive" — would you actually send it. If not, reject.
 
 Attributed quotes that already passed verification skip this bar (their
 authors own the claim). Still reject a verified quote that fails the
@@ -337,8 +356,10 @@ short-circuit past the picker/auto-pick into render. Apply the **safety
 filter** to every candidate **before** it is offered or auto-picked — the
 user must never choose a line that then fails safety.
 
-1. Prefer a **fresh, drawable moment** with specificity, tension, wit, or
-   wonder that fits the mode.
+1. Prefer a fresh **epigram** or **short metaphor** in any safe domain —
+   people, work, craft, vanity, a stealable claim. Do **not** start from the
+   mascot's job (watering, volume, stepping) and write three captions about
+   it. Do not offer inert captions, lectures, or fact pairings.
 2. **`attributed_quote`:** fetch/recall candidates in the topic (or any safe
    domain if unscoped / bare `quote`); each must pass the multi-source
    verification gate, the saying bar, and safety before it is offered or
@@ -350,11 +371,14 @@ user must never choose a line that then fails safety.
    credit only when the provenance gate passes. Respect the **search budget**
    above.
 4. **`original`:** invent three distinct sense-bar originals; no citation;
-   no half-remembered classics smuggled in.
-5. Reject any candidate that cannot become a **physical move the mascot
-   performs** (`references/composition.md`, "Turn the idea into a move")
-   under some honest register. For quotes, drop the candidate rather than
-   rewriting the line.
+   no half-remembered classics smuggled in. Use the same hunt as step 1:
+   line first, then staging.
+5. Then ask whether **this body** can perform an honest move
+   (`references/composition.md`, "Turn the idea into a move") under some
+   honest register. If the only picture is the mascot doing its job (the can
+   watering, the box at full volume, the worm taking a step), drop the
+   pairing — staging failed, not the line. For quotes, drop the candidate
+   rather than rewriting the line.
 
 Each keeper must clear the saying bar, the sense bar (for originals /
 paraphrases), the safety filter, **and** have a named physical move available
@@ -388,9 +412,9 @@ serial path — not a shorter checklist.
   remaining attempts serially. Demote / forced-quote shortfall / abort
   rules are unchanged and only fire after the budget is exhausted with
   fewer than three keepers.
-- On **“Three new ones”**, re-roll provenance/topic on the main agent
-  first; fan out again only if the new mode is sourced (new 10-attempt
-  budget for that build).
+- On **“Three new ones”**, re-roll character, then provenance/topic on the
+  main agent first; fan out again only if the new mode is sourced (new
+  10-attempt budget for that build).
 - **`original`** mode: invent on the main agent (cheap enough that fan-out
   is usually not worth it).
 - If the host has no subagent / parallel support: verify serially on the
@@ -409,19 +433,22 @@ miss):
   the accompanying message so long lines are not truncated. **Do not** call
   `generate` until a saying is locked.
 - **“Three new ones” / refresh** — this is a **full re-roll**, not a deeper
-  search in the same pocket. Go back to procedure step 4:
-  1. **Re-pick provenance mode** unless the user's focus **forces**
+  search in the same pocket. Go back to procedure step 3:
+  1. **Re-roll the character** unless the user named one (`using blot`,
+     `as bray`). Prefer a *different* pack than the one just shown.
+     Introduce the new character once in plain English, then show the new
+     lines.
+  2. **Re-pick provenance mode** unless the user's focus **forces**
      `attributed_quote` (`* quote`). Prefer a *different* mode than the
-     set just shown when the roll allows (avoid showing three more
-     originals after three originals unless the roll lands there again).
-  2. **Change the topic / event / angle** — do not stay on the same subject,
+     set just shown when the roll allows.
+  3. **Change the topic / event / angle** — do not stay on the same subject,
      news hook, or quote cluster. Unscoped: pick a fresh safe domain.
      Focused (e.g. `art`, `productivity`): stay inside the focus, but a
      different corner of it. Forced quote: stay on attributed quotes in
      that topic (or any safe domain if bare `quote`), but different
      speakers/lines — not near-duplicates of what was just offered.
-  3. Build a new candidate set (10-attempt cap still applies per build).
-  4. Present the picker again. Unlimited refreshes; no image cost.
+  4. Build a new candidate set (10-attempt cap still applies per build).
+  5. Present the picker again. Unlimited refreshes; no image cost.
   Discard the previous set — do not mix old keepers into the new offer.
 - **Auto-pick path** (see above): compare the keepers; lock the best; then
   continue at procedure steps 7–8. No question UI.

@@ -701,5 +701,9 @@ short; the fewer words baked into an image, the more reliably it renders.
 Talk like a person doing the work, not a recap of this file. Never narrate
 workflow steps or jargon in chat: doctor, preflight, provenance, register,
 saying bar, thesis, backend, or "doctor's green." Status, if any, is ordinary
-speech ("Wick, three quotes"), not a liturgy of steps. The user hears the
-result — character, sayings / image, what was made — not the procedure.
+speech, not a liturgy of steps. When surprise mode picks an unnamed character,
+introduce the character once in plain English — pack name plus what they are
+("Inch, the chalk inchworm") — then show the lines and ask which one. Never
+status-ping with the name alone ("Inch."), say "Still Inch," or ask "which one
+should <name> draw?" The user hears the result — character, sayings / image,
+what was made — not the procedure.
