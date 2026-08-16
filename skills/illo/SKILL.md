@@ -239,12 +239,20 @@ route is only for Grok Bot's own Grok image tool; other agents with unrelated
 image tools must use the engine backends below.
 
 Short path for Grok Bot: run `doctor` for assets/config/packs, use `packs`
-commands normally (including `packs install --all` when the user wants the
-catalog locally), read the same references, build the same prompt, then call
-Grok Bot's built-in Grok image tool with the active character reference. Skip
-`illo.py init` unless the user explicitly wants OpenRouter or an engine backend
-default, and skip `illo.py generate` unless the user explicitly selected an
-engine backend.
+commands normally (including `packs install --all` after install so community
+characters are local), read the same references, build the same prompt, then
+call Grok Bot's built-in Grok image tool with the active character reference.
+Skip `illo.py init` unless the user explicitly wants OpenRouter or an engine
+backend default, and skip `illo.py generate` unless the user explicitly selected
+an engine backend.
+
+After the first successful Grok Bot install and bulk character install, ask
+once whether the user wants periodic checks for skill updates (`npx skills
+update`) and character updates (`packs update`). Default is **off**: if they
+say no, do not answer, or the host has no recurring-job mechanism, set up
+nothing. Only create a recurring check/reminder on an explicit yes, and never
+silently update — surface the proposed skill/character update and get consent
+before applying it.
 
 **Config migration — surface the backend choice interactively.** When you are
 going to use `illo.py generate`, if `doctor` reports `backend: NEEDS CHOICE`

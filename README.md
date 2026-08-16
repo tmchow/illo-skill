@@ -79,11 +79,9 @@ doesn't have a native lane yet.
 Paste this into Grok Bot; it is not a terminal command for you to run yourself.
 
 ```text
-Install the illo skill:
+Install the illo skill and all community characters.
 
 npx skills add tmchow/illo-skill --skill illo -g -y
-
-Optionally install all community characters.
 ```
 
 Every lane installs the same skill; releases are tagged `v<version>` and
