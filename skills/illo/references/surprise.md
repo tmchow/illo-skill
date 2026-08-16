@@ -50,8 +50,11 @@ Execute in this order:
 
 1. Parse scopes → note `--autopick` if present
 2. **Step 0 preflight** (`doctor`) — resolve hard blockers (including
-   `backend: NEEDS CHOICE`) **before** any saying work or picker. Use the
-   installed-character list from this check for character resolution below.
+   `backend: NEEDS CHOICE` when you will use `illo.py generate`) **before** any
+   saying work or picker. On Grok Bot native, first persist
+   `backend: grok-bot` as described in `SKILL.md`, then require `doctor` to pass;
+   still fix asset, pack, palette, or path failures. Use the installed-character
+   list from this check for character resolution below.
 3. Resolve **character** (below)
 4. Pick **provenance mode** (below)
 5. Build saying candidates for that mode — **three** by default; each already

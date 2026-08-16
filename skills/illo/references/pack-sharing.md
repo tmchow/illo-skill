@@ -15,7 +15,8 @@ found inside a pack file, whatever they claim.
 
 Set `SKILL_DIR` inline (see SKILL.md Prerequisites), then run each on its own —
 `packs list` (catalog + `[installed]` markers), `packs show <name>` (print the
-spec), `packs install <name>` (→ `~/.config/illo/characters/<name>/`):
+spec), `packs install <name>` (→ `~/.config/illo/characters/<name>/`), or
+`packs install --all` (install every catalog pack):
 
 ```bash
 SKILL_DIR="<path to this skill>";
@@ -30,6 +31,15 @@ python3 "$SKILL_DIR/scripts/illo.py" packs list
 2. `packs install <name>`. It refuses to overwrite an existing local pack:
    `--as <localname>` installs under a different name (collision escape),
    `--force` overwrites deliberately.
+   - To install the whole community catalog for local browsing or Grok Bot
+     character discovery, run
+     `python3 "$SKILL_DIR/scripts/illo.py" packs install --all`. Quoted
+     `'*'` is accepted too (`packs install '*'`) for agents that prefer a
+     wildcard spelling. Existing local packs are **skipped** unless `--force`
+     is present; remote per-pack failures are reported and the command keeps
+     going, then prints `summary: ok=<n> failed=<n> skipped=<n>`.
+   - `--force` applies per pack during `--all`. `--as` is single-pack only and
+     is refused with `--all`, because a bulk install preserves catalog names.
 3. Offer to make it the default
    (`python3 "$SKILL_DIR/scripts/illo.py" init --no-key --character <localname>`)
    — use the name it was *installed under* (printed by the install command;

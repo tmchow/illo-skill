@@ -10,13 +10,16 @@ pack carries one of ten bundled looks (riso, blueprint, woodcut, pixel, clay,
 manila, chalk, phosphor, enamel, gouache) or a custom style — default
 **Blot** (a deadpan ink-drop), or design your own with the built-in character
 builder. One-metaphor-per-image scenes with named + custom + derived palettes
-and reference-image character consistency. Renders through **three backends**:
-your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your subscription —
-free for subscribers, no API key — when one is installed and logged in, or
-**OpenRouter** (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
-Image 2, …) as a direct pay-per-image backend. Failed subscription renders
-fail closed unless `--allow-paid-fallback` explicitly permits OpenRouter.
-Grok can't make transparent cutouts; those route automatically.
+and reference-image character consistency. Renders through **three engine
+backends**: your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your
+subscription — free for subscribers, no API key — when one is installed and
+logged in, or **OpenRouter** (model-selectable: Grok Imagine, Nano Banana
+2/Pro, GPT-5.4 Image 2, …) as a direct pay-per-image backend. In **Grok Bot**
+(Cursor's Grok Bot / the Grok desktop assistant), the skill uses Grok Bot's
+built-in Grok image tool agent-side instead of requiring the Grok CLI or
+OpenRouter, unless you explicitly choose an engine backend. Failed subscription
+CLI renders fail closed unless `--allow-paid-fallback` explicitly permits
+OpenRouter. Grok can't make transparent cutouts; those route automatically.
 
 Hand it *"we replatform with zero downtime"* and you get the bridge being
 rebuilt under live traffic:
@@ -62,13 +65,24 @@ doesn't have a native lane yet.
 | --- | --- | --- |
 | **Claude Code** | `/plugin marketplace add tmchow/illo-skill` then `/plugin install illo@illo-skill` | `claude plugin update illo`, or enable marketplace auto-update |
 | **Codex** | `codex plugin marketplace add tmchow/illo-skill` then `codex plugin add illo@illo-skill` | `codex plugin marketplace upgrade` |
-| **Grok** | `grok plugin marketplace add tmchow/illo-skill` then `grok plugin install tmchow/illo-skill --trust` | `grok plugin update illo` |
+| **Grok CLI** | `grok plugin marketplace add tmchow/illo-skill` then `grok plugin install tmchow/illo-skill --trust` | `grok plugin update illo` |
+| **Grok Bot** | paste the prompt below into Grok Bot. | paste the prompt again after updates |
 | **Gemini CLI** | `gemini extensions install https://github.com/tmchow/illo-skill` | `gemini extensions update illo` |
 | **Copilot / GitHub CLI** | `gh skill install tmchow/illo-skill illo` (cross-agent via `--agent`) | `gh skill update illo` |
 | **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
 | **OpenClaw** | `openclaw skills install illo` | reinstall with the same command |
 | **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
+
+### Grok Bot
+
+Paste this into Grok Bot; it is not a terminal command for you to run yourself.
+
+```text
+Install the illo skill and all community characters.
+
+npx skills add tmchow/illo-skill --skill illo -g -y
+```
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with

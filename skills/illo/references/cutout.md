@@ -114,17 +114,21 @@ aspect **1:1**. Pass the active character's model sheet as `--ref`. Always pass
 | Backend | Model | Prompt shape | Transparency path |
 |---|---|---|---|
 | **Codex** | gpt-image-2 (automatic) | Chroma `BACKGROUND:` in prompt (engine auto-appends if omitted) | Chroma key via `--cutout` — **no native alpha** from `codex exec` |
-| **Grok** | — | — | **Unsupported** — engine auto-redirects (see below) |
+| **Grok CLI** | — | — | **Unsupported** — engine auto-redirects (see below) |
+| **Grok Bot native** | — | — | **Unsupported** — route to a cutout-capable engine backend |
 | **OpenRouter** | **`openai/gpt-5.4-image-2`** (engine default when `--cutout` and no `--model`) | Chroma `BACKGROUND:` + `--image-config` | Chroma key via `--cutout` |
 | **OpenRouter** (other `--model`) | User override only | Chroma prompt; may fail on JPEG models | Best-effort; read `cutout_alpha` |
 
 Editorial OpenRouter renders keep the global default (`x-ai/grok-imagine-image-quality`).
-**Grok cannot make cutouts** — it returns JPEG with no alpha, and its "solid
-background" renders come back as gradients with the subject drifting toward the
-key color, so chroma-keying fails. A `--cutout` render whose backend resolves to
-`grok` **auto-redirects**: to **Codex** if usable, else **OpenRouter GPT Image
-2** if a key is set; with neither the engine exits naming both fixes. No action
-needed from the caller — the note and the manifest record the backend that ran.
+**Grok cannot make cutouts** — Grok CLI and Grok Bot native return JPEG with no
+alpha, and "solid background" renders come back as gradients with the subject
+drifting toward the key color, so chroma-keying fails. A `--cutout` render whose
+engine backend resolves to `grok` **auto-redirects**: to **Codex** if usable,
+else **OpenRouter GPT Image 2** if a key is set; with neither the engine exits
+naming both fixes. On Grok Bot native, do not call the native image tool for a
+cutout; route to a cutout-capable engine backend or stop for configuration. No
+action needed from the caller for the CLI redirect — the note and the manifest
+record the backend that ran.
 Gemini and other models are unreliable for cutout alpha; prefer **Codex +
 chroma** or **OpenRouter GPT Image 2 + chroma**.
 

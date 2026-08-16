@@ -72,7 +72,7 @@ infographic, not a formal flowchart, not a UI mockup.
 | **X Article banner / hero image** | Use the unique banner format: **1536 × 640 px** when the user asks for an X Article hero/banner. Prompt and render through the normal `illo.py generate` image pipeline, with normal, undistorted character/object proportions and crop-safe breathing room. Do not satisfy this by manually compositing or rebuilding crops from another image unless the user explicitly asks for post-processing. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
-| **Community characters** — "what characters are available", "install blip", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, publish via a GitHub PR. |
+| **Community characters** — "what characters are available", "install blip", "install all characters", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, including `packs install --all`; publish via a GitHub PR. |
 | **A different look** — "in blueprint", "woodcut style", "pixel version of blip" | Styles travel with character packs: build a **style variant pack** via `references/character-builder.md`, "Style variants". |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
@@ -81,8 +81,10 @@ infographic, not a formal flowchart, not a UI mockup.
 ## Prerequisites
 
 The engine (`scripts/illo.py`, stdlib Python, no installs) renders through one
-of **three backends**; `python3` and network access are the only hard
-requirements.
+of **three engine backends**; `python3` and network access are the only hard
+requirements. **Grok Bot** (Cursor's Grok Bot / the Grok desktop assistant) is
+a fourth, agent-side transport: use its built-in Grok image tool directly, not
+`illo.py generate`, when no user config explicitly selects an engine backend.
 
 **Running the engine — set `$SKILL_DIR` inline in each block.** Every engine
 command below is `python3 "$SKILL_DIR/scripts/illo.py" …`. Set `SKILL_DIR` to the
@@ -112,25 +114,33 @@ signal to fix the path, not a skill fault.
   per-image charge (it draws on their Codex quota). No API key, no token: illo
   only shells out to the user's own CLI. Detected, not assumed; gpt-image-2 is
   automatic; unsupported on Windows/WSL.
-- **Grok backend (free for Grok/xAI subscribers).** When the host has a usable
+- **Grok CLI backend (free for Grok/xAI subscribers).** When the host has a usable
   **Grok CLI** — installed and `grok login`-ed — illo can generate through the
   user's Grok subscription via `grok -p` (headless), drawing on their Grok
   quota. Same env-free, token-free subprocess design as Codex. **Grok returns
   JPEG with no alpha, so it cannot make transparent cutouts** — those auto-fall
   back to a cutout-capable backend. The image tool exposes no model selector.
+- **Grok Bot native transport (agent-side, free for Grok Bot users).** When
+  **you are Grok Bot** — specifically Cursor's Grok Bot / the Grok desktop
+  assistant with the built-in Grok image tool — build the illo prompt and call
+  that tool with the active character's model sheet as a reference image. Do
+  not require the Grok CLI, Codex CLI, or an OpenRouter key; do not treat a
+  missing engine backend as a reason to run `init`. This is not a generic
+  "host image API" rule and not an `illo.py --backend` value.
 - **OpenRouter backend (paid, direct or explicit fallback).** Needs an
   **OpenRouter API key** in the user's config file — the **single credential
   channel** — written once by the user-run `init` (mode 600). The engine never
   reads secrets from the environment and never accepts them as command-line
-  arguments. A host without a subscription CLI can select this path directly.
-  A failed Codex/Grok render does **not** spend money automatically: paid
+  arguments. A host without a subscription CLI can select this engine path directly.
+  A failed Codex/Grok CLI render does **not** spend money automatically: paid
   fallback requires `--allow-paid-fallback`. It is **model-selectable**
   (`--model`).
 
-Capsule of the backend model (resolution and precedence, the CLI requirements,
-the built-in image tool being automatic, quota vs. charge, cutout limits,
-Windows/WSL, fallback): **read `references/backends.md` in full before choosing
-or explaining a backend** — the mechanics live there, once.
+Capsule of the backend/transport model (resolution and precedence, the CLI
+requirements, the Grok Bot native path, the built-in image tool being
+automatic, quota vs. charge, cutout limits, Windows/WSL, fallback): **read
+`references/backends.md` in full before choosing or explaining a backend** —
+the mechanics live there, once.
 
 ### Setup is the user's job (never enter the key yourself)
 
@@ -180,7 +190,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/composition.md` — the two registers (editorial scene / explainer diagram) and the explainer's structure types and budget, stagings, turning an idea into a move, the **anatomy-action feasibility gate** (validate the contact map against the character's interaction model before rendering), the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
 - `references/surprise.md` — surprise / random mode: preflight-first, scope parse, random character, provenance variety + three saying candidates (optional parallel verify for sourced modes), interactive picker or `--autopick` / auto-pick-best, full re-roll on refresh, register after the locked saying, saying bar + sense bar, multi-source quote verification, safety-before-offer, headless contract. Read in full before any surprise/random request.
-- `references/backends.md` — the three-backend image engine: how the backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
+- `references/backends.md` — the three-backend image engine plus the Grok Bot native transport: how the engine backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), when Grok Bot bypasses `illo.py generate`, the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
 - `references/models.md` — the model lineup (**OpenRouter backend only**): friendly-name → OpenRouter id map, traits, aspect caveats, 404/fallback handling. Read before passing any `--model`.
 - `references/prompt-recipe.md` — the generation prompt template and the edit/recolor prompts.
 - `references/quality-bar.md` — the post-generation checklist and iteration rules. Read before delivering.
@@ -215,20 +225,59 @@ is ready. An OpenRouter-only install (no subscription CLI) stays exit 0 —
 readiness follows the resolved backend, not a hardwired key check
 (`references/backends.md`).
 
-**Config migration — surface the backend choice interactively.** If `doctor`
-reports `backend: NEEDS CHOICE` (or `generate` hard-stops saying the config "is
-out of date"), this user's config predates the backend choice — they have an
-older install and have never been offered a subscription CLI. Do **not** pick
-for them silently. Surface an **interactive choice** using the platform's
+**Grok Bot native path (agent-side).** If you are **Grok Bot** (Cursor's Grok
+Bot / the Grok desktop assistant with the built-in Grok image tool) and the
+user has not explicitly chosen `backend: openrouter`, `backend: codex`, or
+`backend: grok`, initialize the agent-side transport before relying on
+`doctor`:
+
+```bash
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" init --backend grok-bot --no-key
+```
+
+Then run `doctor` normally: exit 0 is meaningful readiness for this path.
+Missing Codex CLI, Grok CLI, or OpenRouter key are not failures when
+`backend: grok-bot`; corrupted assets, unreadable custom packs, malformed
+palettes, or the wrong `SKILL_DIR` still fail and must be fixed before
+rendering. Generate in Step 5 by calling Grok Bot's built-in Grok image tool
+with the active model sheet reference. This route is only for Grok Bot's own
+Grok image tool; other agents with unrelated image tools must use the engine
+backends below.
+
+Short path for Grok Bot: run `init --backend grok-bot --no-key` once when
+backend is unset/auto, run `doctor` for assets/config/packs, use `packs`
+commands normally (including `packs install --all` after install so community
+characters are local), read the same references, build the same prompt, then
+call Grok Bot's built-in Grok image tool with the active character reference.
+Skip `illo.py init` for OpenRouter unless the user explicitly wants OpenRouter
+or another engine backend default, and skip `illo.py generate` unless the user
+explicitly selected an engine backend.
+
+After the first successful Grok Bot install and bulk character install, ask
+once whether the user wants periodic checks for skill updates (`npx skills
+update`) and character updates (`packs update`). Default is **off**: if they
+say no, do not answer, or the host has no recurring-job mechanism, set up
+nothing. Only create a recurring check/reminder on an explicit yes, and never
+silently update — surface the proposed skill/character update and get consent
+before applying it.
+
+**Config migration — surface the backend choice interactively.** When you are
+going to use `illo.py generate`, if `doctor` reports `backend: NEEDS CHOICE`
+(or `generate` hard-stops saying the config "is out of date"), this user's
+config predates the backend choice — they have an older install and have never
+been offered a subscription CLI. Do **not** pick for them silently. Surface an
+**interactive choice** using the platform's
 blocking-question capability (`AskUserQuestion` in Claude Code, the equivalent
 elsewhere; where the host has none — e.g. a plain chat session — ask the same one
 choice as a concise message and wait for the reply, never picking silently):
-"illo now has three image backends — which would you like?" with
-three options — **Codex** (free, your Codex subscription), **Grok** (free, your
-Grok subscription; no transparent cutouts), and **OpenRouter** (pick the model:
-Grok Imagine, Nano Banana, GPT Image, and others). Persist the answer without
+"illo now has image backends/transports — which would you like?" with four
+options — **Codex** (free, your Codex subscription), **Grok CLI** (free, your
+Grok subscription; no transparent cutouts), **Grok Bot** (agent-side native
+tool; use only when you are Grok Bot), and **OpenRouter** (pick the model: Grok
+Imagine, Nano Banana, GPT Image, and others). Persist the answer without
 touching any existing key:
-`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|openrouter> --no-key`,
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|grok-bot|openrouter> --no-key`,
 then continue. A brand-new install (no config at all) is ordinary onboarding,
 not this migration — it does not fire.
 
@@ -236,12 +285,18 @@ not this migration — it does not fire.
 auto-default reads *host* capability (**Codex > Grok > OpenRouter**; it can't
 tell which agent invoked it) — but **you know which agent you are**. So when you
 are a subscription-CLI agent and your own CLI is usable on this host, add your
-own backend flag to `generate` for non-cutout renders: the **Grok agent** adds
-`--backend grok`, the **Codex agent** adds `--backend codex`. This keeps "in
-Grok, generate with Grok" true even on a host that also has Codex, with no
-runtime-sniffing in the engine. Cutouts ignore this (Grok can't make them — they
-auto-fall back). A user's config `backend:` overrides everything. Resolution and
-precedence mechanics: `references/backends.md`.
+own backend flag to `generate` for non-cutout renders: the **Grok CLI agent**
+adds `--backend grok`, the **Codex agent** adds `--backend codex`. This keeps
+"in Grok CLI, generate with Grok" true even on a host that also has Codex, with
+no runtime-sniffing in the engine. Cutouts ignore this (Grok can't make them —
+they auto-fall back). A user's config `backend:` overrides everything.
+Resolution and precedence mechanics: `references/backends.md`.
+
+For Grok Bot, the equivalent self-identify rule happens **before** `generate`:
+when backend is unset/auto, persist `backend: grok-bot` with
+`init --backend grok-bot --no-key` and use the native Grok image tool path
+above. If the user explicitly configured or requested an engine backend, honor
+that choice instead of silently switching to Grok Bot native.
 
 Read the printed **config path** before concluding
 the key is missing: under Hermes,
@@ -446,6 +501,19 @@ always match — no cross-style reference juggling. (Under Hermes Agent, the
 asset-repair preflight above must have run before the first `--ref` use —
 a corrupted sheet conditions every render on garbage.)
 
+**Grok Bot native render.** If you are Grok Bot and the native path from Step 0
+applies, do **not** run `illo.py generate`. Use the same full prompt recipe,
+same aspect ratio, same character lock, same style-anchor rule for sets, and
+call Grok Bot's built-in Grok image tool. Attach the active character's model
+sheet as a reference image (`assets/character-reference.webp` for Blot, or the
+pack's `reference.png`); for later images in a set, also attach the accepted
+style anchor image. Ask the tool to save/return the generated file and treat
+that saved path as the engine JSON `.path` equivalent for QA and delivery.
+Grok Bot's image tool is the same Grok image-model class as the Grok CLI
+transport: no model selector, no OpenRouter billing, and no alpha channel.
+Transparent cutouts stay off this path; route them to a cutout-capable engine
+backend instead, or stop and ask for that backend to be configured.
+
 Set `SKILL_DIR` inline (see Prerequisites), and use the bundled sheet as `REF` — or
 the active pack's `reference.png` for a custom character. Add `--model <id>` to
 override the config/default model for this image (OpenRouter backend only):
@@ -456,16 +524,16 @@ REF="$SKILL_DIR/assets/character-reference.webp";
 python3 "$SKILL_DIR/scripts/illo.py" generate --prompt-file /tmp/shot-01.txt --ref "$REF" --aspect 16:9 --out "assets/<slug>-illustrations/01-topic.png"
 ```
 
-`illo.py generate` prints a **JSON line per image** (`{path, backend, model,
-id, cost, width, height, label, prompt}`; `backend` is `codex`, `grok`, or
-`openrouter`, and `model`/`id`/`cost` are OpenRouter-only — they are null on a
-CLI-served record (Codex or Grok). `cost` is null unless `--cost` is passed —
-`gallery` backfills it) and appends the same record to
+For engine renders, `illo.py generate` prints a **JSON line per image**
+(`{path, backend, model, id, cost, width, height, label, prompt}`; `backend` is
+`codex`, `grok`, or `openrouter`, and `model`/`id`/`cost` are OpenRouter-only —
+they are null on a CLI-served record (Codex or Grok). `cost` is null unless
+`--cost` is passed — `gallery` backfills it) and appends the same record to
 `<out-dir>/manifest.jsonl`.
 Read `.path` — it may differ from `--out`: the engine names the file by the
 actual encoding (some models return JPEG bytes, so a requested `.png` lands
 as `.jpg`). Use `.width/.height` to catch a square when 16:9 was requested
-(re-roll). A failed Codex/Grok render stops by default even when an OpenRouter
+(re-roll). A failed Codex/Grok CLI render stops by default even when an OpenRouter
 key is configured. Add `--allow-paid-fallback` only when the user has explicitly
 approved a pay-per-image retry. Direct `--backend openrouter` renders and the
 intentional Grok-cutout redirect remain direct routes and do not need this flag.
@@ -491,13 +559,13 @@ and flat-vs-dimensional treatment stay consistent throughout. The same trick
 locks style for a one-off: add any finished example as a second `--ref`.
 
 **Model choice (OpenRouter backend only).** `--model` and config `model:` are
-an **OpenRouter-only** axis — on the Codex backend the model is automatic
-(gpt-image-2) and `--model` does not apply (`references/backends.md`). For the
-OpenRouter path, read `references/models.md` in full before passing any
+an **OpenRouter-only** axis — on Codex, Grok CLI, and Grok Bot native the image
+model is automatic and `--model` does not apply (`references/backends.md`). For
+the OpenRouter path, read `references/models.md` in full before passing any
 `--model` (or whenever the user names a model in plain language or asks for
-"best quality" / "cheapest"): it holds the friendly-name → OpenRouter id
-map, per-model traits, the aspect-ratio caveat, and the 404/fallback
-handling. Resolution is `--model` > config `model` > built-in default.
+"best quality" / "cheapest"): it holds the friendly-name → OpenRouter id map,
+per-model traits, the aspect-ratio caveat, and the 404/fallback handling.
+Resolution is `--model` > config `model` > built-in default.
 
 **Watermark / attribution (optional, off by default).** The skill ships with
 **no** default watermark — the text comes only from the user's `watermark`
@@ -510,7 +578,8 @@ append, and the two-render caveat are in `references/prompt-recipe.md`.
 **Default to ONE image.** Fan out only when the user asks for options/comparison
 or the piece is important enough to be worth it — and **say first what each
 image costs**: on the Codex backend it draws on the user's Codex quota (no
-per-image charge); on the OpenRouter backend it bills their OpenRouter account
+per-image charge), on Grok CLI or Grok Bot native it draws on the user's Grok
+quota, and on the OpenRouter backend it bills their OpenRouter account
 (typically under ten cents per image, varying by model). Keep N small (2–4).
 Orchestrate the loop with the engine's primitives:
 
@@ -580,6 +649,11 @@ images themselves the way this session can actually show them:
   file on disk already *is* the original — never emit `[[as_document]]`
   here: it's a Hermes gateway token, literal noise in any other runtime.
   If the runtime has its own in-chat file delivery, use that.
+- **Grok Bot native sessions:** deliver the file returned by Grok Bot's
+  built-in image tool inline/as an attachment in chat, and include its saved
+  file path in the same role that engine renders use `.path`. The returned
+  file is the original for this transport; do not ask the user to configure
+  OpenRouter just to retrieve it.
 - **Chat sessions** (the user is on a messaging surface — Hermes over
   Telegram/Discord/WhatsApp, or any chat surface with lossy media delivery —
   and cannot open local files): a path alone is not a complete deliverable;
