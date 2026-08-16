@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.2](https://github.com/tmchow/illo-skill/compare/v0.34.1...v0.34.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **illo:** surprise-me keepers, earned register, character refresh ([#63](https://github.com/tmchow/illo-skill/issues/63)) ([4d30579](https://github.com/tmchow/illo-skill/commit/4d30579515f37db0f854d0a9f53c0ba8c66969f1))
+
 ## [0.34.1](https://github.com/tmchow/illo-skill/compare/v0.34.0...v0.34.1) (2026-08-16)
 
 
