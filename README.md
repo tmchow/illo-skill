@@ -65,7 +65,8 @@ doesn't have a native lane yet.
 | --- | --- | --- |
 | **Claude Code** | `/plugin marketplace add tmchow/illo-skill` then `/plugin install illo@illo-skill` | `claude plugin update illo`, or enable marketplace auto-update |
 | **Codex** | `codex plugin marketplace add tmchow/illo-skill` then `codex plugin add illo@illo-skill` | `codex plugin marketplace upgrade` |
-| **Grok** | `grok plugin marketplace add tmchow/illo-skill` then `grok plugin install tmchow/illo-skill --trust` | `grok plugin update illo` |
+| **Grok CLI** | `grok plugin marketplace add tmchow/illo-skill` then `grok plugin install tmchow/illo-skill --trust` | `grok plugin update illo` |
+| **Grok Bot** | paste the prompt below into Grok Bot. | paste the prompt again after updates |
 | **Gemini CLI** | `gemini extensions install https://github.com/tmchow/illo-skill` | `gemini extensions update illo` |
 | **Copilot / GitHub CLI** | `gh skill install tmchow/illo-skill illo` (cross-agent via `--agent`) | `gh skill update illo` |
 | **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
@@ -73,12 +74,36 @@ doesn't have a native lane yet.
 | **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
-Grok Bot is distinct from the Grok CLI lane: install in Cursor/Grok Bot with
-`npx skills add tmchow/illo-skill --skill illo`, which lands the skill files in
-`~/.agents/skills/illo` by default. Make sure Grok Bot has that skill loaded or
-registered so the agent can see `SKILL.md`; then the skill instructions route
-generation to Grok Bot's built-in Grok image tool. There is no separate Grok
-Bot marketplace command here.
+### Grok Bot
+
+Paste this into Grok Bot; it is not a terminal command for you to run yourself.
+
+```text
+Install the illo skill for this Grok Bot session.
+
+Run this install command from the host where you manage user skills:
+npx skills add tmchow/illo-skill --skill illo -g -y --copy
+
+The installer should copy the skill files to ~/.agents/skills/illo. Register or
+load that skill so this Grok Bot agent can see ~/.agents/skills/illo/SKILL.md;
+this runtime does not auto-load ~/.agents/skills. Use this host's normal
+user-skill/workflow registration mechanism. Do not invent or require a Grok Bot
+marketplace command.
+
+For image generation, default to your built-in Grok image tool using the illo
+prompt and the active character reference. Do not use OpenRouter unless I
+explicitly ask for OpenRouter or a paid model. Do not require the Grok CLI.
+
+Optional: install all community characters after the skill files are present:
+python3 ~/.agents/skills/illo/scripts/illo.py packs install --all
+
+Confirm with:
+python3 ~/.agents/skills/illo/scripts/illo.py doctor
+
+A "no CLI/OpenRouter backend" or missing OpenRouter key result is fine on Grok
+Bot because generation uses your built-in Grok image tool. Fix any asset, pack,
+palette, or path errors. Tell me when illo is ready for "illo ..." requests.
+```
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with
