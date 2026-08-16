@@ -239,19 +239,13 @@ this runtime does not auto-load ~/.agents/skills. Use this host's normal
 user-skill/workflow registration mechanism. Do not invent or require a Grok Bot
 marketplace command.
 
-For image generation, default to your built-in Grok image tool using the illo
-prompt and the active character reference. Do not use OpenRouter unless I
-explicitly ask for OpenRouter or a paid model. Do not require the Grok CLI.
-
 Optional: install all community characters after the skill files are present:
 python3 ~/.agents/skills/illo/scripts/illo.py packs install --all
 
 Confirm with:
 python3 ~/.agents/skills/illo/scripts/illo.py doctor
 
-A "no CLI/OpenRouter backend" or missing OpenRouter key result is fine on Grok
-Bot because generation uses your built-in Grok image tool. Fix any asset, pack,
-palette, or path errors. Tell me when illo is ready for "illo ..." requests.
+Tell me when illo is installed, loaded, and ready for "illo ..." requests.
 ```
 
 From an interactive Hermes session:
