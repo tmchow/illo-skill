@@ -697,3 +697,9 @@ Before the final reply in a chat session, check:
 Pre-generation planning is short and concrete. Post-generation, let the images
 speak — report what was made and where, not style theory. Keep labels few and
 short; the fewer words baked into an image, the more reliably it renders.
+
+Talk like a person doing the work, not a recap of this file. Never narrate
+workflow steps or jargon in chat: doctor, preflight, provenance, register,
+saying bar, thesis, backend, or "doctor's green." Status, if any, is ordinary
+speech ("Wick, three quotes"), not a liturgy of steps. The user hears the
+result — character, sayings / image, what was made — not the procedure.

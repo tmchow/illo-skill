@@ -493,6 +493,8 @@ shot-list / structure rules.
 
 ## Delivery
 
+Follow SKILL.md Output discipline; do not narrate this procedure.
+
 Always report, next to the image (path or chat media per Step 7):
 
 - the **saying** first — full shareable caption
