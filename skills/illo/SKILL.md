@@ -72,7 +72,7 @@ infographic, not a formal flowchart, not a UI mockup.
 | **X Article banner / hero image** | Use the unique banner format: **1536 × 640 px** when the user asks for an X Article hero/banner. Prompt and render through the normal `illo.py generate` image pipeline, with normal, undistorted character/object proportions and crop-safe breathing room. Do not satisfy this by manually compositing or rebuilding crops from another image unless the user explicitly asks for post-processing. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
 | **Their own mascot** — "make me a character", "use our mascot", "replace Blot" | The character builder: read `references/character-builder.md` in full and follow it end to end. |
-| **Community characters** — "what characters are available", "install blip", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, publish via a GitHub PR. |
+| **Community characters** — "what characters are available", "install blip", "install all characters", "update mole", "publish my character" | `references/pack-sharing.md` — engine `packs list/show/install/update`, including `packs install --all`; publish via a GitHub PR. |
 | **A different look** — "in blueprint", "woodcut style", "pixel version of blip" | Styles travel with character packs: build a **style variant pack** via `references/character-builder.md`, "Style variants". |
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
@@ -237,6 +237,14 @@ corrupted assets, unreadable custom packs, malformed palettes, or the wrong
 Bot's built-in Grok image tool with the active model sheet reference. This
 route is only for Grok Bot's own Grok image tool; other agents with unrelated
 image tools must use the engine backends below.
+
+Short path for Grok Bot: run `doctor` for assets/config/packs, use `packs`
+commands normally (including `packs install --all` when the user wants the
+catalog locally), read the same references, build the same prompt, then call
+Grok Bot's built-in Grok image tool with the active character reference. Skip
+`illo.py init` unless the user explicitly wants OpenRouter or an engine backend
+default, and skip `illo.py generate` unless the user explicitly selected an
+engine backend.
 
 **Config migration — surface the backend choice interactively.** When you are
 going to use `illo.py generate`, if `doctor` reports `backend: NEEDS CHOICE`

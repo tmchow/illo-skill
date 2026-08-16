@@ -10,7 +10,7 @@ Subcommands:
   gallery    Build a self-contained index.html from a run dir's manifest.jsonl.
   init       Create/update the user config (run by the user; prompts for the key).
   doctor     Preflight: report whether the skill is ready to generate.
-  packs      Community character packs: list / show <name> / install <name>.
+  packs      Community character packs: list / show / install / update.
 
 Resolution (generate):
   api key : config "apiKey" only — written by `init` (user-run, mode 600)
@@ -1581,7 +1581,7 @@ def cmd_doctor(args):
         lines.append("grok cli: not installed (optional — enables free Grok-subscription images)")
     # OpenRouter key (no value ever printed).
     lines.append("api key: found (config)" if has_key
-                 else f"api key: not set — run `{PROG} init` to use OpenRouter")
+                 else f"api key: not set (OpenRouter only — run `{PROG} init` to use OpenRouter)")
     # Resolved backend + transport, and whether it is actually ready (the exit
     # predicate). An OpenRouter-only install stays exit 0: doctor reports
     # the resolved backend's readiness, not a hardwired key check.
@@ -1615,8 +1615,12 @@ def cmd_doctor(args):
                      f"backend: openrouter (configured) — NOT ready: no key; run `{PROG} init`")
     else:
         ready = False
-        lines.append(f"backend: none ready — install + `codex login` (or `grok login`), "
-                     f"or run `{PROG} init` to set an OpenRouter key")
+        lines.append("backend: none ready for engine generation — install + "
+                     f"`codex login` (or `grok login`), or run `{PROG} init` "
+                     "to set an OpenRouter key")
+        lines.append("note: Grok Bot agents can use Grok Bot's built-in Grok "
+                     "image tool natively; CLI/OpenRouter setup is not required "
+                     "for that path.")
     # Hermes caveat: the path above is illo's default; a managed runtime may
     # resolve config elsewhere. Preserve this note for that environment.
     lines.append(f"note: config resolved at {p} (a managed runtime e.g. Hermes "
@@ -1717,7 +1721,50 @@ def cmd_packs_show(args):
         fetch(f"{packs_repo(args)}/packs/{pack_name(args.name)}/character.md").decode("utf-8"))
 
 
+def _packs_install_all_requested(args):
+    return args.all or args.name == "*"
+
+
+def _system_exit_message(exc):
+    if exc.code in (None, 0):
+        return "failed"
+    return str(exc.code)
+
+
 def cmd_packs_install(args):
+    if _packs_install_all_requested(args):
+        if args.as_name:
+            sys.exit("packs install --all cannot be combined with --as")
+        repo = packs_repo(args)
+        entries = repo_index(args)
+        if not entries:
+            sys.exit(f"no packs found in repo index at {repo}")
+        cdir = config_dir() / "characters"
+        ok = failed = skipped = 0
+        for name, entry in entries.items():
+            try:
+                pack_name(name)
+                dest = cdir / name
+                if (dest / "character.md").exists() and not args.force:
+                    skipped += 1
+                    print(f"skipped {name}: {dest} already exists (use --force to overwrite)")
+                    continue
+                install_pack_files(repo, name, dest)
+                stamp_version(dest, entry)
+                ok += 1
+                print(f"installed {name} -> {dest}")
+            except SystemExit as e:
+                failed += 1
+                print(f"failed {name}: {_system_exit_message(e)}", file=sys.stderr)
+            except Exception as e:
+                failed += 1
+                print(f"failed {name}: {e}", file=sys.stderr)
+        print(f"summary: ok={ok} failed={failed} skipped={skipped}")
+        if failed:
+            sys.exit(1)
+        return
+    if not args.name:
+        sys.exit("packs install requires <name>, --all, or '*'")
     name = pack_name(args.name)
     local = pack_name(args.as_name) if args.as_name else name
     dest = config_dir() / "characters" / local
@@ -1905,8 +1952,9 @@ def main():
     ps = pksub.add_parser("show", help="print a pack's character.md (review before install)")
     ps.add_argument("name")
     ps.set_defaults(func=cmd_packs_show)
-    pi = pksub.add_parser("install", help="install a pack into ~/.config/illo/characters/")
-    pi.add_argument("name")
+    pi = pksub.add_parser("install", help="install a pack, or --all packs, into ~/.config/illo/characters/")
+    pi.add_argument("name", nargs="?", help="pack to install; use '*' (quoted in shells) for all packs")
+    pi.add_argument("--all", action="store_true", help="install every pack in the repo index")
     pi.add_argument("--as", dest="as_name", metavar="NAME",
                     help="install under a different local name (collision escape)")
     pi.add_argument("--force", action="store_true", help="overwrite an existing local pack")

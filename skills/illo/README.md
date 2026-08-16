@@ -223,8 +223,11 @@ the fallback for runtimes without a native plugin/skill manager.
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
 Grok Bot is not the Grok CLI lane above: install the skill in Cursor/Grok Bot
-with `npx skills add tmchow/illo-skill --skill illo`, then the agent-facing
-`SKILL.md` routes generation to Grok Bot's built-in Grok image tool.
+with `npx skills add tmchow/illo-skill --skill illo`, which lands the skill
+files in `~/.agents/skills/illo` by default. Make sure Grok Bot has that skill
+loaded or registered so the agent can see `SKILL.md`; then the agent-facing
+instructions route generation to Grok Bot's built-in Grok image tool. There is
+no separate Grok Bot marketplace command here.
 
 From an interactive Hermes session:
 
@@ -279,7 +282,8 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
   reference lock.
 - **Community characters** — browse and install packs from
   [illo-characters](https://github.com/tmchow/illo-characters) ("install the
-  blip character"); installs are pinned, and "update blip" pulls the repo's
+  blip character", or `packs install --all` to install the catalog locally);
+  installs are pinned, and "update blip" pulls the repo's
   current version when you want it. Or publish your own: the skill opens a PR there with your
   model sheet and a scene render embedded for one-glance review. Companies
   can point `packsRepo` at a private pack repo instead.

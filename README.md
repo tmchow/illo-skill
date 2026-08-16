@@ -74,8 +74,11 @@ doesn't have a native lane yet.
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
 Grok Bot is distinct from the Grok CLI lane: install in Cursor/Grok Bot with
-`npx skills add tmchow/illo-skill --skill illo`, and the skill instructions
-route generation to Grok Bot's built-in Grok image tool.
+`npx skills add tmchow/illo-skill --skill illo`, which lands the skill files in
+`~/.agents/skills/illo` by default. Make sure Grok Bot has that skill loaded or
+registered so the agent can see `SKILL.md`; then the skill instructions route
+generation to Grok Bot's built-in Grok image tool. There is no separate Grok
+Bot marketplace command here.
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with
