@@ -228,23 +228,31 @@ readiness follows the resolved backend, not a hardwired key check
 **Grok Bot native path (agent-side).** If you are **Grok Bot** (Cursor's Grok
 Bot / the Grok desktop assistant with the built-in Grok image tool) and the
 user has not explicitly chosen `backend: openrouter`, `backend: codex`, or
-`backend: grok`, a `doctor` result whose only blocker is "no backend ready",
-missing OpenRouter key, or `backend: NEEDS CHOICE` is informational for the
-native path. Do **not** run `illo.py init` for an OpenRouter key and do **not**
-require the Grok CLI or Codex CLI. Still treat non-transport failures as real:
-corrupted assets, unreadable custom packs, malformed palettes, or the wrong
-`SKILL_DIR` must be fixed before rendering. Generate in Step 5 by calling Grok
-Bot's built-in Grok image tool with the active model sheet reference. This
-route is only for Grok Bot's own Grok image tool; other agents with unrelated
-image tools must use the engine backends below.
+`backend: grok`, initialize the agent-side transport before relying on
+`doctor`:
 
-Short path for Grok Bot: run `doctor` for assets/config/packs, use `packs`
+```bash
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" init --backend grok-bot --no-key
+```
+
+Then run `doctor` normally: exit 0 is meaningful readiness for this path.
+Missing Codex CLI, Grok CLI, or OpenRouter key are not failures when
+`backend: grok-bot`; corrupted assets, unreadable custom packs, malformed
+palettes, or the wrong `SKILL_DIR` still fail and must be fixed before
+rendering. Generate in Step 5 by calling Grok Bot's built-in Grok image tool
+with the active model sheet reference. This route is only for Grok Bot's own
+Grok image tool; other agents with unrelated image tools must use the engine
+backends below.
+
+Short path for Grok Bot: run `init --backend grok-bot --no-key` once when
+backend is unset/auto, run `doctor` for assets/config/packs, use `packs`
 commands normally (including `packs install --all` after install so community
 characters are local), read the same references, build the same prompt, then
 call Grok Bot's built-in Grok image tool with the active character reference.
-Skip `illo.py init` unless the user explicitly wants OpenRouter or an engine
-backend default, and skip `illo.py generate` unless the user explicitly selected
-an engine backend.
+Skip `illo.py init` for OpenRouter unless the user explicitly wants OpenRouter
+or another engine backend default, and skip `illo.py generate` unless the user
+explicitly selected an engine backend.
 
 After the first successful Grok Bot install and bulk character install, ask
 once whether the user wants periodic checks for skill updates (`npx skills
@@ -263,12 +271,13 @@ been offered a subscription CLI. Do **not** pick for them silently. Surface an
 blocking-question capability (`AskUserQuestion` in Claude Code, the equivalent
 elsewhere; where the host has none — e.g. a plain chat session — ask the same one
 choice as a concise message and wait for the reply, never picking silently):
-"illo now has three image backends — which would you like?" with
-three options — **Codex** (free, your Codex subscription), **Grok** (free, your
-Grok subscription; no transparent cutouts), and **OpenRouter** (pick the model:
-Grok Imagine, Nano Banana, GPT Image, and others). Persist the answer without
+"illo now has image backends/transports — which would you like?" with four
+options — **Codex** (free, your Codex subscription), **Grok CLI** (free, your
+Grok subscription; no transparent cutouts), **Grok Bot** (agent-side native
+tool; use only when you are Grok Bot), and **OpenRouter** (pick the model: Grok
+Imagine, Nano Banana, GPT Image, and others). Persist the answer without
 touching any existing key:
-`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|openrouter> --no-key`,
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|grok-bot|openrouter> --no-key`,
 then continue. A brand-new install (no config at all) is ordinary onboarding,
 not this migration — it does not fire.
 
@@ -284,9 +293,10 @@ they auto-fall back). A user's config `backend:` overrides everything.
 Resolution and precedence mechanics: `references/backends.md`.
 
 For Grok Bot, the equivalent self-identify rule happens **before** `generate`:
-when backend is unset/auto, use the native Grok image tool path above. If the
-user explicitly configured or requested an engine backend, honor that choice
-instead of silently switching to Grok Bot native.
+when backend is unset/auto, persist `backend: grok-bot` with
+`init --backend grok-bot --no-key` and use the native Grok image tool path
+above. If the user explicitly configured or requested an engine backend, honor
+that choice instead of silently switching to Grok Bot native.
 
 Read the printed **config path** before concluding
 the key is missing: under Hermes,

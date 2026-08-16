@@ -74,14 +74,14 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 # subprocess call to the user's own CLI, the same sanctioned exception as Codex.
 # Grok returns JPEG with no alpha channel, so it CANNOT produce transparent
 # cutouts; those redirect to a cutout-capable backend (see cmd_generate).
-BACKENDS = ("codex", "grok", "openrouter")
+BACKENDS = ("codex", "grok", "openrouter", "grok-bot")
 # The subscription-CLI backends: no API key, no per-image charge, no --model, and
 # a null cost/id in the manifest (never queried for OpenRouter cost).
 CLI_BACKENDS = ("codex", "grok")
-# Config schema version. 2 is the first version that has the Codex/OpenRouter
-# backend choice. A config without this key (or below) predates the choice, so
-# the user has never been offered Codex vs OpenRouter — `generate` hard-stops and
-# tells them to re-run `init` to choose (see _config_is_stale); `init` re-stamps it.
+# Config schema version. 2 is the first version that has the backend choice. A
+# config without this key (or below) predates the choice, so the user has never
+# been offered a backend/transport — `generate` hard-stops and tells them to
+# re-run `init` to choose (see _config_is_stale); `init` re-stamps it.
 CONFIG_VERSION = 2
 # Where the built-in tool drops images when it ignores the requested path. The
 # spike found Orca relocates CODEX_HOME under Library/Application Support, so the
@@ -287,9 +287,9 @@ def dump_config_yaml(cfg):
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
-        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok backends ignore it)",
+        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok/grok-bot ignore it)",
         f"backend: {val(cfg['backend'])}" if cfg.get("backend")
-        else "# backend: codex            # codex, grok (your subscription), or openrouter; default: auto",
+        else "# backend: codex            # codex, grok, openrouter, or grok-bot; default: auto",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
@@ -339,7 +339,7 @@ def migration_message():
     return (
         "illo config is out of date — it predates the image-backend choice, so "
         "no backend is selected.\n"
-        "illo now has three image backends. Pick one, then re-run:\n"
+        "illo now has image backends/transports. Pick one, then re-run:\n"
         f"  Codex      — free, uses your Codex subscription (draws on your Codex "
         f"quota):\n      {PROG} init --backend codex --no-key\n"
         f"  Grok       — free, uses your Grok (xAI) subscription (draws on your "
@@ -347,6 +347,8 @@ def migration_message():
         f"      {PROG} init --backend grok --no-key\n"
         f"  OpenRouter — pick the model (Grok Imagine, Nano Banana, GPT Image, …):\n"
         f"      {PROG} init --backend openrouter --no-key\n"
+        f"  Grok Bot   — agent-side native image tool (not illo.py generate):\n"
+        f"      {PROG} init --backend grok-bot --no-key\n"
         "Agents: surface this as an interactive backend choice to the "
         "user, then run the matching init.")
 
@@ -361,8 +363,9 @@ def resolve_backend(cfg, override=None):
     upgrade: a usable Codex CLI picks codex; otherwise a configured OpenRouter key
     picks openrouter; otherwise the host has neither and onboarding is needed
     (returned as None so doctor/generate can route to the right setup). An
-    explicit choice is honored as-is — readiness is judged separately so doctor
-    can flag a chosen-but-unusable backend without re-resolving."""
+    explicit choice is honored as-is — including agent-side grok-bot — and
+    readiness is judged separately so doctor can flag a chosen-but-unusable
+    backend without re-resolving."""
     choice = override or cfg.get("backend")
     if choice in BACKENDS:
         return choice
@@ -1220,7 +1223,15 @@ def cmd_generate(args):
         # No backend configured — name the fixes.
         sys.exit(f"No image backend ready. Install + `codex login` (or `grok login`) "
                  f"to use a subscription CLI, or run `{PROG} init` to set an "
-                 f"OpenRouter key.")
+                 f"OpenRouter key. Grok Bot agents should run "
+                 f"`{PROG} init --backend grok-bot --no-key` and use the native "
+                 "Grok Bot image tool instead of `illo.py generate`.")
+    if backend == "grok-bot":
+        sys.exit("backend grok-bot is agent-side: `illo.py generate` cannot call "
+                 "Grok Bot's native image tool. The Grok Bot agent should build "
+                 "the illo prompt and call its built-in Grok image tool with the "
+                 "active character sheet as a reference. To use `illo.py generate`, "
+                 "choose an engine backend: codex, grok, or openrouter.")
 
     # Grok returns JPEG with no alpha/chroma path, so it can't produce transparent
     # cutouts. Redirect a cutout render to a cutout-capable backend (Codex chroma,
@@ -1411,9 +1422,10 @@ def cmd_init(args):
     # entered on these branches (neither CLI path needs a key). Codex is offered
     # first (precedence Codex > Grok); if both declined or unavailable, fall through
     # to the existing hidden-prompt OpenRouter flow.
-    chose_cli = (not args.no_key and not args.backend
+    skip_key_prompt = args.no_key or args.backend == "grok-bot"
+    chose_cli = (not skip_key_prompt and not args.backend
                  and (_maybe_offer_codex(cfg) or _maybe_offer_grok(cfg)))
-    if not chose_cli and not args.no_key:
+    if not chose_cli and not skip_key_prompt:
         entered = getpass.getpass("OpenRouter API key (blank to skip): ").strip()
         if entered:
             cfg["apiKey"] = entered
@@ -1421,8 +1433,14 @@ def cmd_init(args):
     p.write_text(dump_config_yaml(cfg))
     os.chmod(p, 0o600)
     backend_note = cfg.get("backend") or "auto"
+    if cfg.get("apiKey"):
+        key_note = "set"
+    elif backend_note == "grok-bot":
+        key_note = "not needed for grok-bot"
+    else:
+        key_note = "not set — run init again to set it"
     print(f"wrote {p} (backend: {backend_note}; "
-          f"key: {'set' if cfg.get('apiKey') else 'not set — run init again to set it'}; "
+          f"key: {key_note}; "
           f"model: {cfg.get('model', DEFAULT_MODEL)})")
 
 
@@ -1591,9 +1609,15 @@ def cmd_doctor(args):
         lines.append("backend: NEEDS CHOICE — this config predates the image "
                      "backend choice. Codex (free, your Codex subscription), Grok "
                      "(free, your Grok subscription; no cutouts), or OpenRouter "
-                     "(model choice: Grok Imagine, Nano Banana, GPT Image, …)? Run "
-                     f"`{PROG} init --backend codex|grok|openrouter --no-key`. Agents: "
+                     "(model choice: Grok Imagine, Nano Banana, GPT Image, …), or "
+                     "Grok Bot (agent-side native image tool)? Run "
+                     f"`{PROG} init --backend codex|grok|openrouter|grok-bot --no-key`. Agents: "
                      "ask the user interactively, then run that init.")
+    elif backend == "grok-bot":
+        ready = True
+        lines.append("backend: grok-bot — transport: agent-side native Grok Bot "
+                     "image tool (not `illo.py generate`; no CLI/OpenRouter key "
+                     "required)")
     elif backend == "codex":
         ready = codex_ok
         lines.append("backend: codex — transport: `codex exec` (your Codex "
@@ -1903,10 +1927,11 @@ def main():
     g.add_argument("--prompt-file")
     g.add_argument("--out", required=True)
     g.add_argument("--model", help="OpenRouter image model id (overrides config/default; "
-                   "ignored by the codex/grok backends, which use their own image tool)")
+                   "ignored by codex/grok/grok-bot, which use their own image tools)")
     g.add_argument("--backend", choices=BACKENDS,
                    help="image backend (overrides config/default): codex or grok (your "
-                        "subscription CLI) or openrouter; default resolves by host capability")
+                        "subscription CLI), openrouter, or grok-bot (agent-side; "
+                        "generate refuses); default resolves by host capability")
     g.add_argument("--allow-paid-fallback", action="store_true",
                    help="if a Codex/Grok subscription render fails, explicitly allow "
                         "fallback to the configured paid OpenRouter API (off by default)")
@@ -1929,7 +1954,7 @@ def main():
     i = sub.add_parser("init", help="create/update user config (run this yourself)")
     i.add_argument("--model", help="default model id")
     i.add_argument("--backend", choices=BACKENDS,
-                   help="default image backend: codex, grok, or openrouter "
+                   help="default image backend: codex, grok, openrouter, or grok-bot "
                         "(skips the subscription-CLI questionnaire)")
     i.add_argument("--palette", help="default palette preset name")
     i.add_argument("--character", help="default character pack name (characters/<name>/)")

@@ -15,31 +15,32 @@ agent reaches it, and who is billed.
   (Grok returns JPEG with no alpha) — cutout renders redirect to a
   cutout-capable backend.
 - **Grok Bot native** — when the agent is **Grok Bot** (Cursor's Grok Bot /
-  the Grok desktop assistant), the agent calls Grok Bot's built-in Grok image
+  the Grok desktop assistant), the agent persists `backend: grok-bot` with
+  `init --backend grok-bot --no-key`, then calls Grok Bot's built-in Grok image
   tool directly with illo's prompt and reference image. This is the same Grok
-  image-model class as the CLI backend, but a different harness: no Grok CLI,
-  no `--backend grok-bot`, no OpenRouter key. It is not a generic "any host
-  image API" escape hatch.
+  image-model class as the CLI backend, but a different harness: no Grok CLI and
+  no OpenRouter key. It is not a generic "any host image API" escape hatch.
 - **OpenRouter** — calls OpenRouter's image API directly. Pay-per-image
   through the user's OpenRouter account. The direct paid backend and the only
   engine backend a host without a subscription CLI can use. A failed CLI render
   reaches it only when `--allow-paid-fallback` is explicitly supplied;
   intentional cutout routing is unchanged.
 
-`--backend` (and config `backend:`) selects only an engine backend; otherwise
-the engine resolves the right one by host capability. Resolution and readiness
-are reported by `doctor`. Grok Bot native is selected by the agent-side routing
-rules in `SKILL.md` before `illo.py generate` is called.
+`--backend` (and config `backend:`) selects an engine backend or the explicit
+agent-side `grok-bot` transport; otherwise the engine resolves the right engine
+backend by host capability. Resolution and readiness are reported by `doctor`.
+`illo.py generate` refuses `grok-bot` because only the Grok Bot agent can call
+its native image tool.
 
 ## Engine resolution and default (capability-aware)
 
 The backend is resolved per run, never a static flip:
 
 ```
---backend  >  config backend:  >  capability-aware default
+--backend  >  config backend:  >  capability-aware engine default
 ```
 
-The **capability-aware default** is, in order:
+The **capability-aware engine default** is, in order:
 
 1. a **usable Codex CLI** is present → `codex`;
 2. else a **usable Grok CLI** is present → `grok`;
@@ -48,9 +49,10 @@ The **capability-aware default** is, in order:
 
 This never silently breaks an existing OpenRouter-only install on upgrade: a
 host with a key but no subscription CLI still resolves to `openrouter`, so
-`doctor` stays exit 0. An explicit `--backend`/`backend:` choice is honored
-as-is; readiness is judged separately, so `doctor` can flag a
-chosen-but-unusable backend.
+`doctor` stays exit 0. `grok-bot` is never auto-detected; the Grok Bot agent
+self-identifies by running `init --backend grok-bot --no-key`. An explicit
+`--backend`/`backend:` choice is honored as-is; readiness is judged separately,
+so `doctor` can flag a chosen-but-unusable backend or green-light `grok-bot`.
 
 ### The self-identify rule (agent-driven, not engine-driven)
 
@@ -63,9 +65,10 @@ in `SKILL.md`:
   `--backend` flag for non-cutout renders (the **Grok CLI agent** →
   `--backend grok`, the **Codex agent** → `--backend codex`). That keeps
   "running in Grok, generate with Grok" true even when Codex is also installed.
-- **Grok Bot** does not add a flag. When backend is unset/auto, it does not call
-  `illo.py generate` at all; it builds the same illo prompt and calls Grok
-  Bot's built-in Grok image tool with the active character sheet as a reference.
+- **Grok Bot** persists `backend: grok-bot` with
+  `init --backend grok-bot --no-key` when backend is unset/auto. It does not
+  call `illo.py generate`; it builds the same illo prompt and calls Grok Bot's
+  built-in Grok image tool with the active character sheet as a reference.
 
 Both rules avoid engine runtime sniffing (no process-tree guessing, no reading
 a secret-shaped `GROK_AUTH*`/`*_TOKEN` env var — both of which the skill's
@@ -86,13 +89,14 @@ config is **not auto-resolved**:
   an old playbook learns its config is stale rather than rendering on a guess).
 - `doctor` reports `backend: NEEDS CHOICE` and exits non-zero.
 
-The choice is surfaced **interactively** (the agent asks Codex vs Grok vs
-OpenRouter; see SKILL.md "Config migration") and persisted with
-`init --backend <codex|grok|openrouter> --no-key`, which stamps `configVersion`
-and keeps any existing key. A brand-new install (no config) is ordinary onboarding,
-not a migration — it resolves capability-aware as above. The stamp, not the
-`backend` key's absence, is the signal: a current-version user who chose "auto"
-also has no `backend` key but is not re-prompted.
+The choice is surfaced **interactively** (the agent asks Codex vs Grok CLI vs
+Grok Bot vs OpenRouter; see SKILL.md "Config migration") and persisted with
+`init --backend <codex|grok|grok-bot|openrouter> --no-key`, which stamps
+`configVersion` and keeps any existing key. A brand-new install (no config) is
+ordinary onboarding, not a migration — it resolves capability-aware as above,
+except Grok Bot agents self-identify by writing `backend: grok-bot`. The stamp,
+not the `backend` key's absence, is the signal: a current-version user who chose
+"auto" also has no `backend` key but is not re-prompted.
 
 ## Codex backend
 
@@ -204,10 +208,10 @@ OpenRouter through the engine.
 
 Run `doctor` first for the non-transport checks: Python can launch the engine,
 the skill path is correct, bundled assets are intact, custom packs are readable,
-and palette/config files parse. On Grok Bot native, a `doctor` failure whose
-only blocker is "no backend ready", missing OpenRouter key, or
-`backend: NEEDS CHOICE` is not a stop and is not a reason to run `init` for an
-OpenRouter key. The agent will not call `illo.py generate`.
+and palette/config files parse. On first Grok Bot preflight when backend is
+unset/auto, run `init --backend grok-bot --no-key`, then run `doctor`.
+With `backend: grok-bot`, missing Codex CLI, Grok CLI, and OpenRouter key are
+expected; `doctor` exits 0 when the non-transport checks pass.
 
 An explicit user/backend choice still wins. If config or the request says
 `backend: openrouter`, `backend: codex`, or `backend: grok`, honor that engine
@@ -226,9 +230,9 @@ target aspect ratio and saved output file.
 
 This is the same Grok image-model class as the Grok CLI backend: no model
 selector, no OpenRouter billing, and no alpha channel. The returned/saved file
-path is the `.path` equivalent for QA and delivery. There is intentionally no
-`--backend grok-bot` flag and no manifest record from the engine unless a
-separate engine render is run.
+path is the `.path` equivalent for QA and delivery. `illo.py generate` refuses
+`grok-bot` with a message to use the agent-side tool; there is no manifest
+record from the engine unless a separate engine render is run.
 
 ### No transparent cutouts
 
