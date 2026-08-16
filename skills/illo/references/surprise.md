@@ -436,10 +436,11 @@ miss):
   `generate` until a saying is locked.
 - **“Three new ones” / refresh** — this is a **full re-roll**, not a deeper
   search in the same pocket. Go back to procedure step 3:
-  1. **Re-roll the character** unless the user named one (`using blot`,
-     `as bray`). Prefer a *different* pack than the one just shown.
-     Introduce the new character once in plain English, then show the new
-     lines.
+  1. **Character** — if the user named one (`using blot`, `as bray`), keep
+     that pack; do not prefer a different pack and do not re-introduce it. If
+     the character was unnamed, re-roll it. Prefer a *different* pack than the
+     one just shown, introduce the new character once in plain English, then
+     show the new lines.
   2. **Re-pick provenance mode** unless the user's focus **forces**
      `attributed_quote` (`* quote`). Prefer a *different* mode than the
      set just shown when the roll allows.
