@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.1](https://github.com/tmchow/illo-skill/compare/v0.34.0...v0.34.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* don't narrate illo workflow ([#61](https://github.com/tmchow/illo-skill/issues/61)) ([6dc310d](https://github.com/tmchow/illo-skill/commit/6dc310d4d075c079d0dfcd559c99eeaed7b368ad))
+
 ## [0.34.0](https://github.com/tmchow/illo-skill/compare/v0.33.0...v0.34.0) (2026-08-16)
 
 
