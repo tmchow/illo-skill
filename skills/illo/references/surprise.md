@@ -82,6 +82,8 @@ Strip the trigger words, then split what remains into **character**,
    do **not** fall through to `defaultCharacter`). On one clear match, use
    it; on several, pick the closest name match without asking; on none, say
    the name was unknown and fall through to random.
+   Character personality supplies point of view and staging, not a requirement
+   that the saying be about the mascot's job.
 3. **Focus** — everything else that scopes subject matter: `art quote`,
    `productivity`, `space`, `cooking`, `design`, etc. Unscoped = any safe
    domain.
@@ -222,18 +224,19 @@ thesis turns that saying into a physical move. Cite only when there is a
 real source — silence means original. The title is never a substitute for
 the saying.
 
-### Saying bar (reject thin stubs)
+### Saying bar (reject thin stubs and moralizing turns)
 
 Ask: *Would this line still earn a pause if the image were covered?* If not,
 re-roll that candidate before offering or auto-picking.
 
-A good saying is a **complete thought** with impact — roughly one to three
-sentences, or one dense sentence with a turn — that is at least one of:
+A good saying is interesting by default: a vivid observation, gentle wit,
+tension, surprise, wonder, or one compact sentence with a turn. Educational
+works when the insight is specific. Inspirational is hard mode — keep it only
+when it is precise and unsentimental, not advice-padding.
 
-- **inspirational** — warmth, courage, patience, quiet pride
-- **educational** — a real insight you could teach in a breath
-- **interesting** — a vivid observation, gentle wit, or wonder (topical
-  science and craft count)
+It can be one sentence, or two short sentences when the second is a punchline
+or revelation. A saying need not advise anyone, solve anything, or change a
+reader's behavior.
 
 Hard reject as a saying (these may still be *titles*) — **including
 attributed quotes**:
@@ -242,15 +245,17 @@ attributed quotes**:
   "Stay hungry"
 - Jargon shorthand with no human stake: "check once", "steep", "provision"
 - Vague mood without a claim: "be kind", "keep going", "stay curious"
+- **Moralizing turn:** a concrete fact, image, joke, or observation followed
+  by a generalized lesson about life, work, courage, patience, persistence, or
+  similar. Delete the lesson and judge what remains. A last sentence can be a
+  punchline or revelation; reject the moral, not the position of the sentence.
 
 Thin → rich (shape only — invent fresh lines every run; do not reuse these):
 
-- ✗ "The spike settles." → ✓ "Rough patches peak. Hold steady and the bolt
-  gets smaller — the storm was never meant to be the whole sky."
-- ✗ "First light." → ✓ "After years of building the ruler, the instrument
-  finally saw Earth — first light is the moment craft becomes witness."
-- ✗ "Steep." → ✓ "A pause is part of the work: what ships well was allowed
-  to steep."
+- ✗ "First light." → ✓ "Hubble found the lion. Webb found the whiskers."
+- ✗ "Turn it up." → ✓ "A boombox is a private object with public ambitions."
+- ✗ "Keep going." → ✓ "The sourdough starter has a calendar but no alarm
+  clock."
 
 Famous / recalled quotes work when provenance mode is `attributed_quote`
 and they clear the saying bar **and** the verification gate. Short catchphrases
@@ -260,8 +265,8 @@ is not.
 
 ### Sense bar (critical evaluation — especially originals)
 
-Fluent is not the same as true or useful. Models often emit lines that
-*sound* wise and mean little, contradict themselves, or invent fake
+Fluent is not the same as true, specific, or worth drawing. Models often emit
+lines that *sound* wise and mean little, contradict themselves, or invent fake
 profundity. Before locking any **original** saying (and before locking an
 inspired-by paraphrase of a topical hook), run this judgment out loud in
 planning — reject and rewrite on any fail:
@@ -269,8 +274,9 @@ planning — reject and rewrite on any fail:
 1. **Plain-sense test** — Restate the claim in plain words with no metaphor.
    If you cannot, or the restatement is empty ("be mindful of journeys"),
    reject.
-2. **Stake test** — Name who benefits and what changes if the claim is
-   taken seriously. If nobody would act differently, reject.
+2. **Stake diagnostic** — Use "who benefits and what changes?" only when the
+   candidate is advice-shaped. Wonder, humor, and observation do not have to
+   change anyone's behavior.
 3. **Non-contradiction** — The line must not undo itself or stack opposing
    advice without a clear turn. Reject vibes that cancel out.
 4. **Specificity** — Prefer a concrete domain (craft, rest, learning,
@@ -331,16 +337,18 @@ short-circuit past the picker/auto-pick into render. Apply the **safety
 filter** to every candidate **before** it is offered or auto-picked — the
 user must never choose a line that then fails safety.
 
-1. Prefer a **fresh, drawable moment** with a human stake that fits the mode.
+1. Prefer a **fresh, drawable moment** with specificity, tension, wit, or
+   wonder that fits the mode.
 2. **`attributed_quote`:** fetch/recall candidates in the topic (or any safe
    domain if unscoped / bare `quote`); each must pass the multi-source
    verification gate, the saying bar, and safety before it is offered or
    auto-picked. Illustrate the *idea*, not a wall of text on the canvas.
    Respect the **search budget** above. Wording stays frozen once verified.
 3. **`topical_hook`:** may fetch (web search, news, pop culture) for distinct
-   safe hooks; compress each into a saying that teaches or wonders (not a
-   headline stub); sense bar on paraphrases; credit only when the
-   provenance gate passes. Respect the **search budget** above.
+   safe hooks; compress each into a saying that observes, teaches a specific
+   insight, or wonders (not a headline stub); sense bar on paraphrases;
+   credit only when the provenance gate passes. Respect the **search budget**
+   above.
 4. **`original`:** invent three distinct sense-bar originals; no citation;
    no half-remembered classics smuggled in.
 5. Reject any candidate that cannot become a **physical move the mascot
