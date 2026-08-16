@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.34.0](https://github.com/tmchow/illo-skill/compare/v0.33.0...v0.34.0) (2026-08-16)
+
+
+### Features
+
+* document Grok Bot native image transport ([#58](https://github.com/tmchow/illo-skill/issues/58)) ([6d98f28](https://github.com/tmchow/illo-skill/commit/6d98f28cf9672fa354228e2fd2dc7d337f826912))
+
+
+### Bug Fixes
+
+* reject moralizing turns in surprise-me sayings ([#60](https://github.com/tmchow/illo-skill/issues/60)) ([f3f6aa8](https://github.com/tmchow/illo-skill/commit/f3f6aa80b113e9892943a2c615257237143b8324))
+
 ## [0.33.0](https://github.com/tmchow/illo-skill/compare/v0.32.1...v0.33.0) (2026-08-01)
 
 
