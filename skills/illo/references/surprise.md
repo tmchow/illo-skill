@@ -493,11 +493,7 @@ shot-list / structure rules.
 
 ## Delivery
 
-Keep the procedure internal: never narrate doctor, preflight, provenance,
-register, saying bar, or thesis in chat, and never say "doctor's green." The
-user hears the character name, the three sayings (then the picker), then the
-locked saying + image; status, if any, is ordinary speech ("Wick, three
-quotes"), not workflow recap.
+Follow SKILL.md Output discipline; do not narrate this procedure.
 
 Always report, next to the image (path or chat media per Step 7):
 
