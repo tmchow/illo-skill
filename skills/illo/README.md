@@ -228,24 +228,11 @@ the fallback for runtimes without a native plugin/skill manager.
 Paste this into Grok Bot; it is not a terminal command for you to run yourself.
 
 ```text
-Install the illo skill for this Grok Bot session.
+Install the illo skill:
 
-Run this install command from the host where you manage user skills:
-npx skills add tmchow/illo-skill --skill illo -g -y --copy
+npx skills add tmchow/illo-skill --skill illo -g -y
 
-The installer should copy the skill files to ~/.agents/skills/illo. Register or
-load that skill so this Grok Bot agent can see ~/.agents/skills/illo/SKILL.md;
-this runtime does not auto-load ~/.agents/skills. Use this host's normal
-user-skill/workflow registration mechanism. Do not invent or require a Grok Bot
-marketplace command.
-
-Optional: install all community characters after the skill files are present:
-python3 ~/.agents/skills/illo/scripts/illo.py packs install --all
-
-Confirm with:
-python3 ~/.agents/skills/illo/scripts/illo.py doctor
-
-Tell me when illo is installed, loaded, and ready for "illo ..." requests.
+Optionally install all community characters.
 ```
 
 From an interactive Hermes session:
