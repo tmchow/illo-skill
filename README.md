@@ -10,13 +10,16 @@ pack carries one of ten bundled looks (riso, blueprint, woodcut, pixel, clay,
 manila, chalk, phosphor, enamel, gouache) or a custom style — default
 **Blot** (a deadpan ink-drop), or design your own with the built-in character
 builder. One-metaphor-per-image scenes with named + custom + derived palettes
-and reference-image character consistency. Renders through **three backends**:
-your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your subscription —
-free for subscribers, no API key — when one is installed and logged in, or
-**OpenRouter** (model-selectable: Grok Imagine, Nano Banana 2/Pro, GPT-5.4
-Image 2, …) as a direct pay-per-image backend. Failed subscription renders
-fail closed unless `--allow-paid-fallback` explicitly permits OpenRouter.
-Grok can't make transparent cutouts; those route automatically.
+and reference-image character consistency. Renders through **three engine
+backends**: your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your
+subscription — free for subscribers, no API key — when one is installed and
+logged in, or **OpenRouter** (model-selectable: Grok Imagine, Nano Banana
+2/Pro, GPT-5.4 Image 2, …) as a direct pay-per-image backend. In **Grok Bot**
+(Cursor's Grok Bot / the Grok desktop assistant), the skill uses Grok Bot's
+built-in Grok image tool agent-side instead of requiring the Grok CLI or
+OpenRouter, unless you explicitly choose an engine backend. Failed subscription
+CLI renders fail closed unless `--allow-paid-fallback` explicitly permits
+OpenRouter. Grok can't make transparent cutouts; those route automatically.
 
 Hand it *"we replatform with zero downtime"* and you get the bridge being
 rebuilt under live traffic:
@@ -69,6 +72,10 @@ doesn't have a native lane yet.
 | **OpenClaw** | `openclaw skills install illo` | reinstall with the same command |
 | **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
+
+Grok Bot is distinct from the Grok CLI lane: install in Cursor/Grok Bot with
+`npx skills add tmchow/illo-skill --skill illo`, and the skill instructions
+route generation to Grok Bot's built-in Grok image tool.
 
 Every lane installs the same skill; releases are tagged `v<version>` and
 the version in every manifest is kept in lockstep with
