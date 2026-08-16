@@ -414,9 +414,9 @@ serial path — not a shorter checklist.
   remaining attempts serially. Demote / forced-quote shortfall / abort
   rules are unchanged and only fire after the budget is exhausted with
   fewer than three keepers.
-- On **“Three new ones”**, re-roll character, then provenance/topic on the
-  main agent first; fan out again only if the new mode is sourced (new
-  10-attempt budget for that build).
+- On **“Three new ones”**, re-roll character unless the user named one, then
+  re-roll provenance/topic on the main agent first; fan out again only if the
+  new mode is sourced (new 10-attempt budget for that build).
 - **`original`** mode: invent on the main agent (cheap enough that fan-out
   is usually not worth it).
 - If the host has no subagent / parallel support: verify serially on the
