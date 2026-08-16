@@ -203,12 +203,14 @@ Honor an explicit user shape ("as a comic", "show the flow"). Otherwise:
 
 **Register vs saying fights:**
 
-- **`original` / `topical_hook`:** rewrite the saying **or** pick a different
-  register — do not silently fall back to editorial+title.
+- **`original` / `topical_hook`:** if the locked line does not already earn
+  mini-comic (it is already a short progression) or explainer (it **is** a
+  structure), use editorial. Do **not** rewrite the saying to manufacture
+  beats or a structure. Do not rotate away from editorial for variety.
 - **`attributed_quote`:** the verified wording is frozen — **never** rewrite,
-  “improve,” or compress the quote to fit a register. Change the register
-  (or the staging/thesis) instead; if no register fits honestly, drop that
-  candidate before offer/auto-pick and find another verified line.
+  “improve,” or compress the quote. Change staging/thesis if needed; if no
+  register fits honestly, drop that candidate before offer/auto-pick and find
+  another verified line.
 
 ## Seed discovery — three layers
 
