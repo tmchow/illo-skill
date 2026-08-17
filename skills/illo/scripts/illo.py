@@ -47,7 +47,6 @@ CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
 CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
 # Cutout QA hints on a transparent output (warnings, never gate cutout_alpha):
 CUTOUT_ALPHA_MIN_TRANSPARENT = 1000  # enough cleared background to trust the alpha
-CUTOUT_EDGE_ALPHA = 128  # soft alpha below this still counts as outside for edge QA
 CUTOUT_ACCENT_HALO_EDGE_FRAC = 0.25  # compact locked accent carriers are not halos
 CUTOUT_FRINGE_WARN = 20   # edge-fringe px worth a QA look
 CUTOUT_EDGE_FRAC = 0.02   # opaque px along the bottom row over this frac of width →
@@ -564,9 +563,10 @@ def _is_accent_halo(r, g, b, a):
 def _touches_transparency(rgba, width, height, x, y):
     """Whether an opaque pixel sits on the alpha boundary.
 
-    Semi-transparent chroma edge pixels are outside enough for QA: a fringe just
-    behind a soft alpha ring should still be visible to the warning pass.
+    Outside is true transparency (alpha 0). A fringe just behind a one-pixel
+    soft alpha ring still counts as edge; interior soft patches do not.
     """
+    soft_neighbors = []
     for dy in (-1, 0, 1):
         ny = y + dy
         if ny < 0 or ny >= height:
@@ -577,8 +577,24 @@ def _touches_transparency(rgba, width, height, x, y):
             nx = x + dx
             if nx < 0 or nx >= width:
                 continue
-            if rgba[(ny * width + nx) * 4 + 3] < CUTOUT_EDGE_ALPHA:
+            alpha = rgba[(ny * width + nx) * 4 + 3]
+            if alpha == 0:
                 return True
+            if alpha < 255:
+                soft_neighbors.append((nx, ny))
+    for sx, sy in soft_neighbors:
+        for dy in (-1, 0, 1):
+            ny = sy + dy
+            if ny < 0 or ny >= height:
+                continue
+            for dx in (-1, 0, 1):
+                if dx == 0 and dy == 0:
+                    continue
+                nx = sx + dx
+                if nx < 0 or nx >= width:
+                    continue
+                if rgba[(ny * width + nx) * 4 + 3] == 0:
+                    return True
     return False
 
 

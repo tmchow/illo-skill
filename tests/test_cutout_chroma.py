@@ -87,14 +87,28 @@ def synthetic_soft_alpha_fringe_png():
     pixels = [TRANSPARENT] * (width * height)
     for y in range(height):
         for x in range(width):
-            dist2 = (x - cx) ** 2 + (y - cy) ** 2
+            dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
             idx = y * width + x
-            if dist2 <= body_radius ** 2:
+            if dist <= body_radius:
                 pixels[idx] = CREAM + (255,)
-            elif dist2 <= (body_radius + 2) ** 2:
+            elif dist <= body_radius + 1:
                 pixels[idx] = GREEN + (255,)
-            elif dist2 <= (body_radius + 6) ** 2:
+            elif dist <= body_radius + 2:
                 pixels[idx] = CREAM + (64,)
+    return rgba_png(width, height, pixels)
+
+
+def synthetic_interior_soft_patch_png():
+    width = height = 128
+    cx = cy = width // 2
+    body_radius = 40
+    pixels = [TRANSPARENT] * (width * height)
+    for y in range(height):
+        for x in range(width):
+            if (x - cx) ** 2 + (y - cy) ** 2 <= body_radius ** 2:
+                pixels[y * width + x] = CREAM + (255,)
+    pixels[cy * width + cx] = PINK + (64,)
+    pixels[cy * width + cx + 1] = CREAM + (64,)
     return rgba_png(width, height, pixels)
 
 
@@ -143,6 +157,17 @@ class CutoutChromaTests(unittest.TestCase):
         self.assertEqual(meta["cutout_method"], "chroma")
         self.assertEqual(rgba_at(parsed, 64, 18), PINK + (255,))
         self.assertIsNone(meta["cutout_note"])
+
+    def test_adjacent_interior_soft_pixels_do_not_self_trigger_fringe(self):
+        source = synthetic_interior_soft_patch_png()
+        analysis = self.illo.analyze_cutout_alpha(source)
+
+        self.assertTrue(analysis["clean_alpha"])
+        self.assertEqual(analysis["green_fringe"], 0)
+        self.assertEqual(analysis["magenta_fringe"], 0)
+        self.assertEqual(analysis["accent_halo"], 0)
+        self.assertEqual(analysis["fringe"], 0)
+        self.assertIsNone(self.illo._cutout_quality_note(analysis))
 
     def test_outer_pink_ring_warns_but_keeps_chroma_cutout(self):
         source = synthetic_cutout_png(accent="ring")
