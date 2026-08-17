@@ -712,14 +712,15 @@ def analyze_cutout_alpha(img_bytes):
         x = (i // 4) % w
         y = (i // 4) // w
         edge_pixel = a and _touches_transparency(rgba, w, h, x, y, soft_near_air)
-        if edge_pixel:
+        opaque_edge_pixel = edge_pixel and a == 255
+        if opaque_edge_pixel:
             edge_pixels += 1
         if edge_pixel and g > max(r, b) + 10 and g > 45:
             out["green_fringe"] += 1
         if (edge_pixel and r > 120 and b > 120 and r > g + 15 and b > g + 15
                 and abs(r - b) < 60):
             out["magenta_fringe"] += 1
-        if edge_pixel and _is_accent_halo(r, g, b, a):
+        if opaque_edge_pixel and _is_accent_halo(r, g, b, a):
             accent_edge += 1
     corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
     out["corner_alpha"] = [rgba[(y * w + x) * 4 + 3] for x, y in corners]
@@ -727,7 +728,7 @@ def analyze_cutout_alpha(img_bytes):
     out["bottom_edge_opaque"] = sum(1 for x in range(w) if rgba[(bottom + x) * 4 + 3])
     out["has_alpha"] = out["transparent"] > 0 or out["semi"] > 0
     # Accent ink touching air is often correct (antenna balls, droplet tips).
-    # Warn only when it behaves like a misregistered ring around much of the silhouette.
+    # Opaque edge pixels define this denominator; soft mattes must not dilute it.
     if edge_pixels and accent_edge >= max(CUTOUT_FRINGE_WARN,
                                          int(edge_pixels * CUTOUT_ACCENT_HALO_EDGE_FRAC)):
         out["accent_halo"] = accent_edge

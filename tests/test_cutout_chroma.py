@@ -98,6 +98,24 @@ def synthetic_soft_alpha_fringe_png(soft_layers=1):
     return rgba_png(width, height, pixels)
 
 
+def synthetic_accent_ring_behind_soft_matte_png(soft_layers=5):
+    width = height = 128
+    cx = cy = width // 2
+    body_radius = 34
+    pixels = [TRANSPARENT] * (width * height)
+    for y in range(height):
+        for x in range(width):
+            dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+            idx = y * width + x
+            if dist <= body_radius:
+                pixels[idx] = CREAM + (255,)
+            elif dist <= body_radius + 1:
+                pixels[idx] = PINK + (255,)
+            elif dist <= body_radius + 1 + soft_layers:
+                pixels[idx] = CREAM + (64,)
+    return rgba_png(width, height, pixels)
+
+
 def synthetic_interior_soft_patch_png():
     width = height = 128
     cx = cy = width // 2
@@ -182,6 +200,24 @@ class CutoutChromaTests(unittest.TestCase):
         self.assertEqual(meta["cutout_method"], "chroma")
         self.assertEqual(rgba_at(parsed, 0, 0)[3], 0)
         self.assertEqual(rgba_at(parsed, 127, 127)[3], 0)
+        self.assertRegex((meta["cutout_note"] or "").lower(), r"accent|halo|fringe")
+
+    def test_pink_ring_behind_wide_soft_matte_warns_without_discarding_cutout(self):
+        source = synthetic_accent_ring_behind_soft_matte_png(soft_layers=5)
+        analysis = self.illo.analyze_cutout_alpha(source)
+
+        self.assertTrue(analysis["clean_alpha"])
+        self.assertGreaterEqual(analysis["accent_halo"], self.illo.CUTOUT_FRINGE_WARN)
+
+        with tempfile.TemporaryDirectory() as td:
+            out, _, _, meta = self.illo.place_cutout_image(
+                source, Path(td) / "cutout.png", chroma_key=self.illo.CHROMA_MAGENTA
+            )
+            parsed = self.illo._parse_png_rgb_or_rgba(out.read_bytes())
+
+        self.assertTrue(meta["cutout_alpha"])
+        self.assertEqual(meta["cutout_method"], "native")
+        self.assertEqual(rgba_at(parsed, 0, 0)[3], 0)
         self.assertRegex((meta["cutout_note"] or "").lower(), r"accent|halo|fringe")
 
     def test_soft_alpha_screen_fringe_warns_without_discarding_cutout(self):
