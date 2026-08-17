@@ -165,7 +165,8 @@ style QA deltas) still applies to the character cluster.
 - Edge-only accent-colored halo tracing the outer contour (riso
   misregistration) → re-roll with the **registration-locked SILHOUETTE** block —
   no ink-layer offset on cutouts (`references/prompt-recipe.md`, "Cutout
-  variant"). Interior accent fill is correct on-model, not a halo.
+  variant"). Interior accent fill and compact locked accent carriers that touch
+  air are correct on-model, not halos.
 - Feet or base cropped by the frame → re-roll; check the Composition line names
   full body and margin below the feet.
 - A separate object sits near but not touching the character → re-roll

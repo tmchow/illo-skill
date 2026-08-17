@@ -47,6 +47,8 @@ CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
 CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
 # Cutout QA hints on a transparent output (warnings, never gate cutout_alpha):
 CUTOUT_ALPHA_MIN_TRANSPARENT = 1000  # enough cleared background to trust the alpha
+CUTOUT_EDGE_ALPHA = 128  # soft alpha below this still counts as outside for edge QA
+CUTOUT_ACCENT_HALO_EDGE_FRAC = 0.25  # compact locked accent carriers are not halos
 CUTOUT_FRINGE_WARN = 20   # edge-fringe px worth a QA look
 CUTOUT_EDGE_FRAC = 0.02   # opaque px along the bottom row over this frac of width →
                           # character likely touches/crops the frame (no foot margin)
@@ -560,7 +562,11 @@ def _is_accent_halo(r, g, b, a):
 
 
 def _touches_transparency(rgba, width, height, x, y):
-    """Whether an opaque pixel sits on the alpha boundary."""
+    """Whether an opaque pixel sits on the alpha boundary.
+
+    Semi-transparent chroma edge pixels are outside enough for QA: a fringe just
+    behind a soft alpha ring should still be visible to the warning pass.
+    """
     for dy in (-1, 0, 1):
         ny = y + dy
         if ny < 0 or ny >= height:
@@ -571,7 +577,7 @@ def _touches_transparency(rgba, width, height, x, y):
             nx = x + dx
             if nx < 0 or nx >= width:
                 continue
-            if rgba[(ny * width + nx) * 4 + 3] == 0:
+            if rgba[(ny * width + nx) * 4 + 3] < CUTOUT_EDGE_ALPHA:
                 return True
     return False
 
@@ -651,6 +657,8 @@ def analyze_cutout_alpha(img_bytes):
     if not parsed:
         return out
     w, h, rgba = parsed
+    edge_pixels = 0
+    accent_edge = 0
     for i in range(0, len(rgba), 4):
         r, g, b, a = rgba[i:i + 4]
         if a == 0:
@@ -662,18 +670,25 @@ def analyze_cutout_alpha(img_bytes):
         x = (i // 4) % w
         y = (i // 4) // w
         edge_pixel = a and _touches_transparency(rgba, w, h, x, y)
+        if edge_pixel:
+            edge_pixels += 1
         if edge_pixel and g > max(r, b) + 10 and g > 45:
             out["green_fringe"] += 1
         if (edge_pixel and r > 120 and b > 120 and r > g + 15 and b > g + 15
                 and abs(r - b) < 60):
             out["magenta_fringe"] += 1
         if edge_pixel and _is_accent_halo(r, g, b, a):
-            out["accent_halo"] += 1
+            accent_edge += 1
     corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
     out["corner_alpha"] = [rgba[(y * w + x) * 4 + 3] for x, y in corners]
     bottom = (h - 1) * w
     out["bottom_edge_opaque"] = sum(1 for x in range(w) if rgba[(bottom + x) * 4 + 3])
     out["has_alpha"] = out["transparent"] > 0 or out["semi"] > 0
+    # Accent ink touching air is often correct (antenna balls, droplet tips).
+    # Warn only when it behaves like a misregistered ring around much of the silhouette.
+    if edge_pixels and accent_edge >= max(CUTOUT_FRINGE_WARN,
+                                         int(edge_pixels * CUTOUT_ACCENT_HALO_EDGE_FRAC)):
+        out["accent_halo"] = accent_edge
     out["fringe"] = out["green_fringe"] + out["magenta_fringe"] + out["accent_halo"]
     out["clean_alpha"] = (out["transparent"] > CUTOUT_ALPHA_MIN_TRANSPARENT
                           and all(a == 0 for a in out["corner_alpha"]))
