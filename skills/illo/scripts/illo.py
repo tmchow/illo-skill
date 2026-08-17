@@ -47,6 +47,7 @@ CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
 CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
 # Cutout QA hints on a transparent output (warnings, never gate cutout_alpha):
 CUTOUT_ALPHA_MIN_TRANSPARENT = 1000  # enough cleared background to trust the alpha
+CUTOUT_SOFT_EDGE_MAX = 8  # max soft-alpha path length from true transparency
 CUTOUT_ACCENT_HALO_EDGE_FRAC = 0.25  # compact locked accent carriers are not halos
 CUTOUT_FRINGE_WARN = 20   # edge-fringe px worth a QA look
 CUTOUT_EDGE_FRAC = 0.02   # opaque px along the bottom row over this frac of width →
@@ -560,13 +561,7 @@ def _is_accent_halo(r, g, b, a):
     return r > 150 and g < 110 and b > 80 and r > g + 35
 
 
-def _touches_transparency(rgba, width, height, x, y):
-    """Whether an opaque pixel sits on the alpha boundary.
-
-    Outside is true transparency (alpha 0). A fringe just behind a one-pixel
-    soft alpha ring still counts as edge; interior soft patches do not.
-    """
-    soft_neighbors = []
+def _neighbor_coords(width, height, x, y):
     for dy in (-1, 0, 1):
         ny = y + dy
         if ny < 0 or ny >= height:
@@ -577,24 +572,54 @@ def _touches_transparency(rgba, width, height, x, y):
             nx = x + dx
             if nx < 0 or nx >= width:
                 continue
-            alpha = rgba[(ny * width + nx) * 4 + 3]
-            if alpha == 0:
-                return True
-            if alpha < 255:
-                soft_neighbors.append((nx, ny))
-    for sx, sy in soft_neighbors:
-        for dy in (-1, 0, 1):
-            ny = sy + dy
-            if ny < 0 or ny >= height:
+            yield nx, ny
+
+
+def _soft_near_air_mask(rgba, width, height, max_depth=CUTOUT_SOFT_EDGE_MAX):
+    """Soft alpha pixels connected to true transparency within max_depth."""
+    mask = bytearray(width * height)
+    queue = []
+    for idx in range(width * height):
+        alpha = rgba[idx * 4 + 3]
+        if not 0 < alpha < 255:
+            continue
+        x = idx % width
+        y = idx // width
+        for nx, ny in _neighbor_coords(width, height, x, y):
+            if rgba[(ny * width + nx) * 4 + 3] == 0:
+                mask[idx] = 1
+                queue.append((x, y, 1))
+                break
+    head = 0
+    while head < len(queue):
+        x, y, depth = queue[head]
+        head += 1
+        if depth >= max_depth:
+            continue
+        for nx, ny in _neighbor_coords(width, height, x, y):
+            nidx = ny * width + nx
+            if mask[nidx]:
                 continue
-            for dx in (-1, 0, 1):
-                if dx == 0 and dy == 0:
-                    continue
-                nx = sx + dx
-                if nx < 0 or nx >= width:
-                    continue
-                if rgba[(ny * width + nx) * 4 + 3] == 0:
-                    return True
+            alpha = rgba[nidx * 4 + 3]
+            if 0 < alpha < 255:
+                mask[nidx] = 1
+                queue.append((nx, ny, depth + 1))
+    return mask
+
+
+def _touches_transparency(rgba, width, height, x, y, soft_near_air):
+    """Whether an opaque pixel sits on the alpha boundary.
+
+    Outside is true transparency (alpha 0). Soft alpha counts only when the
+    precomputed mask proves it has a bounded path to air.
+    """
+    for nx, ny in _neighbor_coords(width, height, x, y):
+        idx = ny * width + nx
+        alpha = rgba[idx * 4 + 3]
+        if alpha == 0:
+            return True
+        if 0 < alpha < 255 and soft_near_air[idx]:
+            return True
     return False
 
 
@@ -673,6 +698,7 @@ def analyze_cutout_alpha(img_bytes):
     if not parsed:
         return out
     w, h, rgba = parsed
+    soft_near_air = _soft_near_air_mask(rgba, w, h)
     edge_pixels = 0
     accent_edge = 0
     for i in range(0, len(rgba), 4):
@@ -685,7 +711,7 @@ def analyze_cutout_alpha(img_bytes):
             out["semi"] += 1
         x = (i // 4) % w
         y = (i // 4) // w
-        edge_pixel = a and _touches_transparency(rgba, w, h, x, y)
+        edge_pixel = a and _touches_transparency(rgba, w, h, x, y, soft_near_air)
         if edge_pixel:
             edge_pixels += 1
         if edge_pixel and g > max(r, b) + 10 and g > 45:
