@@ -231,3 +231,43 @@ Do **not** use Pillow `save(..., optimize=True, disposal=2)` for this path; it
 can drop alpha on blink frames and flash a black background. Deliver 1:1, loop
 forever, keep the character about 60-80% of the frame, and stay under 5 MB for
 Grok Bot avatars.
+
+Before delivery, inspect the source cutout, at least three exported frames
+(rest, max bob, blink), and the final GIF. Do not ship from the script
+succeeding.
+
+### Must pass
+
+- **Look at the pixels** — open the cutout and GIF; tight-crop thin parts
+  (antenna, stems, outlines) instead of trusting generate JSON or ffmpeg exit
+  status.
+- **Transparency on every frame** — corners stay transparent; no frame has
+  nearly zero transparent pixels.
+- **Thin-part geometry** — antenna / accent stem stays straight and centered on
+  its ball or tip.
+- **Blink stays on-model** — the pack face lock still holds; blink by squashing
+  the locked eye dots only, with no invented mouth/brows.
+- **Motion is visible but planted** — on a 512 canvas, rest vs max-bob head-top
+  Y moves about 8-12 px (~1.5-2.5% of the canvas); the body and feet Y stay
+  unchanged.
+- **One cutout** — every frame comes from the same still PNG, not morphed
+  separately generated poses.
+- **Watch the loop once** — if the personality is not noticeable, or a tear is
+  noticeable, it is not ready.
+
+### Fail signals → fix
+
+- A frame has nearly zero transparent pixels, or the GIF flashes black →
+  re-encode with the ffmpeg palettegen path above; never use Pillow
+  `optimize=True` for this path.
+- Antenna / accent stem drifts 1-2 px down the shaft, bends, or misses the
+  ball/tip center → straighten in post or re-roll the still.
+- Whole sticker rotates, hops, or bounces → keep the body planted; animate
+  head/eyes personality only.
+- Head bob under ~4 px on a 512 canvas → increase it; the motion will disappear
+  at delivery size.
+- Head lifts off the torso, leaves a gap, sliced chin, double contour, or
+  leftover chin slab → bob **down into the body only**, feather the join, and
+  keep enough overlap.
+- Blink frame invents facial features or changes expression → rebuild it as
+  locked eye-dot squash only.
