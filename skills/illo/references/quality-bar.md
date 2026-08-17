@@ -133,11 +133,12 @@ style QA deltas) still applies to the character cluster.
 
 ### Must pass
 
-- **Transparent output** — manifest `cutout_alpha` is true (engine requires clean
-  alpha: transparent corners and sufficient background removal). No visible
-  magenta/green screen fringing at the silhouette edge. When `cutout_alpha` is false,
-  do not deliver as a compositing sticker — re-roll, switch backend/model, or
-  disclose honestly (see `cutout_note`).
+- **Transparent output** — manifest `cutout_alpha` is true (transparent corners
+  and sufficient background removal). No visible magenta/green screen fringing at
+  the silhouette edge. Interior accent fill is not a fringe fail; when corners
+  are transparent and the background is gone, `cutout_alpha` must stay true. When
+  `cutout_alpha` is false, do not deliver as a compositing sticker — re-roll,
+  switch backend/model, or disclose honestly (see `cutout_note`).
 - **Full body framing** — feet/base fully visible, not cropped by the frame; clear
   margin below the feet (same structural-integrity bar as editorial limbs). The
   engine flags likely crops in `cutout_note` ("character touches the bottom frame
@@ -161,9 +162,10 @@ style QA deltas) still applies to the character cluster.
 - Green or magenta bleed on the silhouette → re-roll with the **other** chroma
   screen (see `references/cutout.md`); check `--cutout` was passed and the
   BACKGROUND line matches the character.
-- Accent-colored halo tracing the outer contour (riso misregistration) → re-roll
-  with the **registration-locked SILHOUETTE** block — no ink-layer offset on
-  cutouts (`references/prompt-recipe.md`, "Cutout variant").
+- Edge-only accent-colored halo tracing the outer contour (riso
+  misregistration) → re-roll with the **registration-locked SILHOUETTE** block —
+  no ink-layer offset on cutouts (`references/prompt-recipe.md`, "Cutout
+  variant"). Interior accent fill is correct on-model, not a halo.
 - Feet or base cropped by the frame → re-roll; check the Composition line names
   full body and margin below the feet.
 - A separate object sits near but not touching the character → re-roll

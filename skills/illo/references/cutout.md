@@ -197,3 +197,37 @@ character sheet alone.
 Check against the cutout section of `references/quality-bar.md` before
 delivering. Re-roll on orphans, scene bleed, green fringing, cropped feet/limbs,
 or off-model drift.
+
+## Idle loop / bot avatar
+
+Route animated idle loops and bot-avatar GIFs through this same **cutout**
+register: 1:1, `--cutout`, active character sheet as `--ref`. Do not route to
+editorial.
+
+Generate **one** on-model cutout and animate that PNG. Do **not** generate 3-4
+poses and morph them — separate renders drift and the loop flickers. Keep the
+pack constraints programmatic: no mouth/brows means do not draw them; blink by
+squashing the locked eye dots; no fingers means no grasping wave; a deadpan face
+stays deadpan.
+
+For a head bob, move **only the head** plus antenna; keep the body planted.
+Prefer down into the body and back, or a feathered join with enough overlap.
+Lifting the head off the torso exposes a sliced chin / double contour. Make the
+motion subtle but visible: about 8-12 px on a 512 canvas. A 2 px move vanishes;
+12 px in both directions tends to tear.
+
+Trust `cutout_alpha` after the engine runs. If a keyed PNG is discarded even
+though the corners are transparent and the background is gone, that is an engine
+bug — do not "fix" it by switching to Grok Bot native, which has no alpha.
+
+Encode transparent GIFs with ffmpeg palette preservation:
+
+```bash
+ffmpeg -i frames/%03d.png -vf "palettegen=reserve_transparent=1" palette.png
+ffmpeg -i frames/%03d.png -i palette.png -lavfi "paletteuse=dither=none" -loop 0 avatar.gif
+```
+
+Do **not** use Pillow `save(..., optimize=True, disposal=2)` for this path; it
+can drop alpha on blink frames and flash a black background. Deliver 1:1, loop
+forever, keep the character about 60-80% of the frame, and stay under 5 MB for
+Grok Bot avatars.
