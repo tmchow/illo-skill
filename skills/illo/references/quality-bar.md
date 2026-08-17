@@ -157,8 +157,8 @@ style QA deltas) still applies to the character cluster.
 - **Pose matches the ask** — gesture, facing, and attitude match what was
   requested (or the agent's inferred pose when the prompt was thin).
 - **Idle-loop GIFs** — after this cutout QA, run `references/cutout.md`, "Idle
-  loop / bot avatar" on the source cutout, rest/max-bob/blink frames, and final
-  GIF.
+  loop / bot avatar" on the source cutout, rest/peak-motion/blink-or-other
+  changed frames, and final GIF.
 
 ### Fail signals → fix
 
