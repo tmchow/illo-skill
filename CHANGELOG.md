@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.3](https://github.com/tmchow/illo-skill/compare/v0.34.2...v0.34.3) (2026-08-17)
+
+
+### Bug Fixes
+
+* keep successful chroma cutouts transparent ([#65](https://github.com/tmchow/illo-skill/issues/65)) ([194e412](https://github.com/tmchow/illo-skill/commit/194e412fa9f8b48990c0bf8a0380d6fc5d23acd1))
+
 ## [0.34.2](https://github.com/tmchow/illo-skill/compare/v0.34.1...v0.34.2) (2026-08-16)
 
 
