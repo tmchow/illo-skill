@@ -133,11 +133,12 @@ style QA deltas) still applies to the character cluster.
 
 ### Must pass
 
-- **Transparent output** — manifest `cutout_alpha` is true (engine requires clean
-  alpha: transparent corners and sufficient background removal). No visible
-  magenta/green screen fringing at the silhouette edge. When `cutout_alpha` is false,
-  do not deliver as a compositing sticker — re-roll, switch backend/model, or
-  disclose honestly (see `cutout_note`).
+- **Transparent output** — manifest `cutout_alpha` is true (transparent corners
+  and sufficient background removal). No visible magenta/green screen fringing at
+  the silhouette edge. Interior accent fill is not a fringe fail; when corners
+  are transparent and the background is gone, `cutout_alpha` must stay true. When
+  `cutout_alpha` is false, do not deliver as a compositing sticker — re-roll,
+  switch backend/model, or disclose honestly (see `cutout_note`).
 - **Full body framing** — feet/base fully visible, not cropped by the frame; clear
   margin below the feet (same structural-integrity bar as editorial limbs). The
   engine flags likely crops in `cutout_note` ("character touches the bottom frame
@@ -155,15 +156,20 @@ style QA deltas) still applies to the character cluster.
 - **One compositing unit** — reads as one sticker, not a cropped illustration.
 - **Pose matches the ask** — gesture, facing, and attitude match what was
   requested (or the agent's inferred pose when the prompt was thin).
+- **Idle-loop GIFs** — after this cutout QA, run `references/cutout.md`, "Idle
+  loop / bot avatar" on the source cutout, rest/peak-motion/blink-or-other
+  changed frames, and final GIF.
 
 ### Fail signals → fix
 
 - Green or magenta bleed on the silhouette → re-roll with the **other** chroma
   screen (see `references/cutout.md`); check `--cutout` was passed and the
   BACKGROUND line matches the character.
-- Accent-colored halo tracing the outer contour (riso misregistration) → re-roll
-  with the **registration-locked SILHOUETTE** block — no ink-layer offset on
-  cutouts (`references/prompt-recipe.md`, "Cutout variant").
+- Edge-only accent-colored halo tracing the outer contour (riso
+  misregistration) → re-roll with the **registration-locked SILHOUETTE** block —
+  no ink-layer offset on cutouts (`references/prompt-recipe.md`, "Cutout
+  variant"). Interior accent fill and compact locked accent carriers that touch
+  air are correct on-model, not halos.
 - Feet or base cropped by the frame → re-roll; check the Composition line names
   full body and margin below the feet.
 - A separate object sits near but not touching the character → re-roll

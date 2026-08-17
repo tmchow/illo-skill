@@ -197,3 +197,92 @@ character sheet alone.
 Check against the cutout section of `references/quality-bar.md` before
 delivering. Re-roll on orphans, scene bleed, green fringing, cropped feet/limbs,
 or off-model drift.
+
+## Idle loop / bot avatar
+
+Route animated idle loops and bot-avatar GIFs through this same **cutout**
+register: 1:1, `--cutout`, active character sheet as `--ref`. Do not route to
+editorial.
+
+Generate **one** on-model cutout and animate that PNG. Do **not** generate 3-4
+poses and morph them — separate renders drift and the loop flickers. Keep the
+pack constraints programmatic: no mouth/brows means do not draw them; blink by
+squashing the locked eye dots; no fingers means no grasping wave; a deadpan face
+stays deadpan.
+
+Pick the move from the figure. Read the pack's locked design, accent carrier,
+and limbs; choose one or more motions that figure can do without breaking locks.
+Head bob is optional: allowed when the silhouette has a distinct head that can
+nod **down into the body** without tearing. Use about 8-12 px on a 512 canvas,
+down-only, with a feathered join and the body planted. It can stack with another
+move (blink, antenna sway, flame flicker) or be the only move. It is not
+required.
+
+Other pack-legal examples (illustrative, not exhaustive):
+
+- Soft blob / droplet (Blot) — jelly squash of the body; tip rides the squash;
+  feet planted.
+- Rigid cube + antenna (Blip) — antenna sway; cube planted.
+- Accent flame / lantern (Wick) — flame flicker only; iron planted.
+- Accordion / spring limbs (Coil) — limb compress-and-rebound; head/torso/feet
+  planted.
+- Blink — squash locked eye dots only, on any pack that has them. Combine freely.
+
+Trust `cutout_alpha` after the engine runs. If a keyed PNG is discarded even
+though the corners are transparent and the background is gone, that is an engine
+bug — do not "fix" it by switching to Grok Bot native, which has no alpha.
+
+Encode transparent GIFs with ffmpeg palette preservation:
+
+```bash
+ffmpeg -i frames/%03d.png -vf "palettegen=reserve_transparent=1" palette.png
+ffmpeg -i frames/%03d.png -i palette.png -lavfi "paletteuse=dither=none" -loop 0 avatar.gif
+```
+
+Do **not** use Pillow `save(..., optimize=True, disposal=2)` for this path; it
+can drop alpha on blink frames and flash a black background. Deliver 1:1, loop
+forever, keep the character about 60-80% of the frame, and stay under 5 MB for
+Grok Bot avatars.
+
+Before delivery, inspect the source cutout, at least three exported frames
+(rest, peak motion, blink if present; otherwise another changed frame), and the
+final GIF. Do not ship from the script succeeding.
+
+### Must pass
+
+- **Look at the pixels** — open the cutout and GIF; tight-crop thin parts
+  (antenna, stems, outlines) instead of trusting generate JSON or ffmpeg exit
+  status.
+- **Transparency on every frame** — corners stay transparent; no frame has
+  nearly zero transparent pixels.
+- **Thin-part geometry** — antenna / accent stem stays straight and centered on
+  its ball or tip.
+- **Blink stays on-model** — the pack face lock still holds; blink by squashing
+  the locked eye dots only, with no invented mouth/brows.
+- **Motion is pack-legal, visible, and planted** — the chosen move comes from
+  the silhouette, accent carrier, or locked limbs. If using a head bob on a 512
+  canvas, rest vs peak head-top Y moves about 8-12 px (~1.5-2.5% of the canvas),
+  down-only. Body/feet/contact stay planted.
+- **One cutout** — every frame comes from the same still PNG, not morphed
+  separately generated poses.
+- **Watch the loop once** — if the personality is not noticeable, or a tear is
+  noticeable, it is not ready.
+
+### Fail signals → fix
+
+- A frame has nearly zero transparent pixels, or the GIF flashes black →
+  re-encode with the ffmpeg palettegen path above; never use Pillow
+  `optimize=True` for this path.
+- Antenna / accent stem drifts 1-2 px down the shaft, bends, or misses the
+  ball/tip center → straighten in post or re-roll the still.
+- Whole sticker rotates, hops, or bounces → keep contact planted; animate only
+  pack-legal silhouette parts.
+- Head bob under ~4 px on a 512 canvas → increase it or choose a better
+  pack-legal move; the motion will disappear at delivery size.
+- Head lifts off the torso, leaves a gap, sliced chin, double contour, or
+  leftover chin slab → if using a bob, move **down into the body only**, feather
+  the join, and keep enough overlap.
+- Blink frame invents facial features or changes expression → rebuild it as
+  locked eye-dot squash only.
+- Every avatar in a multi-bot set uses the same generic head bob when a
+  pack-legal alternative exists → choose distinct moves from each figure.

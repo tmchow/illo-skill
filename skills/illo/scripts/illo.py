@@ -45,8 +45,11 @@ CHROMA_SOFT = 20
 CHROMA_SPILL_MIN = 18   # channel dominance over the other two → spill candidate
 CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
 CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
-# Cutout QA hints on a clean-alpha output (warnings, never gate cutout_alpha):
-CUTOUT_FRINGE_WARN = 20   # fringe px below the clean-alpha gate but worth a QA look
+# Cutout QA hints on a transparent output (warnings, never gate cutout_alpha):
+CUTOUT_ALPHA_MIN_TRANSPARENT = 1000  # enough cleared background to trust the alpha
+CUTOUT_SOFT_EDGE_MAX = 8  # max soft-alpha path length from true transparency
+CUTOUT_ACCENT_HALO_EDGE_FRAC = 0.25  # compact locked accent carriers are not halos
+CUTOUT_FRINGE_WARN = 20   # edge-fringe px worth a QA look
 CUTOUT_EDGE_FRAC = 0.02   # opaque px along the bottom row over this frac of width →
                           # character likely touches/crops the frame (no foot margin)
 # Grok Imagine: best riso quality + cheapest in testing. Note: it is reachable via
@@ -552,10 +555,72 @@ def _is_spill_halo(r, g, b):
 
 
 def _is_accent_halo(r, g, b, a):
-    """Riso misregistration / accent ink tracing the outer silhouette."""
+    """Accent ink color that may be a halo when it sits on the outer edge."""
     if a == 0:
         return False
     return r > 150 and g < 110 and b > 80 and r > g + 35
+
+
+def _neighbor_coords(width, height, x, y):
+    for dy in (-1, 0, 1):
+        ny = y + dy
+        if ny < 0 or ny >= height:
+            continue
+        for dx in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            nx = x + dx
+            if nx < 0 or nx >= width:
+                continue
+            yield nx, ny
+
+
+def _soft_near_air_mask(rgba, width, height, max_depth=CUTOUT_SOFT_EDGE_MAX):
+    """Soft alpha pixels connected to true transparency within max_depth."""
+    mask = bytearray(width * height)
+    queue = []
+    for idx in range(width * height):
+        alpha = rgba[idx * 4 + 3]
+        if not 0 < alpha < 255:
+            continue
+        x = idx % width
+        y = idx // width
+        for nx, ny in _neighbor_coords(width, height, x, y):
+            if rgba[(ny * width + nx) * 4 + 3] == 0:
+                mask[idx] = 1
+                queue.append((x, y, 1))
+                break
+    head = 0
+    while head < len(queue):
+        x, y, depth = queue[head]
+        head += 1
+        if depth >= max_depth:
+            continue
+        for nx, ny in _neighbor_coords(width, height, x, y):
+            nidx = ny * width + nx
+            if mask[nidx]:
+                continue
+            alpha = rgba[nidx * 4 + 3]
+            if 0 < alpha < 255:
+                mask[nidx] = 1
+                queue.append((nx, ny, depth + 1))
+    return mask
+
+
+def _touches_transparency(rgba, width, height, x, y, soft_near_air):
+    """Whether an opaque pixel sits on the alpha boundary.
+
+    Outside is true transparency (alpha 0). Soft alpha counts only when the
+    precomputed mask proves it has a bounded path to air.
+    """
+    for nx, ny in _neighbor_coords(width, height, x, y):
+        idx = ny * width + nx
+        alpha = rgba[idx * 4 + 3]
+        if alpha == 0:
+            return True
+        if 0 < alpha < 255 and soft_near_air[idx]:
+            return True
+    return False
 
 
 def _despill_rgb(r, g, b, a):
@@ -620,7 +685,7 @@ def chroma_key_to_png(data, key=CHROMA_KEY):
 
 
 def analyze_cutout_alpha(img_bytes):
-    """Return transparency metrics for cutout QA and routing."""
+    """Return transparency metrics for cutout routing plus edge-fringe QA."""
     ext = sniff_ext(img_bytes)
     w, h = image_size(img_bytes)
     out = {"ext": ext, "width": w, "height": h, "transparent": 0, "opaque": 0,
@@ -633,6 +698,9 @@ def analyze_cutout_alpha(img_bytes):
     if not parsed:
         return out
     w, h, rgba = parsed
+    soft_near_air = _soft_near_air_mask(rgba, w, h)
+    edge_pixels = 0
+    accent_edge = 0
     for i in range(0, len(rgba), 4):
         r, g, b, a = rgba[i:i + 4]
         if a == 0:
@@ -641,20 +709,32 @@ def analyze_cutout_alpha(img_bytes):
             out["opaque"] += 1
         else:
             out["semi"] += 1
-        if a and g > max(r, b) + 10 and g > 45:
+        x = (i // 4) % w
+        y = (i // 4) // w
+        edge_pixel = a and _touches_transparency(rgba, w, h, x, y, soft_near_air)
+        opaque_edge_pixel = edge_pixel and a == 255
+        if opaque_edge_pixel:
+            edge_pixels += 1
+        if edge_pixel and g > max(r, b) + 10 and g > 45:
             out["green_fringe"] += 1
-        if a and r > 120 and b > 120 and r > g + 15 and b > g + 15 and abs(r - b) < 60:
+        if (edge_pixel and r > 120 and b > 120 and r > g + 15 and b > g + 15
+                and abs(r - b) < 60):
             out["magenta_fringe"] += 1
-        if a and _is_accent_halo(r, g, b, a):
-            out["accent_halo"] += 1
+        if opaque_edge_pixel and _is_accent_halo(r, g, b, a):
+            accent_edge += 1
     corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
     out["corner_alpha"] = [rgba[(y * w + x) * 4 + 3] for x, y in corners]
     bottom = (h - 1) * w
     out["bottom_edge_opaque"] = sum(1 for x in range(w) if rgba[(bottom + x) * 4 + 3])
     out["has_alpha"] = out["transparent"] > 0 or out["semi"] > 0
+    # Accent ink touching air is often correct (antenna balls, droplet tips).
+    # Opaque edge pixels define this denominator; soft mattes must not dilute it.
+    if edge_pixels and accent_edge >= max(CUTOUT_FRINGE_WARN,
+                                         int(edge_pixels * CUTOUT_ACCENT_HALO_EDGE_FRAC)):
+        out["accent_halo"] = accent_edge
     out["fringe"] = out["green_fringe"] + out["magenta_fringe"] + out["accent_halo"]
-    out["clean_alpha"] = (out["transparent"] > 1000 and all(a == 0 for a in out["corner_alpha"])
-                          and out["fringe"] < 50)
+    out["clean_alpha"] = (out["transparent"] > CUTOUT_ALPHA_MIN_TRANSPARENT
+                          and all(a == 0 for a in out["corner_alpha"]))
     return out
 
 
@@ -829,7 +909,7 @@ def _place_opaque(img_bytes, out_path):
 
 
 def _cutout_quality_note(analysis):
-    """QA warnings for a clean-alpha cutout. These never gate cutout_alpha —
+    """QA warnings for an alpha cutout. These never gate cutout_alpha —
     transparency is real; the agent re-rolls on framing/fringe at QA."""
     notes = []
     w = analysis.get("width") or 0

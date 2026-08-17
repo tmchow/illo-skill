@@ -77,6 +77,7 @@ infographic, not a formal flowchart, not a UI mockup.
 | **Options to pick from, or "which model is best"** | Step 5b: `--count` variations or a model loop → `gallery` with a recommendation. |
 | **Fix an existing image** (stray title, recolor, mascot too decorative) | Edit prompts in `references/prompt-recipe.md`, passing the image back as `--ref`. |
 | **Character cutout / transparent PNG / overlay sticker** — "just the mascot", "no background", "paste on something else" | The **cutout register** (`references/cutout.md`): read in full, prompt from `references/prompt-recipe.md` "Cutout variant", generate with `--cutout` and `--aspect 1:1`. OpenRouter cutouts default to GPT Image 2 (not Grok). Not for explaining an idea — reroute to editorial if the ask needs a scene. |
+| **Animated idle / bot avatar / looping GIF of the mascot** | The **cutout register** plus `references/cutout.md`, "Idle loop / bot avatar": one transparent 1:1 cutout with `--cutout` and the character sheet as `--ref`, then programmatic motion on that PNG. |
 
 ## Prerequisites
 
