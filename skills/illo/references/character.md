@@ -196,7 +196,8 @@ the pack name, and the `doctor` subcommand lists what's installed:
   paragraph for the CHARACTER slot, value rules, a `Style: <name>` line (the
   pack's one look — a bundled or custom style; absent = riso), an optional
   **`Cutout chroma: green|magenta`** line (the pack's cutout screen color —
-  absent = magenta; see `references/cutout.md`), an optional `Aliases:` line
+  used only by the OpenRouter/forced-chroma compatibility path; absent =
+  magenta; see `references/cutout.md`), an optional `Aliases:` line
   (subject synonyms for "use ox"-style selection; see Naming above), an
   optional **`## Interaction model`** section (fields above — packs without
   one get the conservative derivation), and (optionally) personality notes.

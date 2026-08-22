@@ -162,9 +162,12 @@ style QA deltas) still applies to the character cluster.
 
 ### Fail signals → fix
 
-- Green or magenta bleed on the silhouette → re-roll with the **other** chroma
-  screen (see `references/cutout.md`); check `--cutout` was passed and the
-  BACKGROUND line matches the character.
+- Green or magenta bleed on a chroma-rendered silhouette → re-roll with the
+  **other** `--chroma` screen (see `references/cutout.md`); check `--cutout`
+  was passed. Do not hand-write a `BACKGROUND:` line — the engine appends it.
+- Halo/fringe on a native-alpha Codex result → re-roll once with the
+  registration-locked prompt; if it persists, force `--chroma` compatibility
+  and inspect the result again.
 - Edge-only accent-colored halo tracing the outer contour (riso
   misregistration) → re-roll with the **registration-locked SILHOUETTE** block —
   no ink-layer offset on cutouts (`references/prompt-recipe.md`, "Cutout

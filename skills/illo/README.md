@@ -276,7 +276,9 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
   structure itself.
 - **Character cutouts** — transparent PNG of the mascot alone (pose, optional
   contact objects in touch with the body) for slides, compositing, or handing
-  off to another tool. Not for explaining an idea — that stays editorial.
+  off to another tool. Codex uses native alpha; the engine keeps chroma as an
+  automatic OpenRouter and explicit compatibility path. Not for explaining an
+  idea — that stays editorial.
 - **Your own mascot** — the character builder interviews you (or starts from
   art you already have), pressure-tests the concept against the house
   guardrails, renders model-sheet candidates, and installs the winner as a

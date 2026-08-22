@@ -22,9 +22,10 @@ family.
 4. **CRT / bezel creep** — scanlines, TV frames, and monitor glass are a
    different look (`phosphor` / CRT proposal). SNES is a clean sprite sheet
    on flat paper, not a TV capture.
-5. **Cutout chroma spoil** — dither or paper color leaks into the chroma
-   screen so keying fails. On cutouts, dither the **character only**; the
-   background must be a perfectly flat undithered chroma fill.
+5. **Cutout edge spoil** — dither or paper color leaks outside the character
+   cluster. On cutouts, dither the **character only**; native-alpha pixels
+   outside it must be transparent, while a forced chroma screen must stay flat
+   and undithered.
 
 ## Prompt blocks (replace the template's LINE LANGUAGE and STYLE lines)
 
@@ -85,13 +86,15 @@ per-panel labels only (e.g. BEFORE / AFTER).
 
 Same SNES character treatment, but:
 
-- Background is **only** the pack's cutout chroma (flat `#FF00AA` magenta or
-  green) — no lavender paper, no dither, no ground shadow.
+- Outside the character cluster is **transparent** on Codex-native output or
+  only the engine-selected flat chroma on the compatibility path — no lavender
+  paper, no dither, no ground shadow.
 - Dither lives on the mascot body only.
 - No labels, no environment.
 
-If chroma key fails (opaque fallback), re-roll with an explicit "ZERO dither
-on the chroma screen" line before accepting an opaque deliverable.
+If native alpha fails, re-roll once, then force `--chroma`; if chroma keying
+fails, re-roll with "ZERO dither outside the character cluster" before
+accepting an opaque deliverable.
 
 ## Staging fit
 

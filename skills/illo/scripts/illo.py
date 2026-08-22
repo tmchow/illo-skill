@@ -34,9 +34,10 @@ ALIASES_RE = re.compile(r"^Aliases:\s*(.+)$", re.M)
 CUTOUT_CHROMA_RE = re.compile(r"^Cutout chroma:\s*\*?\*?(green|magenta)\*?\*?\s*$", re.M | re.I)
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # Chroma key for --cutout: flat screen outside the character cluster; removed
-# in post with spill suppression. Default magenta; green for forged/wrought-metal
-# silhouettes (Wick). Registration-locked cutout prompts keep riso grain inside
-# fills — misregistration halos read as fringe at QA.
+# in post with spill suppression. Codex requests native alpha by default; chroma
+# remains the compatibility path for OpenRouter and explicit --chroma rerolls.
+# Registration-locked cutout prompts keep riso grain inside fills —
+# misregistration halos read as fringe at QA.
 CHROMA_MAGENTA = (255, 0, 255)
 CHROMA_GREEN = (0, 255, 0)
 CHROMA_KEY = CHROMA_MAGENTA
@@ -45,6 +46,13 @@ CHROMA_SOFT = 20
 CHROMA_SPILL_MIN = 18   # channel dominance over the other two → spill candidate
 CHROMA_SPILL_FLOOR = 45 # ignore tiny channel noise on very dark pixels
 CHROMA_SPILL_STRONG = 30  # dominance this high keys even when G is below floor
+NATIVE_ALPHA_OUTPUT_LINE = (
+    "OUTPUT FORMAT: return a PNG with a real transparent alpha channel. Every pixel "
+    "outside the character and its contact cluster must have alpha 0 — no white, gray, "
+    "black, green, or magenta backdrop, no checkerboard pattern, and no simulated "
+    "transparency. Keep only the character and its directly connected contact cluster "
+    "opaque."
+)
 # Cutout QA hints on a transparent output (warnings, never gate cutout_alpha):
 CUTOUT_ALPHA_MIN_TRANSPARENT = 1000  # enough cleared background to trust the alpha
 CUTOUT_SOFT_EDGE_MAX = 8  # max soft-alpha path length from true transparency
@@ -660,8 +668,8 @@ def chroma_key_to_png(data, key=CHROMA_KEY):
     width, height, rgba = parsed
     out = bytearray(len(rgba))
     for i in range(0, len(rgba), 4):
-        r, g, b = rgba[i], rgba[i + 1], rgba[i + 2]
-        a = _chroma_alpha(r, g, b, key)
+        r, g, b, source_alpha = rgba[i:i + 4]
+        a = min(source_alpha, _chroma_alpha(r, g, b, key))
         if a:
             r, g, b = _despill_rgb(r, g, b, a)
         out[i:i + 3] = bytes((r, g, b))
@@ -881,8 +889,66 @@ def chroma_background_line(key):
             "for transparency extraction; it must not bleed onto the mascot outline.")
 
 
+def _cutout_contract_kind(block):
+    first_line = block.lstrip().splitlines()[0].strip().upper()
+    for kind in ("BACKGROUND", "OUTPUT FORMAT"):
+        if first_line.startswith(f"{kind}:"):
+            return kind
+    return None
+
+
+def _starts_prompt_section(line):
+    label, separator, _ = line.strip().partition(":")
+    if not separator or len(label) > 80 or not any(char.isalpha() for char in label):
+        return False
+    base = label.split("(", 1)[0].strip()
+    return base == base.upper() or (" " not in base and base.istitle())
+
+
+def _prompt_sections(prompt):
+    """Split prompt sections at blank lines and heading lines."""
+    sections = []
+    current = []
+    for line in prompt.strip().splitlines():
+        if not line.strip():
+            if current:
+                sections.append("\n".join(current))
+                current = []
+            continue
+        if current and _starts_prompt_section(line):
+            sections.append("\n".join(current))
+            current = []
+        current.append(line)
+    if current:
+        sections.append("\n".join(current))
+    return sections
+
+
 def _prompt_has_chroma_background(prompt):
-    return bool(_prompt_background_line(prompt))
+    for section in _prompt_sections(prompt):
+        if _cutout_contract_kind(section) != "BACKGROUND":
+            continue
+        background = section.lower()
+        if "chroma" in background or "#ff00ff" in background or "#00ff00" in background:
+            return True
+    return False
+
+
+def _replace_cutout_contracts(prompt, replacement):
+    """Replace legacy cutout contract blocks with one engine-owned contract."""
+    sections = [section for section in _prompt_sections(prompt)
+                if _cutout_contract_kind(section) is None]
+    sections.append(replacement)
+    return "\n\n".join(sections)
+
+
+def cutout_prompt_for_backend(prompt, backend, chroma_key, force_chroma=False):
+    """Add the output contract for a cutout render's actual backend."""
+    has_chroma = _prompt_has_chroma_background(prompt)
+    use_chroma = force_chroma or backend != "codex" or has_chroma
+    if use_chroma:
+        return _replace_cutout_contracts(prompt, chroma_background_line(chroma_key))
+    return _replace_cutout_contracts(prompt, NATIVE_ALPHA_OUTPUT_LINE)
 
 
 def apply_cutout_postprocess(img_bytes, out_path, key=CHROMA_MAGENTA):
@@ -1314,8 +1380,8 @@ def cmd_generate(args):
                  "choose an engine backend: codex, grok, or openrouter.")
 
     # Grok returns JPEG with no alpha/chroma path, so it can't produce transparent
-    # cutouts. Redirect a cutout render to a cutout-capable backend (Codex chroma,
-    # else OpenRouter GPT Image 2); error if neither is configured.
+    # cutouts. Redirect a cutout render to a cutout-capable backend (Codex native
+    # alpha, else OpenRouter GPT Image 2 + chroma); error if neither is configured.
     if args.cutout and backend == "grok":
         if codex_available():
             sys.stderr.write("note: Grok can't produce transparent cutouts (JPEG, no "
@@ -1341,8 +1407,13 @@ def cmd_generate(args):
                                     pack_chroma=pack_chroma) if args.cutout else None
     if aspect:
         prompt = f"{prompt}\n\nAspect ratio: {aspect}."
-    if args.cutout and not _prompt_has_chroma_background(prompt):
-        prompt = f"{prompt}\n\n{chroma_background_line(chroma_key)}"
+    if args.cutout:
+        prompt = cutout_prompt_for_backend(
+            prompt,
+            backend,
+            chroma_key,
+            force_chroma=getattr(args, "chroma", None) is not None,
+        )
 
     out = pathlib.Path(args.out)
     n = max(1, args.count)
@@ -1355,7 +1426,6 @@ def cmd_generate(args):
                           chroma_key=chroma_key,
                           allow_paid_fallback=args.allow_paid_fallback)
         rec["label"] = args.label or ""
-        rec["prompt"] = prompt
         with manifest.open("a") as f:
             f.write(json.dumps(rec) + "\n")
         print(json.dumps(rec))
@@ -1393,9 +1463,18 @@ def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
             if allow_paid_fallback and cfg.get("apiKey"):
                 sys.stderr.write(f"note: {backend} backend unavailable ({e}); "
                                  f"falling back to OpenRouter.\n")
-                return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
-                                          cutout=cutout, image_config=image_config,
-                                          chroma_key=chroma_key)
+                fallback_prompt = (
+                    cutout_prompt_for_backend(
+                        prompt, "openrouter", chroma_key
+                    )
+                    if cutout else prompt
+                )
+                rec = _openrouter_record(
+                    cfg, fallback_prompt, model, refs, want_cost, out_path,
+                    cutout=cutout, image_config=image_config, chroma_key=chroma_key
+                )
+                rec["prompt"] = fallback_prompt
+                return rec
             if cfg.get("apiKey"):
                 sys.exit(f"{backend} backend failed: {e}\n"
                          "Paid OpenRouter fallback is disabled. Retry with "
@@ -1414,10 +1493,14 @@ def _render_one(backend, cfg, prompt, model, refs, want_cost, out_path,
         # per-image cost, so never fetch_cost a CLI-served record.
         rec = {"path": str(path), "model": meta["model"], "id": meta["id"],
                "backend": backend, "cost": None, "width": w, "height": h}
-        return _apply_cutout_meta(rec, cutout_meta)
-    return _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
-                              cutout=cutout, image_config=image_config,
-                              chroma_key=chroma_key)
+        rec = _apply_cutout_meta(rec, cutout_meta)
+        rec["prompt"] = prompt
+        return rec
+    rec = _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
+                             cutout=cutout, image_config=image_config,
+                             chroma_key=chroma_key)
+    rec["prompt"] = prompt
+    return rec
 
 
 def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
@@ -2021,8 +2104,9 @@ def main():
                    help="OpenRouter image_config JSON object (merged with --aspect); "
                         "e.g. '{\"aspect_ratio\":\"1:1\"}'")
     g.add_argument("--chroma", choices=("magenta", "green"),
-                   help="cutout chroma screen color (default: pack Cutout chroma line, "
-                        "then prompt BACKGROUND:, then heuristics)")
+                   help="force the cutout chroma compatibility path and choose its screen "
+                        "color (otherwise Codex requests native alpha; OpenRouter uses the "
+                        "pack Cutout chroma line, prompt BACKGROUND:, or heuristics)")
     g.add_argument("--label", help="short caption recorded in the manifest / gallery")
     g.add_argument("--count", type=int, default=1, help="render N variations (out-1, out-2, …)")
     g.add_argument("--cutout", action="store_true",

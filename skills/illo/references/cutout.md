@@ -26,7 +26,7 @@ idea the picture lands**.
 | Dimension | Editorial / explainer | Cutout |
 |---|---|---|
 | Purpose | Explain one idea | Supply a reusable character instance |
-| Background | Paper / style ground | **Transparent** (chroma key on Codex and most OpenRouter; native alpha only on backends that expose it; else honest opaque fallback) |
+| Background | Paper / style ground | **Transparent** (native alpha on Codex; chroma key on OpenRouter or explicit compatibility rerolls; else honest opaque fallback) |
 | Text | Labels / callouts allowed | **None** — no labels, captions, watermarks |
 | Environment | Scene, machines, diagrams | **No environment** — see contact continuity |
 | Expressiveness | Move + metaphor + staging | **Pose + orientation + body language** |
@@ -113,11 +113,11 @@ aspect **1:1**. Pass the active character's model sheet as `--ref`. Always pass
 
 | Backend | Model | Prompt shape | Transparency path |
 |---|---|---|---|
-| **Codex** | gpt-image-2 (automatic) | Chroma `BACKGROUND:` in prompt (engine auto-appends if omitted) | Chroma key via `--cutout` — **no native alpha** from `codex exec` |
+| **Codex** | gpt-image-2 (automatic) | Cutout template only; engine appends the native-alpha contract | Native PNG alpha via `--cutout`; explicit `--chroma` forces compatibility keying |
 | **Grok CLI** | — | — | **Unsupported** — engine auto-redirects (see below) |
 | **Grok Bot native** | — | — | **Unsupported** — route to a cutout-capable engine backend |
-| **OpenRouter** | **`openai/gpt-5.4-image-2`** (engine default when `--cutout` and no `--model`) | Chroma `BACKGROUND:` + `--image-config` | Chroma key via `--cutout` |
-| **OpenRouter** (other `--model`) | User override only | Chroma prompt; may fail on JPEG models | Best-effort; read `cutout_alpha` |
+| **OpenRouter** | **`openai/gpt-5.4-image-2`** (engine default when `--cutout` and no `--model`) | Cutout template + `--image-config`; engine appends chroma | Chroma key via `--cutout` |
+| **OpenRouter** (other `--model`) | User override only | Engine-appended chroma; may fail on JPEG models | Best-effort; read `cutout_alpha` |
 
 Editorial OpenRouter renders keep the global default (`x-ai/grok-imagine-image-quality`).
 **Grok cannot make cutouts** — Grok CLI and Grok Bot native return JPEG with no
@@ -130,15 +130,17 @@ cutout; route to a cutout-capable engine backend or stop for configuration. No
 action needed from the caller for the CLI redirect — the note and the manifest
 record the backend that ran.
 Gemini and other models are unreliable for cutout alpha; prefer **Codex +
-chroma** or **OpenRouter GPT Image 2 + chroma**.
+native alpha** or **OpenRouter GPT Image 2 + chroma**.
 
-**Codex backend** — always use a flat chroma `BACKGROUND:` line (included in
-the Cutout template). gpt-image-2 via `codex exec` returns **opaque PNG only**;
-transparency comes from illo's chroma post-process, not from the model. Do **not**
-rely on prompt-native "real alpha channel" requests on Codex.
+**Codex backend** — omit manual background/output instructions. The engine asks
+gpt-image-2 for a real transparent PNG and preserves clean native alpha. Native
+output still needs QA: re-roll an opaque result, cropped figure, or edge halo.
+Use `--chroma green|magenta` only to force the compatibility path when native
+alpha fails for a render.
 
-**OpenRouter backend** — keep the chroma `BACKGROUND:` line in the prompt.
-Unless the user names another model with `--model`, the engine selects
+**OpenRouter backend** — omit the `BACKGROUND:` line here too; the engine adds
+the selected chroma screen after routing. Unless the user names another model
+with `--model`, the engine selects
 **`openai/gpt-5.4-image-2`**. Pass model-specific keys through
 **`--image-config`** (JSON object merged with `--aspect`), not prompt prose alone —
 the engine forwards this to OpenRouter's `image_config`:
@@ -148,14 +150,14 @@ SKILL_DIR="<path to this skill>";
 python3 "$SKILL_DIR/scripts/illo.py" generate --prompt-file /tmp/cutout.txt --ref "$REF" --aspect 1:1 --cutout --image-config '{"aspect_ratio":"1:1"}' --out /tmp/illo-cutout-blot-wave.png
 ```
 
-### Chroma screen color
+### Chroma compatibility screen
 
-Each character pack declares **`Cutout chroma: green`** or **`Cutout chroma:
-magenta`** in its `character.md` (Blot: magenta in `references/character.md`).
-That is the pack author's one-time decision — agents read it when building the
-cutout prompt; the engine reads it from the active `--ref` pack (or the
-configured default character when `--ref` is omitted). **`--chroma`** on
-`generate` overrides for re-rolls; omit it for normal cutouts.
+An optional **`Cutout chroma: green`** or **`Cutout chroma: magenta`** line in
+`character.md` selects the pack's compatibility screen (Blot: magenta in
+`references/character.md`). The engine reads it from the active `--ref` pack or
+the configured default character. Omit the line to use magenta. Agents do not
+copy it into prompts. **`--chroma`** both forces the compatibility path and
+chooses the screen; omit it for normal Codex cutouts.
 
 Pick a screen color **absent from the character palette**. The engine keys that
 color to alpha in post; anti-aliased edges inherit screen tint — wrong color =
@@ -166,15 +168,15 @@ visible fringe.
 | **Green** | `#00FF00` | Pack line `Cutout chroma: green` — forged-metal / wrought-iron silhouettes (e.g. **Wick**); re-roll when magenta fringe persists on fine metal edges |
 | **Magenta** | `#FF00FF` | Pack line `Cutout chroma: magenta` or omitted (default) — including pink-accent riso characters with a **registration-locked silhouette** |
 
-The Cutout template's `BACKGROUND:` line must match the pack's **`Cutout
-chroma:`** value. When the line is absent from an old pack, default **magenta**;
-the engine still falls back to forged/wrought-metal heuristics, then magenta.
-The manifest records `cutout_chroma`.
+When the line is absent, the engine falls back to forged/wrought-metal prompt
+heuristics, then **magenta**. Legacy prompts with an explicit chroma
+`BACKGROUND:` remain on the compatibility path. The manifest records
+`cutout_chroma` whether native alpha or chroma produced the output.
 
 ### Registration-locked silhouette
 
 Cutouts are compositing assets — editorial **ink-layer offset / misregistration**
-reads as a bright accent halo after chroma key and fails QA. Every cutout prompt
+reads as a bright accent halo on the transparent edge and fails QA. Every cutout prompt
 must include the **SILHOUETTE** block from `references/prompt-recipe.md`
 (registration-locked single-plate contour; riso grain stays **inside** fills).
 Do not copy the editorial STYLE line verbatim.
@@ -195,8 +197,8 @@ No watermark on cutouts. No style-anchor `--ref` from editorial sets — the
 character sheet alone.
 
 Check against the cutout section of `references/quality-bar.md` before
-delivering. Re-roll on orphans, scene bleed, green fringing, cropped feet/limbs,
-or off-model drift.
+delivering. Re-roll on orphans, scene bleed, edge halos/fringing, cropped
+feet/limbs, or off-model drift.
 
 ## Idle loop / bot avatar
 

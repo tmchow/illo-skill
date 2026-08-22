@@ -50,13 +50,13 @@ TEXT: no hand-lettered text anywhere — no labels, title, caption, logo, signat
 
 When the request is a **character cutout** (`references/cutout.md`), use this
 template instead of the editorial one — no idea line, no labels, no paper
-ground. Default aspect **1:1**. Pass `--cutout` on `generate`. Always include a
-flat chroma `BACKGROUND:` line — **green `#00FF00` or magenta `#FF00FF`** matching
-the active character's **`Cutout chroma:`** line in `character.md` (default
-magenta). **Registration-locked silhouette** — cutouts must NOT use editorial
-ink-layer offset; see the SILHOUETTE block below.
-Do **not** add a separate "real alpha channel / OUTPUT FORMAT" block — transparency
-is extracted by illo's `--cutout` script, not from the model on Codex.
+ground. Default aspect **1:1**. Pass `--cutout` on `generate`.
+**Registration-locked silhouette** — cutouts must NOT use editorial ink-layer
+offset; see the SILHOUETTE block below. Do **not** add a `BACKGROUND:` or
+`OUTPUT FORMAT:` block: the engine appends the backend contract after routing —
+native alpha for Codex, chroma for OpenRouter. Pass `--chroma green|magenta`
+only to force the compatibility path for a reroll; the engine appends that
+screen too.
 
 Do **not** append a WATERMARK line. Do **not** pass a finished editorial image
 as a style anchor — only the character model sheet as `--ref`. The
@@ -88,15 +88,13 @@ SILHOUETTE (cutout — registration-locked): ONE locked outer contour only. All 
 STYLE: risograph print — grainy halftone texture on fills, registration-locked single-plate silhouette, flat fills on the character and contact cluster only — NOT on the background.
 
 PALETTE: structure ink {structure hex} for all linework and forms. Accent {accent hex} ONLY on the character's accent part{, plus at most one small accent on a held contact object if needed}. Do not use chroma screen colors anywhere on the character or props.
-
-BACKGROUND: {match the active character's Cutout chroma: line — green #00FF00 or magenta #FF00FF; default magenta}. Solid flat chroma screen everywhere outside the character and its contact cluster — perfectly uniform, no paper grain, no gradient, no cast shadow on the screen, no vignette. The screen color exists only for transparency extraction; it must not bleed onto the mascot outline.
 ```
 
 For non-riso looks, substitute LINE LANGUAGE, STYLE, and PALETTE from the active
 style file as usual — keep the SILHOUETTE block and swap "slight ink-layer offset"
 for **registration-locked single-plate silhouette** in the style's STYLE line.
 Style-internal shadows (e.g. felt layer depth on the body) stay on the character
-cluster; cast shadows onto the chroma screen do not.
+cluster; do not add a cast shadow outside that cluster.
 
 ## Mini-comic variant
 

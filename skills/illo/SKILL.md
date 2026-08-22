@@ -424,8 +424,8 @@ wins:
    sheet `assets/character-reference.webp`).
 
 Once resolved, read the pack's `character.md` and use its prompt spec, value
-rules, **`Cutout chroma:`** (for cutouts), and `reference.png` everywhere the
-default's would be used.
+rules, optional **`Cutout chroma:`** compatibility preference, and
+`reference.png` everywhere the default's would be used.
 
 When rerouting an article set to a new character — especially after a weak
 attempt, or for a technical/platform essay — read
@@ -478,18 +478,17 @@ through that style's palette mapping.
 ### 5. Generate — reference-locked, one metaphor per image
 
 **Cutout branch.** When the request routed to the cutout register, read
-`references/cutout.md` in full first — it covers prompt shape (chroma
-`BACKGROUND:` from the pack's **`Cutout chroma:`** line — green for forged
-metal, magenta default), **registration-locked silhouette** (no ink-layer
-offset), **`--cutout`** /**`--aspect 1:1`**, OpenRouter **`--image-config`**,
-and manifest **`cutout_alpha`** disclosure. Read the active character's
-`Cutout chroma:` in `character.md` before building the prompt; pass `--chroma`
-only when re-rolling with the other screen. Codex does not emit native alpha —
-transparency is chroma-keyed by the engine. Build the prompt from
-`references/prompt-recipe.md`, "Cutout variant" — not the editorial template.
-Only the character model sheet as `--ref` (no editorial style anchor, no
-watermark). QA against the cutout section of `references/quality-bar.md`. Skip
-the editorial shot-list / thesis steps.
+`references/cutout.md` in full first — it covers backend-aware transparency
+(Codex native alpha by default; chroma compatibility for OpenRouter or explicit
+`--chroma`), **registration-locked silhouette** (no ink-layer offset),
+**`--cutout`** /**`--aspect 1:1`**, OpenRouter **`--image-config`**, and manifest
+**`cutout_alpha`** disclosure. Build the prompt from
+`references/prompt-recipe.md`, "Cutout variant" — not the editorial template —
+and omit manual `BACKGROUND:` / output-format instructions; the engine appends
+the contract for the backend that actually runs. Pass `--chroma` only to force
+a compatibility reroll. Use only the character model sheet as `--ref` (no
+editorial style anchor, no watermark). QA against the cutout section of
+`references/quality-bar.md`. Skip the editorial shot-list / thesis steps.
 
 **Editorial and explainer.** Build a full prompt per image from
 `references/prompt-recipe.md` (scene + structure + communication hierarchy +

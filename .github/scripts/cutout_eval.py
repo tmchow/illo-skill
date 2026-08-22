@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate illo v0.24.0 cutout workflow across backends/models/methods.
+"""Evaluate illo's cutout workflow across backends/models/methods.
 
 Runs generate with --cutout (and optional --image-config), records manifest
 cutout_* fields, and writes a self-contained HTML gallery under the run dir.
@@ -16,6 +16,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 ILLO = REPO / "skills/illo/scripts/illo.py"
 REF = REPO / "skills/illo/assets/character-reference.webp"
+EVAL_TITLE = "Cutout backend contract eval"
+EVAL_ASSET_SLUG = "cutout-backend-contract-eval"
 
 sys.path.insert(0, str(ILLO.parent))
 import illo  # noqa: E402
@@ -35,85 +37,59 @@ PROMPT_BASE = textwrap.dedent("""\
 
     LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline (clean vinyl-sticker line).
 
-    STYLE: risograph print — grainy halftone texture, slight ink-layer offset, flat fills on the character only.
+    SILHOUETTE: ONE locked outer contour. All inks aligned on the same edge — no offset plate,
+    duplicate outline, accent-colored halo, or fringe tracing the silhouette.
+
+    STYLE: risograph print — grainy halftone texture, registration-locked single-plate silhouette,
+    flat fills on the character only.
 
     PALETTE: structure ink #111111. Accent #ff3d9a ONLY on the droplet tip.
-    """)
-
-PROMPT_NATIVE = PROMPT_BASE + textwrap.dedent("""\
-
-    OUTPUT FORMAT (critical): deliver a PNG with a REAL transparent alpha channel — pixels outside
-    the character must have alpha=0. No solid white, gray, black, green, or checkerboard background.
-    No baked-in transparency pattern — true alpha only. The file must composite cleanly on any color.
-    """)
-
-PROMPT_CHROMA = PROMPT_BASE + textwrap.dedent("""\
-
-    BACKGROUND: solid flat chroma magenta exactly #FF00FF everywhere outside the character — perfectly
-    uniform, no paper grain, no gradient, no cast shadow on the magenta. Do not bleed background color
-    onto the mascot outline. (The engine will chroma-key this to transparency.)
     """)
 
 CASES = [
     {
         "id": "codex-agent-workflow",
         "title": "Codex · agent workflow",
-        "subtitle": "Native prompt (no chroma BACKGROUND) + --cutout",
+        "subtitle": "Backend-neutral prompt + --cutout (engine requests native alpha)",
         "backend": "codex",
         "model": None,
-        "prompt": "native",
-        "image_config": None,
         "expect_alpha": True,
+        "image_config": None,
     },
     {
         "id": "codex-chroma-fallback",
         "title": "Codex · chroma fallback",
-        "subtitle": "Chroma #FF00FF prompt + --cutout",
+        "subtitle": "Backend-neutral prompt + --cutout --chroma magenta",
         "backend": "codex",
         "model": None,
-        "prompt": "chroma",
-        "image_config": None,
+        "chroma": "magenta",
         "expect_alpha": True,
+        "image_config": None,
     },
     {
         "id": "or-gpt-agent-workflow",
         "title": "OpenRouter · GPT Image 2 · agent workflow",
-        "subtitle": "Chroma prompt + --cutout + --image-config aspect_ratio",
+        "subtitle": "Backend-neutral prompt + --cutout (engine appends chroma)",
         "backend": "openrouter",
         "model": "openai/gpt-5.4-image-2",
-        "prompt": "chroma",
-        "image_config": '{"aspect_ratio":"1:1"}',
         "expect_alpha": True,
-    },
-    {
-        "id": "or-gpt-native-cutout",
-        "title": "OpenRouter · GPT Image 2 · native ask",
-        "subtitle": "Transparent prompt + --cutout + --image-config (no chroma line)",
-        "backend": "openrouter",
-        "model": "openai/gpt-5.4-image-2",
-        "prompt": "native",
         "image_config": '{"aspect_ratio":"1:1"}',
-        "expect_alpha": False,
     },
     {
         "id": "or-grok-agent-workflow",
         "title": "OpenRouter · Grok Imagine · agent workflow",
-        "subtitle": "Chroma prompt + --cutout + --image-config (JPEG → opaque fallback)",
+        "subtitle": "Engine-appended chroma + --cutout (JPEG → opaque fallback)",
         "backend": "openrouter",
         "model": "x-ai/grok-imagine-image-quality",
-        "prompt": "chroma",
         "image_config": '{"aspect_ratio":"1:1"}',
-        "expect_alpha": False,
     },
     {
         "id": "or-gemini-agent-workflow",
         "title": "OpenRouter · Gemini Flash · agent workflow",
-        "subtitle": "Chroma prompt + --cutout + --image-config (JPEG → opaque fallback)",
+        "subtitle": "Engine-appended chroma + --cutout (JPEG → opaque fallback)",
         "backend": "openrouter",
         "model": "google/gemini-3.1-flash-image-preview",
-        "prompt": "chroma",
         "image_config": '{"aspect_ratio":"1:1"}',
-        "expect_alpha": False,
     },
 ]
 
@@ -123,10 +99,8 @@ def analyze_image(path):
     return illo.analyze_cutout_alpha(data)
 
 
-def run_case(run_dir, case, prompts):
+def run_case(run_dir, case, prompt_file):
     out = run_dir / f"{case['id']}.png"
-    prompt_key = case["prompt"]
-    prompt_file = prompts[prompt_key]
     cmd = [
         sys.executable, str(ILLO), "generate",
         "--prompt-file", str(prompt_file),
@@ -141,12 +115,14 @@ def run_case(run_dir, case, prompts):
         cmd.extend(["--model", case["model"]])
     if case.get("image_config"):
         cmd.extend(["--image-config", case["image_config"]])
+    if case.get("chroma"):
+        cmd.extend(["--chroma", case["chroma"]])
     proc = subprocess.run(cmd, capture_output=True, text=True)
     rec = {
         "case": case,
         "command": " ".join(cmd),
         "prompt_file": str(prompt_file),
-        "prompt_text": prompt_file.read_text(),
+        "input_prompt": prompt_file.read_text(),
     }
     if proc.returncode != 0:
         rec["error"] = (proc.stderr or proc.stdout).strip()
@@ -162,6 +138,8 @@ def run_case(run_dir, case, prompts):
 def verdict_class(rec):
     if rec.get("error"):
         return "bad"
+    if rec.get("case", {}).get("expect_alpha") and not rec.get("cutout_alpha"):
+        return "bad"
     if rec.get("cutout_alpha"):
         return "good"
     if rec.get("cutout_method") == "opaque_fallback":
@@ -172,6 +150,8 @@ def verdict_class(rec):
 def verdict_text(rec):
     if rec.get("error"):
         return "generate failed"
+    if rec.get("case", {}).get("expect_alpha") and not rec.get("cutout_alpha"):
+        return "expected compositing-ready alpha, but output was opaque"
     if rec.get("cutout_alpha"):
         method = rec.get("cutout_method") or "?"
         return f"compositing-ready ({method})"
@@ -227,7 +207,7 @@ def build_html(run_dir, results, title):
         '<meta name=viewport content="width=device-width,initial-scale=1">',
         f"<title>{html.escape(title)}</title><style>{css}</style></head><body>",
         f"<h1>{html.escape(title)}</h1>",
-        "<p class=sub>illo v0.24.0 cutout eval — every case uses <code>--cutout</code>. "
+        "<p class=sub>Every case uses <code>--cutout</code>. "
         "OpenRouter cases also pass <code>--image-config</code> (aspect_ratio). "
         "Checkerboard + blue reveal real alpha vs baked backgrounds. "
         "Manifest fields <code>cutout_alpha</code>, <code>cutout_method</code>, "
@@ -269,8 +249,15 @@ def build_html(run_dir, results, title):
                 f"note: {html.escape(str(rec.get('cutout_note') or '—'))}"
                 f"</div>"
             )
-        parts.append("<details><summary>Prompt</summary>")
-        parts.append(f'<pre class=prompt>{html.escape(rec.get("prompt_text",""))}</pre></details>')
+        render_prompt = rec.get("prompt")
+        if render_prompt is not None:
+            prompt_label = "Render prompt (engine)"
+            shown_prompt = render_prompt
+        else:
+            prompt_label = "Input prompt (no render prompt recorded)"
+            shown_prompt = rec.get("input_prompt", rec.get("prompt_text", ""))
+        parts.append(f"<details><summary>{prompt_label}</summary>")
+        parts.append(f'<pre class=prompt>{html.escape(shown_prompt)}</pre></details>')
         parts.append("<details><summary>Command</summary>")
         parts.append(f'<pre class=cmd>{html.escape(rec.get("command",""))}</pre></details>')
         parts.append("</article>")
@@ -282,7 +269,7 @@ def build_html(run_dir, results, title):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Cutout v0.24.0 eval gallery")
+    ap = argparse.ArgumentParser(description=EVAL_TITLE)
     ap.add_argument("--run", type=Path, help="existing run dir")
     ap.add_argument("--html-only", action="store_true")
     ap.add_argument("--skip-codex", action="store_true")
@@ -306,23 +293,19 @@ def main():
     if args.skip_openrouter:
         cases = [c for c in cases if c["backend"] != "openrouter"]
 
-    prompts = {
-        "native": run_dir / "prompt-native.txt",
-        "chroma": run_dir / "prompt-chroma.txt",
-    }
-    prompts["native"].write_text(PROMPT_NATIVE)
-    prompts["chroma"].write_text(PROMPT_CHROMA)
+    prompt_file = run_dir / "prompt-cutout.txt"
+    prompt_file.write_text(PROMPT_BASE)
 
     if args.html_only:
         results = json.loads((run_dir / "results.json").read_text())
-        html_path = build_html(run_dir, results, "Cutout eval — illo v0.24.0")
+        html_path = build_html(run_dir, results, EVAL_TITLE)
         print(json.dumps({"run_dir": str(run_dir), "html": str(html_path.resolve())}))
         return
 
     results = []
     for case in cases:
         print(f"Running {case['id']} …", flush=True)
-        rec = run_case(run_dir, case, prompts)
+        rec = run_case(run_dir, case, prompt_file)
         results.append(rec)
         status = verdict_text(rec)
         print(f"  → {status}", flush=True)
@@ -330,8 +313,8 @@ def main():
             time.sleep(1)
 
     (run_dir / "results.json").write_text(json.dumps(results, indent=2))
-    html_path = build_html(run_dir, results, "Cutout eval — illo v0.24.2")
-    dest = REPO / "_assets/illo/cutout-eval-v0240"
+    html_path = build_html(run_dir, results, EVAL_TITLE)
+    dest = REPO / "_assets/illo" / EVAL_ASSET_SLUG
     dest.mkdir(parents=True, exist_ok=True)
     # Copy gallery artifacts for docs hosting
     import shutil
