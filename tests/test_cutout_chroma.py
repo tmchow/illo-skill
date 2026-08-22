@@ -259,6 +259,40 @@ class CutoutChromaTests(unittest.TestCase):
         self.assertEqual(prompt.count("OUTPUT FORMAT:"), 1)
         self.assertIn("real transparent alpha channel", prompt.lower())
 
+    def test_single_newline_background_section_is_detected_and_replaced(self):
+        style_block = "STYLE: riso grain inside the character.\nPreserve the print texture."
+        prompt = self.illo.cutout_prompt_for_backend(
+            "POSE: Blot carrying a pencil.\n"
+            "BACKGROUND: solid flat chroma green.\n"
+            "Use #00FF00 throughout the screen.\n"
+            f"{style_block}",
+            "codex",
+            self.illo.CHROMA_GREEN,
+        )
+
+        self.assertNotIn("throughout the screen", prompt)
+        self.assertEqual(prompt.count("BACKGROUND:"), 1)
+        self.assertIn("#00FF00", prompt)
+        self.assertIn(style_block, prompt)
+        self.assertNotIn("OUTPUT FORMAT:", prompt)
+
+    def test_single_newline_output_format_section_is_replaced(self):
+        palette_block = "PALETTE: cream and pink.\nKeep the accent on the pencil only."
+        prompt = self.illo.cutout_prompt_for_backend(
+            "POSE: Blot carrying a pencil.\n"
+            "OUTPUT FORMAT: return a flattened WebP on white.\n"
+            "Use opaque RGB pixels everywhere.\n"
+            f"{palette_block}",
+            "codex",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertNotIn("flattened WebP", prompt)
+        self.assertNotIn("opaque RGB pixels", prompt)
+        self.assertIn(palette_block, prompt)
+        self.assertEqual(prompt.count("OUTPUT FORMAT:"), 1)
+        self.assertIn("real transparent alpha channel", prompt.lower())
+
     def test_generate_applies_native_contract_after_codex_routing(self):
         captured = {}
 

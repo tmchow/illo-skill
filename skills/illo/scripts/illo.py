@@ -897,15 +897,38 @@ def _cutout_contract_kind(block):
     return None
 
 
-def _prompt_blocks(prompt):
-    return [block for block in re.split(r"\n[ \t]*\n", prompt.strip()) if block.strip()]
+def _starts_prompt_section(line):
+    label, separator, _ = line.strip().partition(":")
+    if not separator or len(label) > 80 or not any(char.isalpha() for char in label):
+        return False
+    base = label.split("(", 1)[0].strip()
+    return base == base.upper() or (" " not in base and base.istitle())
+
+
+def _prompt_sections(prompt):
+    """Split prompt sections at blank lines and heading lines."""
+    sections = []
+    current = []
+    for line in prompt.strip().splitlines():
+        if not line.strip():
+            if current:
+                sections.append("\n".join(current))
+                current = []
+            continue
+        if current and _starts_prompt_section(line):
+            sections.append("\n".join(current))
+            current = []
+        current.append(line)
+    if current:
+        sections.append("\n".join(current))
+    return sections
 
 
 def _prompt_has_chroma_background(prompt):
-    for block in _prompt_blocks(prompt):
-        if _cutout_contract_kind(block) != "BACKGROUND":
+    for section in _prompt_sections(prompt):
+        if _cutout_contract_kind(section) != "BACKGROUND":
             continue
-        background = block.lower()
+        background = section.lower()
         if "chroma" in background or "#ff00ff" in background or "#00ff00" in background:
             return True
     return False
@@ -913,10 +936,10 @@ def _prompt_has_chroma_background(prompt):
 
 def _replace_cutout_contracts(prompt, replacement):
     """Replace legacy cutout contract blocks with one engine-owned contract."""
-    blocks = [block for block in _prompt_blocks(prompt)
-              if _cutout_contract_kind(block) is None]
-    blocks.append(replacement)
-    return "\n\n".join(blocks)
+    sections = [section for section in _prompt_sections(prompt)
+                if _cutout_contract_kind(section) is None]
+    sections.append(replacement)
+    return "\n\n".join(sections)
 
 
 def cutout_prompt_for_backend(prompt, backend, chroma_key, force_chroma=False):
