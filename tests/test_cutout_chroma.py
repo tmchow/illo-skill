@@ -1,6 +1,9 @@
+import contextlib
 import importlib.util
+import io
 import struct
 import tempfile
+import types
 import unittest
 import zlib
 from pathlib import Path
@@ -8,6 +11,7 @@ from typing import Any, cast
 
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "skills" / "illo" / "scripts" / "illo.py"
+EVAL_PATH = Path(__file__).resolve().parents[1] / ".github" / "scripts" / "cutout_eval.py"
 
 MAGENTA = (255, 0, 255)
 CREAM = (248, 234, 205)
@@ -20,6 +24,15 @@ def load_illo_module():
     spec = importlib.util.spec_from_file_location("illo_script_under_test", SCRIPT_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Could not load illo script from {SCRIPT_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return cast(Any, module)
+
+
+def load_eval_module():
+    spec = importlib.util.spec_from_file_location("cutout_eval_under_test", EVAL_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load eval script from {EVAL_PATH}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return cast(Any, module)
@@ -139,6 +152,160 @@ def rgba_at(parsed, x, y):
 class CutoutChromaTests(unittest.TestCase):
     def setUp(self):
         self.illo = load_illo_module()
+
+    def test_codex_cutout_prompt_defaults_to_native_alpha(self):
+        prompt = self.illo.cutout_prompt_for_backend(
+            "Blot carrying a pencil",
+            "codex",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertIn("real transparent alpha channel", prompt.lower())
+        self.assertNotIn("#FF00FF", prompt)
+        self.assertNotIn("#00FF00", prompt)
+
+    def test_codex_explicit_chroma_forces_compatibility_screen(self):
+        prompt = self.illo.cutout_prompt_for_backend(
+            "Blot carrying a pencil",
+            "codex",
+            self.illo.CHROMA_GREEN,
+            force_chroma=True,
+        )
+
+        self.assertIn("BACKGROUND:", prompt)
+        self.assertIn("#00FF00", prompt)
+        self.assertNotIn("real transparent alpha channel", prompt.lower())
+
+    def test_openrouter_cutout_prompt_stays_on_chroma_path(self):
+        prompt = self.illo.cutout_prompt_for_backend(
+            "Blot carrying a pencil",
+            "openrouter",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertIn("BACKGROUND:", prompt)
+        self.assertIn("#FF00FF", prompt)
+        self.assertNotIn("real transparent alpha channel", prompt.lower())
+
+    def test_explicit_chroma_background_keeps_codex_on_compatibility_path(self):
+        supplied = (
+            "Blot carrying a pencil\n\n"
+            "BACKGROUND: solid flat chroma green exactly #00FF00."
+        )
+        prompt = self.illo.cutout_prompt_for_backend(
+            supplied,
+            "codex",
+            self.illo.CHROMA_GREEN,
+        )
+
+        self.assertEqual(prompt.count("BACKGROUND:"), 1)
+        self.assertIn("#00FF00", prompt)
+        self.assertNotIn("real transparent alpha channel", prompt.lower())
+
+    def test_transparent_background_text_is_replaced_by_codex_native_contract(self):
+        prompt = self.illo.cutout_prompt_for_backend(
+            "Blot carrying a pencil\n\nBACKGROUND: transparent.",
+            "codex",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertIn("real transparent alpha channel", prompt.lower())
+        self.assertNotIn("BACKGROUND:", prompt)
+
+    def test_explicit_chroma_override_replaces_conflicting_legacy_screen(self):
+        prompt = self.illo.cutout_prompt_for_backend(
+            "Blot carrying a pencil\n\nBACKGROUND: chroma magenta exactly #FF00FF.",
+            "codex",
+            self.illo.CHROMA_GREEN,
+            force_chroma=True,
+        )
+
+        self.assertEqual(prompt.count("BACKGROUND:"), 1)
+        self.assertIn("#00FF00", prompt)
+        self.assertNotIn("#FF00FF", prompt)
+
+    def test_generate_applies_native_contract_after_codex_routing(self):
+        captured = {}
+
+        def fake_render(backend, cfg, prompt, *args, **kwargs):
+            captured["backend"] = backend
+            captured["prompt"] = prompt
+            return {"backend": backend, "path": kwargs.get("out_path", "unused")}
+
+        self.illo.load_config = lambda: {"configVersion": self.illo.CONFIG_VERSION}
+        self.illo.resolve_backend = lambda cfg, requested: "codex"
+        self.illo._render_one = fake_render
+        with tempfile.TemporaryDirectory() as td:
+            args = types.SimpleNamespace(
+                prompt="Blot carrying a pencil",
+                prompt_file=None,
+                backend="codex",
+                model=None,
+                cutout=True,
+                aspect=None,
+                image_config=None,
+                ref=[],
+                chroma=None,
+                out=str(Path(td) / "cutout.png"),
+                count=1,
+                cost=False,
+                label=None,
+                allow_paid_fallback=False,
+            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.illo.cmd_generate(args)
+
+        self.assertEqual(captured["backend"], "codex")
+        self.assertIn("real transparent alpha channel", captured["prompt"].lower())
+        self.assertNotIn("BACKGROUND:", captured["prompt"])
+
+    def test_grok_cutout_redirect_applies_codex_native_contract(self):
+        captured = {}
+
+        def fake_render(backend, cfg, prompt, *args, **kwargs):
+            captured.update(backend=backend, prompt=prompt)
+            return {"backend": backend, "path": kwargs.get("out_path", "unused")}
+
+        self.illo.load_config = lambda: {"configVersion": self.illo.CONFIG_VERSION}
+        self.illo.resolve_backend = lambda cfg, requested: "grok"
+        self.illo.codex_available = lambda: True
+        self.illo._render_one = fake_render
+        with tempfile.TemporaryDirectory() as td:
+            args = types.SimpleNamespace(
+                prompt="Blot carrying a pencil", prompt_file=None, backend="grok",
+                model=None, cutout=True, aspect=None, image_config=None, ref=[],
+                chroma=None, out=str(Path(td) / "cutout.png"), count=1,
+                cost=False, label=None, allow_paid_fallback=False,
+            )
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self.illo.cmd_generate(args)
+
+        self.assertEqual(captured["backend"], "codex")
+        self.assertIn("real transparent alpha channel", captured["prompt"].lower())
+
+    def test_eval_html_supports_legacy_input_prompt_schema(self):
+        cutout_eval = load_eval_module()
+        results = [{
+            "case": {"title": "Legacy result", "subtitle": "old schema"},
+            "prompt_text": "legacy prompt text",
+            "error": "old run failed",
+        }]
+        with tempfile.TemporaryDirectory() as td:
+            html_text = cutout_eval.build_html(Path(td), results, "Legacy").read_text()
+
+        self.assertIn("Input prompt (no render prompt recorded)", html_text)
+        self.assertIn("legacy prompt text", html_text)
+
+    def test_eval_expected_alpha_failure_is_bad(self):
+        cutout_eval = load_eval_module()
+        rec = {
+            "case": {"expect_alpha": True},
+            "cutout_alpha": False,
+            "cutout_method": "opaque_fallback",
+        }
+
+        self.assertEqual(cutout_eval.verdict_class(rec), "bad")
+        self.assertIn("expected", cutout_eval.verdict_text(rec))
 
     def test_interior_pink_accent_does_not_discard_chroma_cutout(self):
         source = synthetic_cutout_png(accent="interior")

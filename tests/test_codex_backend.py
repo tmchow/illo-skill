@@ -98,6 +98,20 @@ class CodexBackendTests(unittest.TestCase):
         self.assertTrue(captured["text"])
         self.assertEqual(captured["timeout"], self.illo.CODEX_EXEC_TIMEOUT)
 
+    def test_codex_manifest_records_the_actual_render_prompt(self):
+        def fake_generate(prompt, refs, out_path):
+            write_png_artifact(out_path)
+            return out_path, {"model": None, "id": None}
+
+        self.illo.codex_exec_generate = fake_generate
+        with tempfile.TemporaryDirectory() as td:
+            rec = self.illo._render_one(
+                "codex", {}, "actual render prompt", None, ["ref.png"],
+                False, Path(td) / "out.png"
+            )
+
+        self.assertEqual(rec["prompt"], "actual render prompt")
+
     def test_nonzero_exit_with_requested_output_succeeds(self):
         def fake_run(cmd, input, capture_output, text, timeout):
             write_png_artifact(out_path)
@@ -402,14 +416,27 @@ class PaidFallbackTests(unittest.TestCase):
         self.assertIn("--allow-paid-fallback", str(ctx.exception))
 
     def test_explicit_paid_fallback_records_openrouter_backend(self):
-        self.illo._openrouter_record = lambda *args, **kwargs: {"backend": "openrouter"}
+        captured = {}
+
+        def fake_openrouter(cfg, prompt, *args, **kwargs):
+            captured["prompt"] = prompt
+            return {"backend": "openrouter"}
+
+        self.illo._openrouter_record = fake_openrouter
+        codex_prompt = self.illo.cutout_prompt_for_backend(
+            "prompt", "codex", self.illo.CHROMA_GREEN
+        )
         with tempfile.TemporaryDirectory() as td:
             rec = self.illo._render_one(
-                "codex", {"apiKey": "configured"}, "prompt", "model",
-                ["ref.png"], False, Path(td) / "out.png", allow_paid_fallback=True
+                "codex", {"apiKey": "configured"}, codex_prompt, "model",
+                ["ref.png"], False, Path(td) / "out.png", cutout=True,
+                chroma_key=self.illo.CHROMA_GREEN, allow_paid_fallback=True
             )
 
         self.assertEqual(rec["backend"], "openrouter")
+        self.assertEqual(rec["prompt"], captured["prompt"])
+        self.assertIn("#00FF00", captured["prompt"])
+        self.assertNotIn("real transparent alpha channel", captured["prompt"].lower())
 
     def test_direct_openrouter_does_not_require_paid_fallback_flag(self):
         self.illo._openrouter_record = lambda *args, **kwargs: {"backend": "openrouter"}

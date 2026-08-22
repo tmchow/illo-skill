@@ -139,6 +139,15 @@ Aspect has no size argument on the free tool either; illo states the aspect
 in the prompt text, which gpt-image-2 honors. As always, check
 `.width/.height` in the JSON line and re-roll a stray wrong-dimension result.
 
+### Native-alpha cutouts
+
+For `--cutout`, illo appends a native transparent-PNG contract to the Codex
+prompt and preserves clean alpha from gpt-image-2. An explicit `--chroma`
+forces the older compatibility screen and post-process instead. Do not put a
+manual `BACKGROUND:` or output-format block in the prompt; backend routing owns
+that contract. Read `cutout_alpha`, `cutout_method`, and `cutout_note` after
+every render because native alpha can still carry a model-drawn edge halo.
+
 ### Quota, not a per-image charge
 
 "Free" means there is no per-image dollar charge — it **draws on the user's
@@ -194,7 +203,9 @@ Direct `--backend openrouter` generation is not a fallback and does not need the
 flag.
 
 A Codex-served record carries `cost: null` and no model id, and the engine
-never queries OpenRouter for its cost.
+never queries OpenRouter for its cost. When an explicitly authorized Codex
+fallback lands on OpenRouter, illo replaces its native-alpha contract with the
+pack's chroma compatibility screen and records that actual prompt.
 
 ## Grok Bot native transport
 
