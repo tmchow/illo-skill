@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.4](https://github.com/tmchow/illo-skill/compare/v0.34.3...v0.34.4) (2026-08-22)
+
+
+### Bug Fixes
+
+* use Codex native alpha for cutouts ([#67](https://github.com/tmchow/illo-skill/issues/67)) ([33636a4](https://github.com/tmchow/illo-skill/commit/33636a407caff18736107e608f7cfb042eb3e17a))
+
 ## [0.34.3](https://github.com/tmchow/illo-skill/compare/v0.34.2...v0.34.3) (2026-08-17)
 
 
