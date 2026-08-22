@@ -224,6 +224,41 @@ class CutoutChromaTests(unittest.TestCase):
         self.assertIn("#00FF00", prompt)
         self.assertNotIn("#FF00FF", prompt)
 
+    def test_multiline_legacy_background_block_is_fully_replaced(self):
+        style_block = "STYLE: riso grain inside the character.\nPreserve the print texture."
+        prompt = self.illo.cutout_prompt_for_backend(
+            "POSE: Blot carrying a pencil.\n\n"
+            "BACKGROUND: transparent canvas.\n"
+            "Render a checkerboard preview behind the mascot.\n"
+            "Keep the preview visible in the final image.\n\n"
+            f"{style_block}",
+            "codex",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertNotIn("checkerboard preview", prompt)
+        self.assertNotIn("Keep the preview visible", prompt)
+        self.assertNotIn("BACKGROUND:", prompt)
+        self.assertIn(style_block, prompt)
+        self.assertEqual(prompt.count("OUTPUT FORMAT:"), 1)
+
+    def test_legacy_output_format_block_is_fully_replaced(self):
+        palette_block = "PALETTE: cream and pink.\nKeep the accent on the pencil only."
+        prompt = self.illo.cutout_prompt_for_backend(
+            "POSE: Blot carrying a pencil.\n\n"
+            "OUTPUT FORMAT: return a flattened WebP on white.\n"
+            "Use opaque RGB pixels everywhere.\n\n"
+            f"{palette_block}",
+            "codex",
+            self.illo.CHROMA_MAGENTA,
+        )
+
+        self.assertNotIn("flattened WebP", prompt)
+        self.assertNotIn("opaque RGB pixels", prompt)
+        self.assertIn(palette_block, prompt)
+        self.assertEqual(prompt.count("OUTPUT FORMAT:"), 1)
+        self.assertIn("real transparent alpha channel", prompt.lower())
+
     def test_generate_applies_native_contract_after_codex_routing(self):
         captured = {}
 
@@ -328,6 +363,27 @@ class CutoutChromaTests(unittest.TestCase):
         self.assertEqual(rgba_at(parsed, 0, 127)[3], 0)
         self.assertEqual(rgba_at(parsed, 127, 127)[3], 0)
         self.assertEqual(rgba_at(parsed, 64, 64), PINK + (255,))
+
+    def test_chroma_fallback_preserves_existing_transparent_non_key_pixels(self):
+        width = height = 128
+        pixels = [MAGENTA + (255,)] * (width * height)
+        for y in range(42, 86):
+            for x in range(42, 86):
+                pixels[y * width + x] = CREAM + (255,)
+        pixels[10 * width + 10] = PINK + (0,)
+        source = rgba_png(width, height, pixels)
+
+        self.assertFalse(self.illo.analyze_cutout_alpha(source)["clean_alpha"])
+
+        with tempfile.TemporaryDirectory() as td:
+            out, _, _, meta = self.illo.place_cutout_image(
+                source, Path(td) / "cutout.png", chroma_key=self.illo.CHROMA_MAGENTA
+            )
+            parsed = self.illo._parse_png_rgb_or_rgba(out.read_bytes())
+
+        self.assertTrue(meta["cutout_alpha"])
+        self.assertEqual(meta["cutout_method"], "chroma")
+        self.assertEqual(rgba_at(parsed, 10, 10), PINK + (0,))
 
     def test_pink_silhouette_tip_does_not_warn_as_accent_halo(self):
         source = synthetic_cutout_png(accent="tip")

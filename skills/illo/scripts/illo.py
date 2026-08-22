@@ -668,8 +668,8 @@ def chroma_key_to_png(data, key=CHROMA_KEY):
     width, height, rgba = parsed
     out = bytearray(len(rgba))
     for i in range(0, len(rgba), 4):
-        r, g, b = rgba[i], rgba[i + 1], rgba[i + 2]
-        a = _chroma_alpha(r, g, b, key)
+        r, g, b, source_alpha = rgba[i:i + 4]
+        a = min(source_alpha, _chroma_alpha(r, g, b, key))
         if a:
             r, g, b = _despill_rgb(r, g, b, a)
         out[i:i + 3] = bytes((r, g, b))
@@ -889,37 +889,43 @@ def chroma_background_line(key):
             "for transparency extraction; it must not bleed onto the mascot outline.")
 
 
+def _cutout_contract_kind(block):
+    first_line = block.lstrip().splitlines()[0].strip().upper()
+    for kind in ("BACKGROUND", "OUTPUT FORMAT"):
+        if first_line.startswith(f"{kind}:"):
+            return kind
+    return None
+
+
+def _prompt_blocks(prompt):
+    return [block for block in re.split(r"\n[ \t]*\n", prompt.strip()) if block.strip()]
+
+
 def _prompt_has_chroma_background(prompt):
-    for line in prompt.splitlines():
-        background = line.strip().lower()
-        if not background.startswith("background:"):
+    for block in _prompt_blocks(prompt):
+        if _cutout_contract_kind(block) != "BACKGROUND":
             continue
+        background = block.lower()
         if "chroma" in background or "#ff00ff" in background or "#00ff00" in background:
             return True
     return False
 
 
-def _replace_prompt_background(prompt, replacement=None):
-    """Replace every BACKGROUND contract with one engine-owned contract."""
-    lines = [line for line in prompt.splitlines()
-             if not line.strip().upper().startswith("BACKGROUND:")]
-    prompt = "\n".join(lines).rstrip()
-    return f"{prompt}\n\n{replacement}" if replacement else prompt
-
-
-def _without_native_alpha_output(prompt):
-    suffix = f"\n\n{NATIVE_ALPHA_OUTPUT_LINE}"
-    return prompt.removesuffix(suffix)
+def _replace_cutout_contracts(prompt, replacement):
+    """Replace legacy cutout contract blocks with one engine-owned contract."""
+    blocks = [block for block in _prompt_blocks(prompt)
+              if _cutout_contract_kind(block) is None]
+    blocks.append(replacement)
+    return "\n\n".join(blocks)
 
 
 def cutout_prompt_for_backend(prompt, backend, chroma_key, force_chroma=False):
     """Add the output contract for a cutout render's actual backend."""
-    prompt = _without_native_alpha_output(prompt)
     has_chroma = _prompt_has_chroma_background(prompt)
     use_chroma = force_chroma or backend != "codex" or has_chroma
     if use_chroma:
-        return _replace_prompt_background(prompt, chroma_background_line(chroma_key))
-    return _replace_prompt_background(prompt, NATIVE_ALPHA_OUTPUT_LINE)
+        return _replace_cutout_contracts(prompt, chroma_background_line(chroma_key))
+    return _replace_cutout_contracts(prompt, NATIVE_ALPHA_OUTPUT_LINE)
 
 
 def apply_cutout_postprocess(img_bytes, out_path, key=CHROMA_MAGENTA):
