@@ -1,6 +1,6 @@
 {
   "name": "illo",
-  "version": "0.34.3",
+  "version": "0.34.4",
   "description": "Original editorial illustrations where a recurring mascot performs the idea — fourteen bundled looks, custom characters, palettes from your own site's colors. Ships the illo Agent Skill and its three-backend image engine: free generation through your Grok or Codex CLI subscription when available, OpenRouter otherwise.",
   "author": {
     "name": "Trevin Chow",
