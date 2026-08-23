@@ -4,62 +4,45 @@
 
 # illo skill
 
-Generate original print-style **editorial illustrations** for articles and
-blogs, starring a recurring mascot that performs each idea. Each character
-pack carries one of ten bundled looks (riso, blueprint, woodcut, pixel, clay,
-manila, chalk, phosphor, enamel, gouache) or a custom style — default
-**Blot** (a deadpan ink-drop), or design your own with the built-in character
-builder. One-metaphor-per-image scenes with named + custom + derived palettes
-and reference-image character consistency. Renders through **three engine
-backends**: your **Codex CLI** (gpt-image-2) or **Grok CLI** (xAI) on your
-subscription — free for subscribers, no API key — when one is installed and
-logged in, or **OpenRouter** (model-selectable: Grok Imagine, Nano Banana
-2/Pro, GPT-5.4 Image 2, …) as a direct pay-per-image backend. In **Grok Bot**
-(Cursor's Grok Bot / the Grok desktop assistant), the skill uses Grok Bot's
-built-in Grok image tool agent-side instead of requiring the Grok CLI or
-OpenRouter, unless you explicitly choose an engine backend. Failed subscription
-CLI renders fail closed unless `--allow-paid-fallback` explicitly permits
-OpenRouter. Grok can't make transparent cutouts; those route automatically.
+Original print-style illustrations for agents — a recurring mascot performs the idea.
 
-Hand it *"we replatform with zero downtime"* and you get the bridge being
-rebuilt under live traffic:
+**[illo-skill.com](https://illo-skill.com)** — live examples, character packs, and copy-paste installs.
 
-![Zero downtime — rebuilding the bridge under live traffic](_assets/illo/05-bridgeswap-ink-punch.png)
+![Using Blip, make a flowchart of how a newsletter issue ships](docs/examples/eval-blip-newsletter.png)
 
-> **🌐 [illo-skill.com](https://illo-skill.com)** — live examples, the
-> character gallery, and copy-paste installs.
-
-The skill itself lives in [`skills/illo/`](skills/illo/) — its
-[README](skills/illo/README.md) is the full developer reference
-(prerequisites, API-key setup, models & cost, everything below in detail).
-
-Same idea, different voice — four of the ten bundled looks:
+`Using Blip, make a flowchart of how a newsletter issue ships`
 
 <table>
   <tr>
-    <td><img src="_assets/illo/02-funnel-ink-punch.png" alt="riso look" /></td>
-    <td><img src="_assets/illo/styles/clay-rootcause.png" alt="clay look" /></td>
+    <td><img src="_assets/illo/05-bridgeswap-ink-punch.png" alt="Editorial: we replatform with zero downtime" /></td>
+    <td><img src="_assets/illo/styles/woodcut-minicomic.png" alt="Mini-comic: stuck, slice, shipped" /></td>
   </tr>
   <tr>
-    <td align="center"><strong>riso</strong> — the house default</td>
-    <td align="center"><strong>clay</strong> — stop-motion plasticine</td>
+    <td align="center"><code>/illo we replatform with zero downtime</code></td>
+    <td align="center"><code>/illo stuck → slice → shipped as a mini-comic</code></td>
   </tr>
   <tr>
-    <td><img src="_assets/illo/styles/phosphor-spike.png" alt="phosphor look" /></td>
-    <td><img src="_assets/illo/styles/blueprint-crossing.png" alt="blueprint look" /></td>
+    <td colspan="2"><img src="docs/examples/eval-blip-fanout.png" alt="Fan-out: sort incoming mail into keep, later, and trash" /></td>
   </tr>
   <tr>
-    <td align="center"><strong>phosphor</strong> — CRT trace on glass</td>
-    <td align="center"><strong>blueprint</strong> — draftsman linework</td>
+    <td colspan="2" align="center"><code>/illo Sort incoming mail into keep, later, and trash as a fan-out, using Blip</code></td>
   </tr>
 </table>
 
+## Ask it like this
+
+```text
+/illo we replatform with zero downtime
+/illo how a book gets published explainer diagram
+/illo using Blip, make a flowchart of how a newsletter issue ships
+/illo stuck → slice → shipped as a mini-comic
+/illo blot cutout waving
+/illo surprise me
+```
+
 ## Install
 
-**Recommended: use your platform's native plugin or skill manager.** These
-lanes install the same `illo` skill, but they preserve the runtime's managed
-update path. Use the generic `npx skills` installer only when your runtime
-doesn't have a native lane yet.
+Use your runtime's native plugin or skill manager.
 
 | Platform | Install | Update |
 | --- | --- | --- |
@@ -84,29 +67,6 @@ Install the illo skill and all community characters.
 npx skills add tmchow/illo-skill --skill illo -g -y
 ```
 
-Every lane installs the same skill; releases are tagged `v<version>` and
-the version in every manifest is kept in lockstep with
-`skills/illo/SKILL.md` by Release Please and CI.
+Engines, models, cost, and API keys: [`skills/illo/README.md`](skills/illo/README.md).
 
-## Repo layout
-
-The skill sits in `skills/illo/`, following the layout of the canonical
-skill repos (anthropics/skills, openai/skills): a top-level `skills/`
-folder, one directory per skill. It is deliberately not at the repo root —
-installers copy the entire skill directory verbatim, so the skill dir holds
-only what every install should ship. Docs-only images live in
-`_assets/illo/` (linked by raw URL), and repo meta stays at the root —
-including the plugin manifests (`.claude-plugin/`, `.codex-plugin/`,
-`.cursor-plugin/`, `.grok-plugin/`, `gemini-extension.json`) that make the
-repo installable as a native plugin on each platform.
-
-## Companion repos
-
-- [tmchow/illo-characters](https://github.com/tmchow/illo-characters) —
-  community character packs ("install the blip character").
-
-## License
-
-MIT © Trevin Chow — see [`LICENSE`](LICENSE) and
-[`skills/illo/NOTICE`](skills/illo/NOTICE) for attribution of the Blot character and
-bundled artwork.
+MIT © Trevin Chow — [`LICENSE`](LICENSE), [`skills/illo/NOTICE`](skills/illo/NOTICE). Companion characters: [tmchow/illo-characters](https://github.com/tmchow/illo-characters).

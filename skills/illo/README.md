@@ -1,14 +1,14 @@
 # Illo
 
+**[illo-skill.com](https://illo-skill.com)** — live examples, character packs,
+and copy-paste installs. This file is the developer reference (engines,
+models, cost, API keys).
+
 Turn a concept or an article into original **editorial illustrations** —
 flat, bold-lined print-style scenes where a recurring mascot performs the
 idea. One image says one thing: a key judgment, a flow, a before/after, a
 trap. It's a deliberate house style, not a generic image generator — closer
 to a smart, deadpan print zine than to clip art or an infographic.
-
-> **🌐 [illo-skill.com](https://illo-skill.com)** — the friendly tour: live
-> examples, the character gallery, and copy-paste installs. This README is
-> the developer reference; the site is the two-minute version.
 
 The methodology is the constant; **the character pack and palette are yours
 to set** — and every character pack carries its own print style. Out of the
@@ -323,6 +323,16 @@ stray titles, fresh metaphor every time), and aspect ratios cover article
   or generic stock art.
 - Image models approximate exact colors; the skill eyedrops and re-rolls
   off-target palettes.
+
+## In this repo
+
+The skill lives in this directory (`skills/illo/`). Installers copy it
+verbatim, so only what every install should ship belongs here. Docs-only
+images live in [`_assets/illo/`](../../_assets/illo/) at the repo root
+(linked by raw URL). Proven explainer renders used on the repo README are in
+[`docs/examples/`](../../docs/examples/). Plugin manifests sit at the repo
+root (`.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`,
+`.grok-plugin/`, `gemini-extension.json`).
 
 ## License & credit
 
