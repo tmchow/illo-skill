@@ -59,8 +59,8 @@ propagate the wrong metaphor into the whole set.
 ## Explainer mode and labels
 
 Explainer register is valid for multi-image article sets when a section needs a
-traceable structure. Technical sections often become more legible as a factory
-flow, flow, fan-out, timeline, loop, stack, or system slice than as a pure
+traceable structure. Technical sections often become more legible as labeled
+stages, flow, fan-out, timeline, loop, stack, or system slice than as a pure
 editorial scene.
 Keep it hand-built and character-led, not a formal flowchart.
 

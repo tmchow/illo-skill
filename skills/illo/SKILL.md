@@ -3,7 +3,7 @@ name: illo
 description: >-
   Creates original editorial illustrations where a recurring mascot
   character performs the idea — one caught scene by default, a hand-built
-  explainer diagram (a factory flow, fan-out, timeline, loop, or stack) when the
+  explainer diagram (labeled stages, a fan-out, timeline, loop, or stack) when the
   structure itself is the point, or a transparent character cutout
   (pose-only compositing asset, no scene or text) — in one of seventeen bundled
   looks (sixteen print, plus a photoreal toy-brick set). Also handles
@@ -38,14 +38,14 @@ image explains one idea: a key judgment, a flow, a before/after, a trap, a
 loop. A **recurring mascot** is the one performing the idea in every scene —
 the subject, never decoration. When one idea advances through stages, it can
 be a **mini-comic**: 2–4 panels inside a single image. And when the idea is
-itself a traceable structure — a pipeline, a factory flow, a fan-out, a
+itself a traceable structure — a pipeline, labeled stages, a fan-out, a
 timeline, a loop — it can be an **explainer**: the same mascot and look
 drawing the structure as a hand-built sketch-diagram with arrows and
 callouts (`references/composition.md`, "Two registers" and "Pick the
 diagram type"; editorial scene is always the default). A named pipeline
-or recipe is a **factory flow** inside that register — one connected
-plant, pack-solved for this body, never a new look. Or a **character
-cutout**: the mascot alone on a transparent PNG for downstream overlay
+or recipe is **labeled stages** inside that register — named phases in
+order, one connected system, pack-solved for this body, never a new look.
+Or a **character cutout**: the mascot alone on a transparent PNG for downstream overlay
 — pose and contact continuity only, no idea, no text, no environment
 (`references/cutout.md`).
 
@@ -70,7 +70,7 @@ infographic, not a formal flowchart, not a UI mockup.
 | **One image for a single concept** | Step 1 concept branch (up to ~3 quick questions if the idea is thin), then a single image. |
 | **Surprise / random** — "surprise me", "random", "surprise me with art quote using bray", "surprise me --autopick" | Read `references/surprise.md` in full: Step 0 first, then character + provenance (ignore `defaultCharacter`; `* quote` forces a cited quote; else ~1/3 roll), build **three** safe candidates, interactive picker or auto-pick-best (`--autopick` preferred for schedulers), then register from the locked saying, then Steps 3–7 as one image. Deliver saying + image. Poster titles default off; mini-comics still get per-panel labels. |
 | **A sequence — process, before→after, fail→fix** | One **mini-comic** when the progression sits in one place (shape routing in `references/composition.md` — the idea picks the shape, the destination never does). |
-| **A traceable structure** — "show the flow", "factory", "diagram the pipeline", "like that factory diagram", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "Pick the diagram type" and "The explainer register"): a hand-built factory flow / flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Factory flow is a structure type inside explainer, not a new register or look — pack-solve it for the active character before the prompt. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
+| **A traceable structure** — "show the flow", "as labeled stages", "label the steps", "walk the stages", "diagram the pipeline", "like that factory diagram", "map the steps", "as an explainer" | The **explainer register** (`references/composition.md`, "Pick the diagram type" and "The explainer register"): a hand-built labeled-stages / flow / fan-out / timeline / loop / stack / system slice in the active look, the mascot a working part of it. Labeled stages is a structure type inside explainer, not a new register or look — pack-solve it for the active character before the prompt. Also reachable without the phrases when a unit's thesis IS the structure (the register gate). |
 | **Social-ready art for X posts / article body images** | 16:9 (or 1:1 when square is explicitly useful), bold `ink-punch`, watermark with the `x` handle if configured or asked. |
 | **X Article banner / hero image** | Use the unique banner format: **1536 × 640 px** when the user asks for an X Article hero/banner. Prompt and render through the normal `illo.py generate` image pipeline, with normal, undistorted character/object proportions and crop-safe breathing room. Do not satisfy this by manually compositing or rebuilding crops from another image unless the user explicitly asks for post-processing. |
 | **Blog / brand / site-matched art** | A named or custom palette, or derive the palette from one dominant color (`references/palettes.md`). |
@@ -191,7 +191,7 @@ Do not load everything at once. Pull the file that matches the step:
 - `references/character-builder.md` — the guided flow for designing and installing a user's own mascot. Read in full before building or replacing a character.
 - `references/pack-sharing.md` — installing characters from the community repo and publishing a pack via PR. Read before any install/publish request.
 - `references/palettes.md` — named presets, default resolution, custom palettes, **and the derive-a-palette-from-one-color algorithm**. Read in full before choosing or deriving any palette.
-- `references/composition.md` — the two registers (editorial scene / explainer diagram), the diagram-type picker, the explainer's structure types and budget (including factory flow and its pack-solve), stagings, turning an idea into a move, the **anatomy-action feasibility gate** (validate the contact map against the character's interaction model before rendering), the no-recycled-composition rule, and the shot-list format.
+- `references/composition.md` — the two registers (editorial scene / explainer diagram), the diagram-type picker, the explainer's structure types and budget (including labeled stages, arrow notes, and its pack-solve), stagings, turning an idea into a move, the **anatomy-action feasibility gate** (validate the contact map against the character's interaction model before rendering), the no-recycled-composition rule, and the shot-list format.
 - `references/cutout.md` — the cutout register: transparent compositing assets, contact continuity, pose vocabulary, and generate flags. Read in full before any cutout request.
 - `references/surprise.md` — surprise / random mode: preflight-first, scope parse, random character, provenance variety + three saying candidates (optional parallel verify for sourced modes), interactive picker or `--autopick` / auto-pick-best, full re-roll on refresh, register after the locked saying, saying bar + sense bar, multi-source quote verification, safety-before-offer, headless contract. Read in full before any surprise/random request.
 - `references/backends.md` — the three-backend image engine plus the Grok Bot native transport: how the engine backend resolves (precedence Codex > Grok > OpenRouter, and the self-identify rule), when Grok Bot bypasses `illo.py generate`, the Codex/Grok CLI requirements, artifact-first success, the built-in image tool being automatic (no model selection), quota-vs-charge, Grok's no-cutout limit, Windows/WSL, and opt-in paid fallback. Read before choosing or explaining a backend.
@@ -494,8 +494,8 @@ a compatibility reroll. Use only the character model sheet as `--ref` (no
 editorial style anchor, no watermark). QA against the cutout section of
 `references/quality-bar.md`. Skip the editorial shot-list / thesis steps.
 
-**Editorial and explainer.** When the locked type is factory flow, run the
-pack-solve scratch in `references/composition.md` ("Factory flow — skeleton,
+**Editorial and explainer.** When the locked type is labeled stages, run the
+pack-solve scratch in `references/composition.md` ("Labeled stages — skeleton,
 then pack-solve") before writing the prompt — stage list → operator
 stage → contact map → bind; do not invent a look. Build a full prompt per
 image from

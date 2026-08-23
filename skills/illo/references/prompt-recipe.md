@@ -111,10 +111,10 @@ When the shot list declared the **explainer register** (`composition.md`,
 "The explainer register"), replace the Composition and TEXT HIERARCHY lines with the
 two below — CHARACTER, INTERACTION GEOMETRY, LINE LANGUAGE, STYLE, and
 PALETTE are unchanged, so the structure is drawn in the active look and the
-mascot's station move keeps its validated contact map. Factory flow is one
+mascot's station move keeps its validated contact map. Labeled stages is one
 structure type in that slot; when it locked, run the pack-solve scratch
-first (`composition.md`, "Factory flow — skeleton, then pack-solve") and
-write one connected plant into the Composition line, not a row of islands.
+first (`composition.md`, "Labeled stages — skeleton, then pack-solve") and
+write one connected system into the Composition line, not a row of islands.
 Resolve the semantic ink hexes
 (flow, warning) from `palettes.md` first.
 
@@ -131,11 +131,11 @@ structure has a return/exception leg, state its direction twice — where it
 leaves and where it rejoins — or the model may flip the arrowhead.
 
 ```text
-Composition (explainer — {structure type from composition.md: factory flow / flow / fan-out / timeline / loop / layer stack / system slice}): a hand-built sketch-diagram of ONE structure: {the 3–5 stations/beats, each an invented physical object — what each is and what happens at it; when factory flow: one connected plant — input, named stages bound by pipes / belt / shared housing / one flow line, output, optional reject/return — not disconnected props}. One main flow direction, {e.g. left to right}, drawn as simple hand-drawn arrows in the flow color{, plus one return or reject leg: it leaves from {station}, travels {direction}, and rejoins at {station} — the arrowhead points at {station}}. The mascot is a WORKING PART of the structure — {its one pack-solved station/jam/sorter/hauler move} — never a presenter beside it, never operating two stages. No title, no border, no grid, no legend, no formal flowchart boxes, no generic rectangles. Drawn in the active look — not a whiteboard doodle. The structure spans ~40–70% of the frame; keep ~35%+ of the canvas empty with one calm region.
+Composition (explainer — {structure type from composition.md: labeled stages / flow / fan-out / timeline / loop / layer stack / system slice}): a hand-built sketch-diagram of ONE structure: {the 3–5 stations/beats, each an invented physical object — what each is and what happens at it; when labeled stages: one connected system — input, named phases in order, through named stops, output, optional reject/return — world invented from the thesis and the pack, not a plant/belt/hopper default, not disconnected props}. One main flow direction, {e.g. left to right}, drawn as simple hand-drawn arrows in the flow color{, plus one return or reject leg: it leaves from {station}, travels {direction}, and rejoins at {station} — the arrowhead points at {station}}. The mascot is a WORKING PART of the structure — {its one pack-solved station/jam/sorter/hauler move} — never a presenter beside it, never operating two stages. No title, no border, no grid, no legend, no formal flowchart boxes, no generic rectangles. Drawn in the active look — not a whiteboard doodle. The structure spans ~40–70% of the frame; keep ~35%+ of the canvas empty with one calm region.
 
-PALETTE: {the style's PALETTE line as usual, hexes here only}. Semantic roles: the flow arrows and the one flow note use the accent ink; {warning-role sentence per palettes.md when present}; everything else, including all callout text not named above, uses the structure ink.
+PALETTE: {the style's PALETTE line as usual, hexes here only}. Semantic roles: the flow arrows and the arrow notes use the accent ink; {warning-role sentence per palettes.md when present}; everything else, including station names, uses the structure ink.
 
-CALLOUTS: exactly {3–6} short hand-lettered English callouts — {"…", "…"} — each 1–4 words, each appearing EXACTLY ONCE, placed directly on the bare paper near what they name: station names in the structure-ink color, the one main-flow note in the flow color, at most one warning note in the warning color. Hand-letter ONLY these words — no other text, numbers, or color codes anywhere in the image. Never put callout text on a colored fill. No title bar, no type label, no logo.
+CALLOUTS: exactly {3–6} short hand-lettered English callouts — {"…", "…"} — each 1–4 words, each appearing EXACTLY ONCE. Two jobs: station names (short, on the stations — where you are) in the structure-ink color; arrow notes (a verb or condition ON the arrow — what happens between) hand-lettered on or along the arrow in the flow ink. When the type is labeled stages, spend the budget on motion, not more plaques: about 3 station names and up to 2 arrow notes — the main flow arrow gets one verb, the return/reject arrow gets one condition. Never a legend, a title bar, or the same station captioned twice. Hand-letter ONLY these words — no other text, numbers, or color codes anywhere in the image. Never put callout text on a colored fill.
 ```
 
 ## Notes that keep it on-style

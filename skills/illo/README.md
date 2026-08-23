@@ -267,15 +267,16 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
 - **Mini-comics** — a process, a before→after, a fail→fix told in 2–4 panels
   inside one image. The best shape when a sequence belongs together — and for
   social, where one self-contained image beats a thread.
-- **Explainer diagrams** — when the point *is* the structure (a factory
-  pipeline, a fan-out, a timeline, a loop, a layered stack), ask for "the
-  flow", "factory", or "an explainer" and the same mascot and look draw it
-  as a hand-built sketch-diagram: stations, one flow direction, short
-  color-coded callouts — traceable, but never a PowerPoint flowchart. A
-  named pipeline or recipe is a factory flow: one connected plant, solved
-  for that character, never a new look. The scene stays the default; the
-  diagram register is opt-in or earned by content whose thesis is the
-  structure itself.
+- **Explainer diagrams** — when the point *is* the structure (labeled
+  stages, a fan-out, a timeline, a loop, a layered stack), ask for "the
+  flow", "as labeled stages", "label the steps", "walk the stages", or
+  "an explainer" and the same mascot and look draw it as a hand-built
+  sketch-diagram: named phases, one flow direction, station names plus
+  arrow notes — traceable, but never a PowerPoint flowchart. A named
+  pipeline or recipe is labeled stages: one connected system, solved for
+  that character, never a new look. The world is invented from the
+  thesis and the pack. The scene stays the default; the diagram register
+  is opt-in or earned by content whose thesis is the structure itself.
 - **Character cutouts** — transparent PNG of the mascot alone (pose, optional
   contact objects in touch with the body) for slides, compositing, or handing
   off to another tool. Codex uses native alpha; the engine keeps chroma as an

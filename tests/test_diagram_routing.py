@@ -34,7 +34,9 @@ class CompositionAlignmentTests(unittest.TestCase):
         self.assertEqual(
             self.policy.named_phrases,
             (
-                "factory",
+                "as labeled stages",
+                "label the steps",
+                "walk the stages",
                 "timeline",
                 "loop",
                 "fan-out",
@@ -57,7 +59,7 @@ class CompositionAlignmentTests(unittest.TestCase):
         self.assertEqual(
             self.policy.default_map_labels[:8],
             (
-                self.route.TYPE_FACTORY,
+                self.route.TYPE_LABELED_STAGES,
                 self.route.TYPE_FAN_OUT,
                 self.route.TYPE_TIMELINE,
                 self.route.TYPE_LOOP,
@@ -87,9 +89,9 @@ class DiagramRoutingTests(unittest.TestCase):
     def _decide(self, text, thesis=None):
         return self.route.route_diagram(text, thesis=thesis)
 
-    def test_pipeline_intent_bounded_audited_is_factory_flow(self):
+    def test_pipeline_intent_bounded_audited_is_labeled_stages(self):
         decision = self._decide("pipeline intent→bounded→audited")
-        self.assertEqual(decision.diagram_type, self.route.TYPE_FACTORY)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
         self.assertIsNone(decision.override)
 
@@ -113,20 +115,35 @@ class DiagramRoutingTests(unittest.TestCase):
         self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
         self.assertEqual(decision.register, self.route.REGISTER_EDITORIAL)
 
-    def test_bottleneck_as_a_factory_is_name_override(self):
-        decision = self._decide("bottleneck as a factory")
-        self.assertEqual(decision.diagram_type, self.route.TYPE_FACTORY)
+    def test_bottleneck_as_labeled_stages_is_name_override(self):
+        decision = self._decide("bottleneck as labeled stages")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
         self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
 
+    def test_label_the_steps_is_name_override(self):
+        decision = self._decide("you're the bottleneck, label the steps")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_walk_the_stages_is_name_override(self):
+        decision = self._decide("walk the stages of the bottleneck")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_as_a_factory_is_not_a_type_name(self):
+        decision = self._decide("bottleneck as a factory")
+        self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertNotEqual(decision.override, self.route.OVERRIDE_NAME)
+
     def test_one_machine_with_windows_is_description_override(self):
         decision = self._decide("one machine with windows")
-        self.assertEqual(decision.diagram_type, self.route.TYPE_FACTORY)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.override, self.route.OVERRIDE_DESCRIPTION)
 
     def test_like_that_factory_diagram_is_allusion_override(self):
         decision = self._decide("like that factory diagram")
-        self.assertEqual(decision.diagram_type, self.route.TYPE_FACTORY)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.override, self.route.OVERRIDE_ALLUSION)
 
     def test_just_the_scene_of_the_pipeline_stays_editorial(self):
@@ -141,10 +158,10 @@ class DiagramRoutingTests(unittest.TestCase):
         self.assertEqual(decision.register, self.route.REGISTER_EDITORIAL)
         self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
 
-    def test_as_an_explainer_bottleneck_locks_register_not_factory(self):
+    def test_as_an_explainer_bottleneck_locks_register_not_labeled_stages(self):
         decision = self._decide("as an explainer, you're the bottleneck")
         self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
-        self.assertNotEqual(decision.diagram_type, self.route.TYPE_FACTORY)
+        self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
         self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
 
@@ -154,12 +171,12 @@ def _model(route, **fields):
 
 
 class PackSolveTests(unittest.TestCase):
-    """Same factory skeleton; fixtures encode pack interaction models."""
+    """Same labeled-stages skeleton; fixtures encode pack interaction models."""
 
     @classmethod
     def setUpClass(cls):
         cls.route = load_router()
-        cls.skeleton = cls.route.AUDIT_FACTORY
+        cls.skeleton = cls.route.AUDIT_LABELED_STAGES
         cls.blip = _model(
             cls.route,
             name="blip",
@@ -224,16 +241,25 @@ class PackSolveTests(unittest.TestCase):
     def _solve(self, model):
         return self.route.pack_solve(model, self.skeleton)
 
-    def _assert_plant(self, solve):
-        self.assertEqual(solve.plant_stages, self.route.AUDIT_STAGES)
+    def _assert_system(self, solve):
+        self.assertEqual(solve.stages, self.route.AUDIT_STAGES)
         self.assertEqual(solve.reject, "slop")
         self.assertEqual(solve.return_leg, "re-audit")
         self.assertEqual(solve.bind, "one flow line")
         self.assertNotEqual(solve.style, "whiteboard")
+        factory_world = ("factory building", "hopper", "conveyor belt")
+        used = " ".join(
+            (
+                solve.bind,
+                *(line.object_part for line in solve.contact_map),
+            )
+        ).lower()
+        for token in factory_world:
+            self.assertNotIn(token, used)
 
     def test_blip_operates_bounded_pedal_or_press_not_antenna(self):
         solve = self._solve(self.blip)
-        self._assert_plant(solve)
+        self._assert_system(solve)
         self.assertEqual(solve.operator_stage, "bounded")
         self.assertIn(solve.verb, {"pedal", "press"})
         self.assertNotEqual(solve.contact_part, "antenna")
@@ -251,7 +277,7 @@ class PackSolveTests(unittest.TestCase):
 
     def test_forge_operates_pedal_or_press_not_hammer(self):
         solve = self._solve(self.forge)
-        self._assert_plant(solve)
+        self._assert_system(solve)
         self.assertEqual(solve.operator_stage, "bounded")
         self.assertIn(solve.verb, {"pedal", "press"})
         used = {
@@ -261,7 +287,7 @@ class PackSolveTests(unittest.TestCase):
         }
         self.assertNotIn("hammer", used)
 
-    def test_forge_fails_if_hammer_is_the_factory_tool(self):
+    def test_forge_fails_if_hammer_is_the_workflow_tool(self):
         illegal = self.route.ContactLine(
             "arm_tips", "hammer", "beside body", "hammers the line"
         )
@@ -270,7 +296,7 @@ class PackSolveTests(unittest.TestCase):
 
     def test_spritz_operates_sensored_pour_not_crank(self):
         solve = self._solve(self.spritz)
-        self._assert_plant(solve)
+        self._assert_system(solve)
         self.assertEqual(solve.operator_stage, "sensored")
         self.assertIn(solve.verb, {"pour", "sprinkle"})
         self.assertNotIn(solve.verb, {"crank", "wheel"})
@@ -287,7 +313,7 @@ class PackSolveTests(unittest.TestCase):
 
     def test_fathom_operates_audited_handle_or_reject_hose(self):
         solve = self._solve(self.fathom)
-        self._assert_plant(solve)
+        self._assert_system(solve)
         self.assertIn(solve.operator_stage, {"audited", "slop"})
         self.assertIn(solve.verb, {"handle", "hose"})
         self.assertEqual(solve.contact_part, "hook_mitts")
@@ -307,7 +333,7 @@ class PackSolveTests(unittest.TestCase):
 
     def test_sulk_is_jam_or_vessel_on_bound_plate(self):
         solve = self._solve(self.sulk)
-        self._assert_plant(solve)
+        self._assert_system(solve)
         self.assertEqual(solve.operator_stage, "bounded")
         self.assertIn(solve.verb, {"jam", "vessel"})
         self.assertEqual(solve.contact_part, "body")
@@ -320,7 +346,7 @@ class PackSolveTests(unittest.TestCase):
             ("grasp", "wings", "handle"),
         ):
             with self.subTest(verb=verb):
-                illegal = self.route.ContactLine(part, obj, "on the plant", verb)
+                illegal = self.route.ContactLine(part, obj, "on the system", verb)
                 errors = self.route.feasibility_errors(
                     self.sulk, [illegal], verb=verb
                 )
@@ -332,6 +358,15 @@ class PackSolveTests(unittest.TestCase):
                 solve = self._solve(model)
                 self.assertEqual(solve.style, model.style)
                 self.assertNotEqual(solve.style, "whiteboard")
+
+    def test_pack_solve_does_not_require_a_factory_building(self):
+        for model in (self.blip, self.forge, self.spritz, self.fathom, self.sulk):
+            with self.subTest(pack=model.name):
+                solve = self._solve(model)
+                self._assert_system(solve)
+                self.assertEqual(solve.bind, "one flow line")
+                self.assertNotIn("factory", solve.bind.lower())
+                self.assertNotIn("plant", solve.bind.lower())
 
 
 if __name__ == "__main__":

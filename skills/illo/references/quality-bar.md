@@ -112,11 +112,14 @@ its style's file** — everything else here still applies.
   correctly spelled, on bare paper in the semantic ink roles
   (`palettes.md`); the mascot is a working part of the structure, not a
   presenter beside it; still hand-built — no title, border, grid, legend,
-  or vector-formal boxes. **Factory flow** (only when that type locked):
-  one connected plant, not five editorial islands or a row of disconnected
+  or vector-formal boxes. **Labeled stages** (only when that type locked):
+  one connected system, not five editorial islands or a row of disconnected
   props; stations are invented physical objects, not generic rectangles;
   the mascot operates exactly one stage; no formal flowchart; the look
   stayed the pack's — a whiteboard / white-doodle restyle is a fail.
+  Spend the callout budget on motion: station names on the stations,
+  arrow notes on the arrows. Mute arrows (all text is station plaques)
+  fail. Arrow notes that become a paragraph fail.
 - **Accent discipline**: accent on the character's accent part + 1–2 elements
   only; the body and background are not colored-in with the accent.
 - Unified line language across mascot and props (one artist).
@@ -202,11 +205,19 @@ style QA deltas) still applies to the character cluster.
   simpler. (In the explainer register the fail is *formality* — vector-clean
   boxes, a legend, a grid, a boxed title — not the presence of arrows and
   stations; redraw hand-built, don't strip the structure.)
-- A factory flow that reads as disconnected islands, generic rectangles,
+- Labeled stages that read as disconnected islands, generic rectangles,
   the character working two stages, a formal flowchart, or a look
   switched to a whiteboard / white doodle → restage the bind or the
-  operator stage (`composition.md`, factory flow pack-solve), then
+  operator stage (`composition.md`, labeled stages pack-solve), then
   re-roll. Do not "fix" it by changing the look.
+- Labeled stages whose arrows are mute — all text is station plaques,
+  none on the arrows — → spend the callout budget on motion: keep
+  ~3 station names and put a verb on the main flow arrow (and a
+  condition on the return/reject arrow). Re-roll if the plaques stay
+  and the arrows stay silent.
+- Arrow notes that become a paragraph → cut each note to a verb or
+  a condition, 1–4 words, on or along the arrow. Do not write a
+  sentence on the flow line.
 - Too many objects/arrows/nodes; text became sentences → editorial: cut to
   one action + ≤3 labels; explainer: cut to ≤5 stations + ≤6 callouts, one
   flow direction.

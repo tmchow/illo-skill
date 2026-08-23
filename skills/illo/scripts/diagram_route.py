@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Executable lock of composition.md's diagram-type picker and factory pack-solve.
+"""Executable lock of composition.md's diagram-type picker and labeled-stages pack-solve.
 
 The prose in references/composition.md is the source of truth. This module
 extracts the type-picker phrases from that file and classifies a request the
@@ -7,7 +7,8 @@ same way: name > description > allusion > default map. "As an explainer"
 locks the explainer register only; the map then picks the type.
 
 Pack-solve reasons from an interaction-model fixture — one operator stage,
-declared contacts only, one connected plant. It does not invent a look.
+declared contacts only, one connected system invented from the thesis and
+the pack. It does not invent a look or require a factory building.
 """
 from __future__ import annotations
 
@@ -24,7 +25,7 @@ COMPOSITION_MD = (
 REGISTER_EDITORIAL = "editorial"
 REGISTER_EXPLAINER = "explainer"
 
-TYPE_FACTORY = "factory_flow"
+TYPE_LABELED_STAGES = "labeled_stages"
 TYPE_FAN_OUT = "fan_out"
 TYPE_TIMELINE = "timeline"
 TYPE_LOOP = "loop"
@@ -34,7 +35,7 @@ TYPE_COMIC = "mini_comic"
 TYPE_EDITORIAL = "editorial"
 
 DIAGRAM_TYPES = frozenset(
-    {TYPE_FACTORY, TYPE_FAN_OUT, TYPE_TIMELINE, TYPE_LOOP, TYPE_STACK, TYPE_SLICE}
+    {TYPE_LABELED_STAGES, TYPE_FAN_OUT, TYPE_TIMELINE, TYPE_LOOP, TYPE_STACK, TYPE_SLICE}
 )
 OVERRIDE_NAME = "name"
 OVERRIDE_DESCRIPTION = "description"
@@ -42,8 +43,10 @@ OVERRIDE_ALLUSION = "allusion"
 REGISTER_ONLY = object()
 
 LABEL_TO_TYPE = {
-    "factory flow": TYPE_FACTORY,
-    "factory": TYPE_FACTORY,
+    "labeled stages": TYPE_LABELED_STAGES,
+    "as labeled stages": TYPE_LABELED_STAGES,
+    "label the steps": TYPE_LABELED_STAGES,
+    "walk the stages": TYPE_LABELED_STAGES,
     "fan-out": TYPE_FAN_OUT,
     "timeline": TYPE_TIMELINE,
     "loop": TYPE_LOOP,
@@ -55,8 +58,8 @@ LABEL_TO_TYPE = {
     "just the scene": TYPE_EDITORIAL,
 }
 
-DESCRIPTION_TYPE = TYPE_FACTORY
-ALLUSION_TYPE = TYPE_FACTORY
+DESCRIPTION_TYPE = TYPE_LABELED_STAGES
+ALLUSION_TYPE = TYPE_LABELED_STAGES
 
 AUDIT_STAGES = ("intent", "bounded", "sensored", "audited", "verified")
 AUDIT_REJECT = "slop"
@@ -110,7 +113,7 @@ class ContactLine:
 
 
 @dataclasses.dataclass(frozen=True)
-class FactorySkeleton:
+class LabeledStagesSkeleton:
     stages: tuple[str, ...]
     reject: str
     return_leg: str
@@ -122,7 +125,7 @@ class PackSolve:
     verb: str
     contact_part: str
     contact_map: tuple[ContactLine, ...]
-    plant_stages: tuple[str, ...]
+    stages: tuple[str, ...]
     bind: str
     style: str
     reject: str
@@ -143,7 +146,7 @@ class _StageOp:
     required_reach: str | None = None
 
 
-AUDIT_FACTORY = FactorySkeleton(
+AUDIT_LABELED_STAGES = LabeledStagesSkeleton(
     stages=AUDIT_STAGES, reject=AUDIT_REJECT, return_leg=AUDIT_RETURN
 )
 
@@ -349,8 +352,8 @@ def _find_named(
         stripped = stripped.replace(desc, " ")
     candidates: list[tuple[int, str, str | object]] = []
     for phrase in (*policy.register_only_phrases, *policy.named_phrases):
-        if phrase == "factory":
-            pattern = r"(?:as a factory|factory flow|\bfactory\b)"
+        if phrase in {"as labeled stages", "label the steps", "walk the stages"}:
+            pattern = r"\b" + re.escape(phrase) + r"\b"
         elif phrase == "fan-out":
             pattern = r"fan-?out"
         elif phrase == "mini-comic":
@@ -402,7 +405,7 @@ def default_map(thesis: str) -> str:
     if re.search(r"one source into|split or sort|\bsort\b", text):
         hits.append(TYPE_FAN_OUT)
     if re.search(r"pipeline|recipe|staged process|intent.{0,40}bounded", text):
-        hits.append(TYPE_FACTORY)
+        hits.append(TYPE_LABELED_STAGES)
     if re.search(r"\b(timeline|history|chronolog)\b", text):
         hits.append(TYPE_TIMELINE)
     if re.search(r"\blayers?\b|capability stack", text):
@@ -417,10 +420,10 @@ def default_map(thesis: str) -> str:
         return TYPE_EDITORIAL
     if len(unique) == 1:
         return unique[0]
-    if TYPE_FACTORY in unique and _has_nameable_stations(text):
-        return TYPE_FACTORY
+    if TYPE_LABELED_STAGES in unique and _has_nameable_stations(text):
+        return TYPE_LABELED_STAGES
     for preferred in (
-        TYPE_FACTORY,
+        TYPE_LABELED_STAGES,
         TYPE_FAN_OUT,
         TYPE_TIMELINE,
         TYPE_LOOP,
@@ -526,10 +529,10 @@ def feasibility_errors(
 
 
 def pack_solve(
-    model: InteractionModel, skeleton: FactorySkeleton | None = None
+    model: InteractionModel, skeleton: LabeledStagesSkeleton | None = None
 ) -> PackSolve:
     """Pick ONE operator stage this body can work; bind the rest as world objects."""
-    skeleton = skeleton or AUDIT_FACTORY
+    skeleton = skeleton or AUDIT_LABELED_STAGES
     allowed_stages = set(skeleton.stages) | {skeleton.reject}
     candidates = [
         op
@@ -571,11 +574,95 @@ def pack_solve(
         verb=chosen.verb,
         contact_part=chosen.contact_part,
         contact_map=contact_map,
-        plant_stages=skeleton.stages,
+        stages=skeleton.stages,
         bind="one flow line",
         style=model.style,
         reject=skeleton.reject,
         return_leg=skeleton.return_leg,
+    )
+
+
+MUTE_ARROWS = "mute arrows"
+ARROW_PARAGRAPH = "arrow paragraph"
+OVER_BUDGET = "over budget"
+WORD_LIMIT = "word limit"
+TOO_MANY_ARROW_NOTES = "too many arrow notes"
+
+MAX_CALLOUTS = 6
+MAX_WORDS = 4
+SUGGESTED_STATION_NAMES = 3
+MAX_ARROW_NOTES = 2
+
+
+@dataclasses.dataclass(frozen=True)
+class ArrowNotePolicy:
+    """Budget extracted from composition.md labeled-stages / callout prose."""
+
+    max_callouts: int
+    max_words: int
+    suggested_station_names: int
+    max_arrow_notes: int
+
+
+@dataclasses.dataclass(frozen=True)
+class CalloutPlan:
+    station_names: tuple[str, ...]
+    arrow_notes: tuple[str, ...]
+
+
+def parse_arrow_note_policy(text: str) -> ArrowNotePolicy:
+    """Read the labeled-stages callout split. Tests fail if this prose drifts."""
+    if "~3 station names" not in text:
+        raise ValueError("composition.md must suggest '~3 station names'")
+    if "up to 2 arrow notes" not in text:
+        raise ValueError("composition.md must allow 'up to 2 arrow notes'")
+    if "Mute arrows" not in text and "mute arrows" not in text:
+        raise ValueError("composition.md must fail mute arrows")
+    if "paragraph arrows" not in text:
+        raise ValueError("composition.md must fail paragraph arrows")
+    return ArrowNotePolicy(
+        max_callouts=MAX_CALLOUTS,
+        max_words=MAX_WORDS,
+        suggested_station_names=SUGGESTED_STATION_NAMES,
+        max_arrow_notes=MAX_ARROW_NOTES,
+    )
+
+
+def _word_count(text: str) -> int:
+    return len(text.split())
+
+
+def _is_paragraph(text: str) -> bool:
+    stripped = text.strip()
+    if _word_count(stripped) > MAX_WORDS:
+        return True
+    return bool(re.search(r"[.!?;]", stripped))
+
+
+def evaluate_callouts(plan: CalloutPlan) -> list[str]:
+    """Fail mute arrows, paragraph arrows, and over-budget plans."""
+    errors: list[str] = []
+    total = len(plan.station_names) + len(plan.arrow_notes)
+    if plan.station_names and not plan.arrow_notes:
+        errors.append(MUTE_ARROWS)
+    if total > MAX_CALLOUTS:
+        errors.append(OVER_BUDGET)
+    if len(plan.arrow_notes) > MAX_ARROW_NOTES:
+        errors.append(TOO_MANY_ARROW_NOTES)
+    for note in plan.arrow_notes:
+        if _is_paragraph(note):
+            errors.append(ARROW_PARAGRAPH)
+    for name in plan.station_names:
+        if _word_count(name) > MAX_WORDS:
+            errors.append(WORD_LIMIT)
+    return list(dict.fromkeys(errors))
+
+
+def suggested_callout_split(plan: CalloutPlan) -> bool:
+    return (
+        len(plan.station_names) == SUGGESTED_STATION_NAMES
+        and 1 <= len(plan.arrow_notes) <= MAX_ARROW_NOTES
+        and not evaluate_callouts(plan)
     )
 
 

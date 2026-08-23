@@ -185,7 +185,8 @@ Pick the **register the locked line earns**. Do **not** rotate scene / comic /
 diagram for variety. A rotation puts a one-beat epigram in a comic and a
 distinction like "deploy is not release" in a diagram it does not need.
 
-Honor an explicit user shape ("as a comic", "show the flow", "factory",
+Honor an explicit user shape ("as a comic", "show the flow",
+"as labeled stages", "label the steps", "walk the stages",
 "like that factory diagram"). User override still wins. Otherwise:
 
 - **Editorial** — the default. One caught scene. Use this unless the saying
@@ -196,9 +197,9 @@ Honor an explicit user shape ("as a comic", "show the flow", "factory",
   if the line already has those beats. Panel lettering follows the house
   mini-comic rules below (not silence).
 - **Explainer** — only when the saying **is** a structure (a flow, fan-out,
-  timeline, loop, or stack). **Factory flow** only when the saying itself
+  timeline, loop, or stack). **Labeled stages** only when the saying itself
   **is** a staged process (a named pipeline, a recipe) — do not upgrade a
-  one-beat line into a plant. A distinction or metaphor is not a structure.
+  one-beat line into a workflow. A distinction or metaphor is not a structure.
   "One station, one job" and "deploy is not release" are editorial. Then
   follow `references/composition.md`, "Pick the diagram type" and "The
   explainer register", including short station callouts.
