@@ -68,6 +68,11 @@ its style's file** — everything else here still applies.
     character sheet: a stubby arm cannot become a long bar, cable, lever, or
     bridge across the scene. For one-arm / handle characters, the handle is
     never a second hand and the working arm must stay visually short.
+    **Body / torso proportions** are the same hard fail: a squash, stretch,
+    or flatten versus the pack sheet — including a body filling a door,
+    hatch, or the frame — fails like a limb-proportion miss. Dramatize
+    scale in the world, not the mascot. This lock holds in every register,
+    not only X Article banners.
   - **No fused props** — a tool/object connects through a declared contact
     surface (separated from the torso) or sits in the scene; it is never
     pressed flat against the body or sprouting from it. Exception: when the
@@ -90,7 +95,8 @@ its style's file** — everything else here still applies.
 - **Value matches the palette**: in light palettes the body is light with
   structure-ink (not pure-black) features — not a heavy dark blob.
 - One core idea, one structure. Subject large (~50–70%; explainer images may
-  spread ~40–70%), ≥35% negative space.
+  spread ~40–70%), ≥35% negative space. That percentage is occupancy in
+  the frame, not a license to distort the locked body.
 - **Text hierarchy / labels**: editorial text stays short, correctly spelled,
   structure-ink on bare paper — never on a colored fill. A primary floating
   title is allowed when the artifact job needs a standalone read; it must be
@@ -112,7 +118,15 @@ its style's file** — everything else here still applies.
   correctly spelled, on bare paper in the semantic ink roles
   (`palettes.md`); the mascot is a working part of the structure, not a
   presenter beside it; still hand-built — no title, border, grid, legend,
-  or vector-formal boxes.
+  or vector-formal boxes. **Labeled stages** (only when that type locked):
+  one connected system, not five editorial islands or a row of disconnected
+  props; stations are invented physical objects, not generic rectangles;
+  the mascot operates exactly one stage; no formal boxes-and-diamonds
+  flowchart look (the word flowchart is not a fail); the look
+  stayed the pack's — a whiteboard / white-doodle restyle is a fail.
+  Spend the callout budget on motion: station names on the stations,
+  arrow notes on the arrows. Mute arrows (all text is station plaques)
+  fail. Arrow notes that become a paragraph fail.
 - **Accent discipline**: accent on the character's accent part + 1–2 elements
   only; the body and background are not colored-in with the accent.
 - Unified line language across mascot and props (one artist).
@@ -194,10 +208,25 @@ style QA deltas) still applies to the character cluster.
   design doesn't name → inspect the tight face crop and re-roll. For a pack that
   forbids facial interior marks, any mouth-like loop/line, cheek/muzzle/nostril
   mark, or construction stroke is a hard fail regardless of apparent intent.
-- Looks like a slide, infographic, flowchart, or formal diagram → re-roll
-  simpler. (In the explainer register the fail is *formality* — vector-clean
-  boxes, a legend, a grid, a boxed title — not the presence of arrows and
-  stations; redraw hand-built, don't strip the structure.)
+- Looks like a slide, infographic, or formal flowchart / formal diagram →
+  re-roll simpler. (In the explainer register the fail is *formality* —
+  vector-clean boxes, a legend, a grid, a boxed title — not the presence
+  of arrows and stations, and not that the user asked for a flowchart;
+  redraw hand-built, don't strip the structure.)
+- Labeled stages that read as disconnected islands, generic rectangles,
+  the character working two stages, a formal boxes-and-diamonds
+  flowchart look, or a look
+  switched to a whiteboard / white doodle → restage the bind or the
+  operator stage (`composition.md`, labeled stages pack-solve), then
+  re-roll. Do not "fix" it by changing the look.
+- Labeled stages whose arrows are mute — all text is station plaques,
+  none on the arrows — → spend the callout budget on motion: keep
+  ~3 station names and put a verb on the main flow arrow (and a
+  condition on the return/reject arrow). Re-roll if the plaques stay
+  and the arrows stay silent.
+- Arrow notes that become a paragraph → cut each note to a verb or
+  a condition, 1–4 words, on or along the arrow. Do not write a
+  sentence on the flow line.
 - Too many objects/arrows/nodes; text became sentences → editorial: cut to
   one action + ≤3 labels; explainer: cut to ≤5 stations + ≤6 callouts, one
   flow direction.
@@ -211,6 +240,10 @@ style QA deltas) still applies to the character cluster.
   off-palette accents re-roll or snap in post.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
+- Torso or body squashed, stretched, or flattened versus the pack sheet
+  (a body filling a door or the frame) → restage the world object, then
+  re-roll. Same hard fail as a limb-proportion miss. Do not "fix" it by
+  prompting the mascot to fill the architecture.
 - A line passes through the mascot's body, a limb roots wrong / is
   doubled/floating, or a prop is fused flat to the torso instead of
   connected through a declared contact surface (declared body contact is

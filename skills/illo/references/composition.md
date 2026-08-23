@@ -31,11 +31,15 @@ just because the source contains a traceable process.
 Editorial wins every tie. Route an image to explainer only when:
 
 - **(a) the user asks for it** — "show the flow", "diagram the pipeline",
-  "map the steps", "make it traceable", "as an explainer"; or
+  "map the steps", "make it traceable", "as an explainer", or names /
+  describes / alludes to a diagram type ("as labeled stages", "like that
+  factory diagram"; specified flowchart / labeled-workflow /
+  process-diagram intention locks labeled stages; full precedence in
+  "Pick the diagram type"); or
 - **(b) the unit's locked thesis IS a traceable structure** — its point
-  lives in the stations and their connections (a pipeline with named
-  stages, a fan-out, a timeline, a loop, a layered stack), and one caught
-  moment would force the reader to take the structure on faith.
+  lives in the stations and their connections (a named pipeline or
+  labeled stages, a fan-out, a timeline, a loop, a layered stack), and one
+  caught moment would force the reader to take the structure on faith.
 
 A process that is merely *evidence* for a different lock stays editorial —
 the lock is the arbiter, exactly as in Source routing step 2. Genres that
@@ -43,7 +47,9 @@ most often qualify: how-to / process and systems / architecture pieces.
 Opinions, quotes, launches, and anecdotes stay editorial: their theses are
 claims, not structures. Like the mini-comic, the explainer is a deliberate
 choice, never a fallback — and a set may mix registers (an editorial hero
-over explainer anchors is a natural article shape).
+over explainer anchors is a natural article shape). Labeled stages is a
+structure type *inside* this register, not a third register and not a
+new look.
 
 ## Turn the idea into a move
 
@@ -61,7 +67,12 @@ cluttered bench.
 
 Then put **the mascot in the move** — wedged in it, cranking it, plugging it,
 hauling across it — never posed politely beside it (see the load-bearing test
-in `character.md`).
+in `character.md`). Locked silhouette and body proportions are
+non-negotiable in every register, not only X Article banners. Dramatize
+scale by changing the **world** — a too-small door, a tiny hatch, an
+oversized pile — never by stretching, squashing, or flattening the mascot
+to fill architecture or the frame. "Subject large and confident ~50–70%"
+is occupancy in the frame, not a license to distort the body.
 
 ## Anatomy-action feasibility gate
 
@@ -84,16 +95,21 @@ both arms  -> no contact -> low at the sides, outside the machine
 
 The gate applies in **both registers**: an explainer's mascot move — its
 station, jam, sorter, or hauler role — maps its contacts the same way
-before the structure locks. Confirm each active part is a declared contact
+before the structure locks. Labeled stages pack-solves to **one** operator
+stage first ("Labeled stages — skeleton, then pack-solve"), then this gate
+runs on that one contact map. Confirm each active part is a declared contact
 surface, can plausibly reach the contact without changing its locked
-proportions, and that no object or route must cross a protected region or
-fuse with the body. **Re-stage — a
+silhouette or body proportions, and that no object or route must cross a
+protected region or fuse with the body. A move that only reads if the
+body fills a door, hatch, or frame is a failed map — shrink or enlarge
+the world object; do not squash the mascot. **Re-stage — a
 different verb, object, orientation, or contact method — instead of
 prompting harder** when the map fails: a required surface the pack doesn't
 declare (undeclared fingers, hands, joints), a contact beyond the reach
 class, more simultaneous contacts than the character has surfaces, a route
-through the face, ambiguous stroke ownership near the face or torso, or a
-move that only works by fusing the object into the body. A load-bearing
+through the face, ambiguous stroke ownership near the face or torso, a
+move that only works by fusing the object into the body, or a pose that
+only works by stretching or flattening the locked body. A load-bearing
 move must be both conceptually necessary and physically drawable by this
 character.
 
@@ -120,20 +136,93 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
+## Pick the diagram type
+
+Once the thesis is locked, pick the diagram type from that lock. The user
+can override. An allusion is enough. After the type locks, do not rotate
+it for variety.
+
+Specified intention locks the type even when the thesis would have stayed
+editorial. If the user names, describes, or alludes to a flowchart, a
+labeled workflow, or a process diagram, lock labeled stages. That is
+intention — not a closed synonym list, and not a keyword scan of "flow"
+or "workflow". After the type locks, do not rotate it. The ban on
+boxes-and-diamonds / Visio / title-legend-grid formality is a **look**
+constraint: produce labeled stages in the pack's look; do not refuse the
+word flowchart.
+
+Override precedence (highest wins):
+
+1. The user **names** a type — "as labeled stages", "label the steps",
+   "walk the stages", "timeline", "loop", "fan-out", "stack",
+   "as an explainer", "mini-comic", "just the scene".
+2. The user **describes** a type — "swim the stages", "one machine with
+   windows". Specified intention includes (examples, not a closed list)
+   "as a flowchart", "labeled workflow".
+3. The user **alludes** to a type — "like that factory diagram".
+4. The agent default from the thesis map below.
+
+A named or alluded type locks both the register (when the type is a
+diagram) and the type. "As an explainer" locks the register only — then
+the map (or a more specific name) picks the structure. "Mini-comic" and
+"just the scene" lock those editorial shapes and skip the diagram.
+
+Default only when the user did not steer. Labeled stages is BEST when
+the thesis IS a named pipeline, recipe, or staged process — nameable
+stations in order, one connected system. Do not force labeled stages on
+every explainer, and do not force explainer on a process that is merely
+evidence for a different lock.
+
+- A named pipeline, recipe, or staged process → **labeled stages** (inside
+  explainer): named phases in order, one connected system, in through
+  named stops then out, optional reject and/or return. The world is
+  invented from the thesis and the pack.
+- A split or sort → **fan-out**
+- Order or history → **timeline**
+- A cycle or feedback as the point → **loop**
+- Layers / a capability stack → **layer stack**
+- A few connected parts, no single direction → **system slice**
+- A story beat (fail→fix, before→after) → **mini-comic**, not a diagram
+  (the existing editorial shape)
+- A claim you can feel in one move → **editorial**, not a diagram
+- NEVER labeled stages unless the user specified that type: a claim you
+  can feel in one move; opinions, quotes, launches, anecdotes; a story
+  beat that is fail→fix / before→after (mini-comic); a split/sort
+  (fan-out); a cycle as the point (loop); layers (stack). Editorial
+  still wins every tie.
+- If two types fit, pick the one that makes the stations nameable
+- If none fit, do not force a diagram — editorial wins the tie, as in
+  "Two registers"
+
+The register gate still applies: user asks, or the thesis IS a
+traceable structure. Do not invent a look to "read as a diagram" —
+the pack's existing style draws whatever type locks.
+
 ## The explainer register
 
 One structure, drawn as a hand-built sketch the mascot is working inside —
 never a presenter beside a chart. The grammar editorial forbids (arrows,
 stations, a path) is the working material here; what stays forbidden is the
 *formal* version of it: no title, no border, no grid, no legend, no
-boxes-and-diamonds flowchart formality. The result must still read as one
-artist's hand-built drawing in the active look.
+boxes-and-diamonds flowchart formality. That formality ban is a look
+constraint — not a refusal of the word flowchart. A specified flowchart
+intention still draws labeled stages in the pack's look. The result must
+still read as one artist's hand-built drawing in the active look.
 
 Structure types — pick ONE (these are the explainer's stagings; an explainer
-shot-list row names one of these in its staging slot):
+shot-list row names one of these in its staging slot). Labeled stages is
+the staged, labeled form of a workflow; the other types stay as they are.
 
+- **Labeled stages** — a staged, labeled workflow: named phases in
+  order, one connected system, in through named stops then out,
+  optional reject and/or return. Lock the skeleton and run the
+  pack-solve below before drawing. The world is invented from the
+  thesis and the pack — a factory only when the thesis is a factory.
 - **A flow** — 3–5 stations left to right on one flow line; the
-  transformation is visible station to station.
+  transformation is visible station to station. Use labeled stages when
+  the stages are a named pipeline or recipe, or when the user specified
+  a flowchart / labeled-workflow / process-diagram intention. Do not
+  treat that ask as this looser unlabeled flow.
 - **A fan-out / sort** — one source, the mascot routing, 2–4 labeled
   destinations.
 - **A timeline** — one axis, 3–5 beats with short callouts; the order or
@@ -154,9 +243,13 @@ Budget (replaces the Restraint section's editorial numbers for this image):
 - **One main flow direction**, drawn as simple hand-drawn arrows in the
   flow ink (semantic roles: `palettes.md`); at most one return or
   exception leg.
-- **Callouts ≤6**, 1–4 short words each, hand-lettered directly on the bare
-  paper/ground near what they name — semantic ink roles per `palettes.md`,
-  never on a colored fill. Stations may be named; don't also caption them.
+- **Callouts ≤6**, 1–4 short words each, two jobs: **station names**
+  (short, on the stations — where you are) and **arrow notes** (a verb
+  or condition ON the arrow — what happens between). Hand-lettered
+  directly on the bare paper/ground or on/along the arrow in the flow
+  ink — semantic ink roles per `palettes.md`, never on a colored fill.
+  Don't caption a station twice. Suggested split when the type is
+  labeled stages: ~3 station names + up to 2 arrow notes.
 - **The mascot is a working part** of the structure — a station, the jam,
   the sorter, the hauler between stops — and passes the same load-bearing
   test (`character.md`) and the anatomy-action feasibility gate (above).
@@ -168,6 +261,59 @@ Budget (replaces the Restraint section's editorial numbers for this image):
 Sequence routing changes inside this register: a progression that would be a
 mini-comic in editorial is drawn as the flow itself here. Panels are
 editorial machinery — never mix panels and flow arrows in one image.
+
+**Labeled stages — skeleton, then pack-solve.** One connected system —
+not five editorial islands, not a formal boxes-and-diamonds flowchart
+look, not a title / legend / grid. The look stays the pack's: draw the system
+in riso, woodcut, clay, or whichever style the character already wears.
+Do not switch to a white doodle or whiteboard look to "read as a
+diagram." Do not default the world to a plant, a belt, or a hopper —
+invent it from the thesis and the pack. A factory is a metaphor only
+when the thesis is a factory.
+
+Lock this skeleton (content, style-agnostic) **before** drawing:
+
+- Input
+- 3–5 named stages (the thesis)
+- Output(s)
+- Optional reject and/or return
+
+Stations are invented physical objects in the scene's world — never
+generic rectangles. One main flow direction. Callout budget stays the
+explainer budget above (≤5 stations, ≤6 callouts, 1–4 words).
+
+**Arrow notes.** A second text job, not more plaques. Station names sit
+on the stations (where you are). Arrow notes sit ON the arrow (what
+happens between): the main flow arrow gets one verb; the return/reject
+arrow gets one condition. Suggested split: ~3 station names + up to 2
+arrow notes — still ≤6 total, each 1–4 words. Hand-letter arrow notes
+on or along the arrow in the flow ink. Never a legend, a title bar, or
+captioning every station twice. Mute arrows (all plaques, no notes) and
+paragraph arrows both fail.
+
+**Pack-solve (required before the prompt).** Each character pack is
+different. Reason from this body; do not template one factory. Write a
+short internal scratch — stage list → operator stage → contact map →
+bind — then the image prompt:
+
+1. Read the active pack's `## Interaction model` (or derive
+   conservatively from the locked design per `character.md`): contact
+   surfaces, reach, grip, protected regions.
+2. Pick ONE stage this body can actually operate. Examples: Blot
+   (stubby, pressure/contact, no fingers) → a pedal, a press, a jam. A
+   long-armed pack → haul between stations. A no-limb / body-contact
+   pack → *be* the jam or the vessel. Prefer body-weight, pressing,
+   carrying, leaning over invented dexterity.
+3. Every other stage is a world object that MUST NOT require that
+   character's hands or undeclared contacts.
+4. Bind the stages into one connected system — not a row of
+   disconnected props. Invent the bind from the thesis and the pack.
+5. Run the anatomy-action feasibility gate (above) on the ONE contact
+   map. If it fails, restage the verb or which stage the mascot works —
+   not the thesis, not the stage names.
+6. Draw the system in the pack's existing look and palette.
+
+Then write the explainer prompt (`prompt-recipe.md`) from that scratch.
 
 ## Source routing (URLs, articles, threads, long posts) — before any prompt
 
@@ -339,9 +485,9 @@ moment. Treat an **X Article banner / hero** as a special destination format,
 not generic social art: prompt for the banner target **1536 × 640 px**
 (`1536:640`) unless the user gives another concrete size. Keep essential action
 inside a crop-safe middle band, leave top/bottom/side breathing room, and avoid
-title placement that depends on edge-to-edge filling. Normal proportions are
-non-negotiable: never stretch, squash, or flatten the mascot or props to fill
-the banner. Generate the banner through the normal `illo.py generate` pipeline;
+title placement that depends on edge-to-edge filling. The same
+silhouette lock as above applies: never stretch, squash, or flatten the
+mascot or props to fill the banner. Generate the banner through the normal `illo.py generate` pipeline;
 do not manually composite or rebuild the scene from crops unless the user asks
 for post-processing. Ordinary X post art and X article body images remain the
 normal social formats (`16:9` or sometimes `1:1`).
@@ -458,9 +604,11 @@ and the never-pad rule. Per image:
 - **Register** — editorial unless the row passes the explainer gate ("Two
   registers"); say which, so the reader can challenge the call.
 - **Staging** — which angle above (editorial), or which structure type
-  (explainer)
-- **The mascot's move** — the physical action
-- **Object(s)** — the one or two built things
+  (explainer; pick per "Pick the diagram type")
+- **The mascot's move** — the physical action (labeled stages: the one
+  pack-solved operator stage)
+- **Object(s)** — the one or two built things (labeled stages: one
+  connected system, not a row of props)
 - **Palette** — preset name or derived dominant
 - **Text hierarchy** — primary read/title if needed, then supporting labels or
   explainer callouts; keep their visual priority distinct. For a primary title,
