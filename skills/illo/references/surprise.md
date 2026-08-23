@@ -187,7 +187,10 @@ distinction like "deploy is not release" in a diagram it does not need.
 
 Honor an explicit user shape ("as a comic", "show the flow",
 "as labeled stages", "label the steps", "walk the stages",
-"like that factory diagram"). User override still wins. Otherwise:
+"like that factory diagram"). Specified flowchart / labeled-workflow /
+process-diagram intention locks labeled stages in the pack's look —
+the formal-flowchart ban is a look constraint, not a refusal of the
+word. User override still wins. Otherwise:
 
 - **Editorial** — the default. One caught scene. Use this unless the saying
   itself is a short progression or **is** a structure.

@@ -272,11 +272,13 @@ kept in lockstep with `SKILL.md` by Release Please and CI.
   flow", "as labeled stages", "label the steps", "walk the stages", or
   "an explainer" and the same mascot and look draw it as a hand-built
   sketch-diagram: named phases, one flow direction, station names plus
-  arrow notes — traceable, but never a PowerPoint flowchart. A named
-  pipeline or recipe is labeled stages: one connected system, solved for
-  that character, never a new look. The world is invented from the
-  thesis and the pack. The scene stays the default; the diagram register
-  is opt-in or earned by content whose thesis is the structure itself.
+  arrow notes — traceable, but never a PowerPoint / Visio flowchart look.
+  Asking for a flowchart still means labeled stages in the pack's look.
+  A named pipeline or recipe is labeled stages: one connected system,
+  solved for that character, never a new look. The world is invented
+  from the thesis and the pack. The scene stays the default; the
+  diagram register is opt-in or earned by content whose thesis is the
+  structure itself.
 - **Character cutouts** — transparent PNG of the mascot alone (pose, optional
   contact objects in touch with the body) for slides, compositing, or handing
   off to another tool. Codex uses native alpha; the engine keeps chroma as an

@@ -61,6 +61,19 @@ LABEL_TO_TYPE = {
 DESCRIPTION_TYPE = TYPE_LABELED_STAGES
 ALLUSION_TYPE = TYPE_LABELED_STAGES
 
+# Specified diagram intention — constructions, not a synonym list and not
+# a bare "flow" / "workflow" mention. "we need better flow in the org"
+# must stay editorial; "as a flowchart" / "labeled workflow" must lock
+# labeled stages.
+_LABELED_WORKFLOW = re.compile(r"\blabeled\s+workflow\b")
+_PROCESS_DIAGRAM = re.compile(r"\bprocess\s+diagram\b")
+_FLOWCHART_PREP = re.compile(
+    r"\b(?:as an?|in|like(?: an?)?)\b(?:\s+\w+){0,4}\s+flowchart\b"
+)
+_FLOWCHART_STYLE = re.compile(
+    r"\bflowchart\b(?:\s+\w+){0,2}\s+style\b|\bstyle\b(?:\s+\w+){0,3}\s+flowchart\b"
+)
+
 AUDIT_STAGES = ("intent", "bounded", "sensored", "audited", "verified")
 AUDIT_REJECT = "slop"
 AUDIT_RETURN = "re-audit"
@@ -381,6 +394,20 @@ def _find_quoted_examples(text: str, examples: Sequence[str]) -> str | None:
     return None
 
 
+def specified_labeled_stages_intent(text: str) -> bool:
+    """True when the user specified a flowchart / labeled-workflow / process-diagram.
+
+    Matches diagram constructions, not every 'flow' or 'workflow'. Name
+    overrides still win because this runs after `_find_named`.
+    """
+    hay = _normalize(text)
+    if _LABELED_WORKFLOW.search(hay) or _PROCESS_DIAGRAM.search(hay):
+        return True
+    if _FLOWCHART_PREP.search(hay) or _FLOWCHART_STYLE.search(hay):
+        return True
+    return False
+
+
 def _has_nameable_stations(text: str) -> bool:
     return bool(
         re.search(
@@ -465,6 +492,12 @@ def route_diagram(
         )
 
     if _find_quoted_examples(hay, policy.description_examples):
+        return DiagramDecision(
+            register=_register_for(DESCRIPTION_TYPE),
+            diagram_type=DESCRIPTION_TYPE,
+            override=OVERRIDE_DESCRIPTION,
+        )
+    if specified_labeled_stages_intent(hay):
         return DiagramDecision(
             register=_register_for(DESCRIPTION_TYPE),
             diagram_type=DESCRIPTION_TYPE,

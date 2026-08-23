@@ -33,7 +33,9 @@ Editorial wins every tie. Route an image to explainer only when:
 - **(a) the user asks for it** — "show the flow", "diagram the pipeline",
   "map the steps", "make it traceable", "as an explainer", or names /
   describes / alludes to a diagram type ("as labeled stages", "like that
-  factory diagram"; full precedence in "Pick the diagram type"); or
+  factory diagram"; specified flowchart / labeled-workflow /
+  process-diagram intention locks labeled stages; full precedence in
+  "Pick the diagram type"); or
 - **(b) the unit's locked thesis IS a traceable structure** — its point
   lives in the stations and their connections (a named pipeline or
   labeled stages, a fan-out, a timeline, a loop, a layered stack), and one
@@ -132,13 +134,23 @@ Once the thesis is locked, pick the diagram type from that lock. The user
 can override. An allusion is enough. After the type locks, do not rotate
 it for variety.
 
+Specified intention locks the type even when the thesis would have stayed
+editorial. If the user names, describes, or alludes to a flowchart, a
+labeled workflow, or a process diagram, lock labeled stages. That is
+intention — not a closed synonym list, and not a keyword scan of "flow"
+or "workflow". After the type locks, do not rotate it. The ban on
+boxes-and-diamonds / Visio / title-legend-grid formality is a **look**
+constraint: produce labeled stages in the pack's look; do not refuse the
+word flowchart.
+
 Override precedence (highest wins):
 
 1. The user **names** a type — "as labeled stages", "label the steps",
    "walk the stages", "timeline", "loop", "fan-out", "stack",
    "as an explainer", "mini-comic", "just the scene".
 2. The user **describes** a type — "swim the stages", "one machine with
-   windows".
+   windows". Specified intention includes (examples, not a closed list)
+   "as a flowchart", "labeled workflow".
 3. The user **alludes** to a type — "like that factory diagram".
 4. The agent default from the thesis map below.
 
@@ -147,7 +159,11 @@ diagram) and the type. "As an explainer" locks the register only — then
 the map (or a more specific name) picks the structure. "Mini-comic" and
 "just the scene" lock those editorial shapes and skip the diagram.
 
-Default only when the user did not steer:
+Default only when the user did not steer. Labeled stages is BEST when
+the thesis IS a named pipeline, recipe, or staged process — nameable
+stations in order, one connected system. Do not force labeled stages on
+every explainer, and do not force explainer on a process that is merely
+evidence for a different lock.
 
 - A named pipeline, recipe, or staged process → **labeled stages** (inside
   explainer): named phases in order, one connected system, in through
@@ -161,6 +177,11 @@ Default only when the user did not steer:
 - A story beat (fail→fix, before→after) → **mini-comic**, not a diagram
   (the existing editorial shape)
 - A claim you can feel in one move → **editorial**, not a diagram
+- NEVER labeled stages unless the user specified that type: a claim you
+  can feel in one move; opinions, quotes, launches, anecdotes; a story
+  beat that is fail→fix / before→after (mini-comic); a split/sort
+  (fan-out); a cycle as the point (loop); layers (stack). Editorial
+  still wins every tie.
 - If two types fit, pick the one that makes the stations nameable
 - If none fit, do not force a diagram — editorial wins the tie, as in
   "Two registers"
@@ -175,8 +196,10 @@ One structure, drawn as a hand-built sketch the mascot is working inside —
 never a presenter beside a chart. The grammar editorial forbids (arrows,
 stations, a path) is the working material here; what stays forbidden is the
 *formal* version of it: no title, no border, no grid, no legend, no
-boxes-and-diamonds flowchart formality. The result must still read as one
-artist's hand-built drawing in the active look.
+boxes-and-diamonds flowchart formality. That formality ban is a look
+constraint — not a refusal of the word flowchart. A specified flowchart
+intention still draws labeled stages in the pack's look. The result must
+still read as one artist's hand-built drawing in the active look.
 
 Structure types — pick ONE (these are the explainer's stagings; an explainer
 shot-list row names one of these in its staging slot). Labeled stages is
@@ -189,7 +212,9 @@ the staged, labeled form of a workflow; the other types stay as they are.
   thesis and the pack — a factory only when the thesis is a factory.
 - **A flow** — 3–5 stations left to right on one flow line; the
   transformation is visible station to station. Use labeled stages when
-  the stages are a named pipeline or recipe.
+  the stages are a named pipeline or recipe, or when the user specified
+  a flowchart / labeled-workflow / process-diagram intention. Do not
+  treat that ask as this looser unlabeled flow.
 - **A fan-out / sort** — one source, the mascot routing, 2–4 labeled
   destinations.
 - **A timeline** — one axis, 3–5 beats with short callouts; the order or
@@ -230,8 +255,8 @@ mini-comic in editorial is drawn as the flow itself here. Panels are
 editorial machinery — never mix panels and flow arrows in one image.
 
 **Labeled stages — skeleton, then pack-solve.** One connected system —
-not five editorial islands, not a formal boxes-and-diamonds flowchart,
-not a title / legend / grid. The look stays the pack's: draw the system
+not five editorial islands, not a formal boxes-and-diamonds flowchart
+look, not a title / legend / grid. The look stays the pack's: draw the system
 in riso, woodcut, clay, or whichever style the character already wears.
 Do not switch to a white doodle or whiteboard look to "read as a
 diagram." Do not default the world to a plant, a belt, or a hopper —

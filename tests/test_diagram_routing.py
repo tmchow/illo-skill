@@ -1,4 +1,5 @@
 import importlib.util
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -48,12 +49,20 @@ class CompositionAlignmentTests(unittest.TestCase):
         self.assertEqual(self.policy.register_only_phrases, ("as an explainer",))
         self.assertEqual(
             self.policy.description_examples,
-            ("swim the stages", "one machine with windows"),
+            (
+                "swim the stages",
+                "one machine with windows",
+                "as a flowchart",
+                "labeled workflow",
+            ),
         )
         self.assertEqual(
             self.policy.allusion_examples, ("like that factory diagram",)
         )
         self.assertTrue(self.policy.locks_register_only)
+        self.assertNotIn("flowchart", self.policy.named_phrases)
+        self.assertNotIn("as a flowchart", self.policy.named_phrases)
+        self.assertNotIn("labeled workflow", self.policy.named_phrases)
 
     def test_default_map_labels_follow_composition_order(self):
         self.assertEqual(
@@ -79,6 +88,22 @@ class CompositionAlignmentTests(unittest.TestCase):
         self.assertLess(names_at, describes_at)
         self.assertLess(describes_at, alludes_at)
         self.assertLess(alludes_at, default_at)
+
+    def test_flowchart_formality_ban_is_a_look_constraint(self):
+        body = COMPOSITION_PATH.read_text(encoding="utf-8")
+        picker = re.sub(
+            r"\s+",
+            " ",
+            body[
+                body.index("## Pick the diagram type") : body.index(
+                    "## The explainer register"
+                )
+            ],
+        )
+        self.assertIn("boxes-and-diamonds", picker)
+        self.assertIn("do not refuse the word flowchart", picker)
+        self.assertIn("examples, not a closed list", picker)
+        self.assertIn("not a keyword scan", picker)
 
 
 class DiagramRoutingTests(unittest.TestCase):
@@ -163,6 +188,48 @@ class DiagramRoutingTests(unittest.TestCase):
         self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
         self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_bottleneck_as_a_flowchart_is_specified_labeled_stages(self):
+        decision = self._decide("draw the bottleneck as a flowchart")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.override, self.route.OVERRIDE_DESCRIPTION)
+
+    def test_labeled_workflow_of_onboarding_is_specified_labeled_stages(self):
+        decision = self._decide("labeled workflow of onboarding")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.override, self.route.OVERRIDE_DESCRIPTION)
+
+    def test_flowchart_style_of_shipping_steps_is_specified_labeled_stages(self):
+        decision = self._decide("flowchart style of the shipping steps")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.override, self.route.OVERRIDE_DESCRIPTION)
+
+    def test_process_diagram_of_the_steps_is_specified_labeled_stages(self):
+        decision = self._decide("process diagram of the steps")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.override, self.route.OVERRIDE_DESCRIPTION)
+
+    def test_better_flow_in_the_org_is_editorial_not_specified(self):
+        decision = self._decide("we need better flow in the org")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
+        self.assertEqual(decision.register, self.route.REGISTER_EDITORIAL)
+        self.assertIsNone(decision.override)
+
+    def test_better_workflow_in_the_org_is_editorial_not_specified(self):
+        decision = self._decide("we need a better workflow in the org")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
+        self.assertEqual(decision.register, self.route.REGISTER_EDITORIAL)
+        self.assertIsNone(decision.override)
+
+    def test_just_the_scene_as_a_flowchart_keeps_name_over_description(self):
+        decision = self._decide("just the scene as a flowchart")
+        self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
+        self.assertEqual(decision.register, self.route.REGISTER_EDITORIAL)
         self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
 
 
