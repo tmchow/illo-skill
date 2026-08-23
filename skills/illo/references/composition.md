@@ -67,7 +67,12 @@ cluttered bench.
 
 Then put **the mascot in the move** — wedged in it, cranking it, plugging it,
 hauling across it — never posed politely beside it (see the load-bearing test
-in `character.md`).
+in `character.md`). Locked silhouette and body proportions are
+non-negotiable in every register, not only X Article banners. Dramatize
+scale by changing the **world** — a too-small door, a tiny hatch, an
+oversized pile — never by stretching, squashing, or flattening the mascot
+to fill architecture or the frame. "Subject large and confident ~50–70%"
+is occupancy in the frame, not a license to distort the body.
 
 ## Anatomy-action feasibility gate
 
@@ -94,14 +99,17 @@ before the structure locks. Labeled stages pack-solves to **one** operator
 stage first ("Labeled stages — skeleton, then pack-solve"), then this gate
 runs on that one contact map. Confirm each active part is a declared contact
 surface, can plausibly reach the contact without changing its locked
-proportions, and that no object or route must cross a protected region or
-fuse with the body. **Re-stage — a
+silhouette or body proportions, and that no object or route must cross a
+protected region or fuse with the body. A move that only reads if the
+body fills a door, hatch, or frame is a failed map — shrink or enlarge
+the world object; do not squash the mascot. **Re-stage — a
 different verb, object, orientation, or contact method — instead of
 prompting harder** when the map fails: a required surface the pack doesn't
 declare (undeclared fingers, hands, joints), a contact beyond the reach
 class, more simultaneous contacts than the character has surfaces, a route
-through the face, ambiguous stroke ownership near the face or torso, or a
-move that only works by fusing the object into the body. A load-bearing
+through the face, ambiguous stroke ownership near the face or torso, a
+move that only works by fusing the object into the body, or a pose that
+only works by stretching or flattening the locked body. A load-bearing
 move must be both conceptually necessary and physically drawable by this
 character.
 
@@ -477,9 +485,9 @@ moment. Treat an **X Article banner / hero** as a special destination format,
 not generic social art: prompt for the banner target **1536 × 640 px**
 (`1536:640`) unless the user gives another concrete size. Keep essential action
 inside a crop-safe middle band, leave top/bottom/side breathing room, and avoid
-title placement that depends on edge-to-edge filling. Normal proportions are
-non-negotiable: never stretch, squash, or flatten the mascot or props to fill
-the banner. Generate the banner through the normal `illo.py generate` pipeline;
+title placement that depends on edge-to-edge filling. The same
+silhouette lock as above applies: never stretch, squash, or flatten the
+mascot or props to fill the banner. Generate the banner through the normal `illo.py generate` pipeline;
 do not manually composite or rebuild the scene from crops unless the user asks
 for post-processing. Ordinary X post art and X article body images remain the
 normal social formats (`16:9` or sometimes `1:1`).

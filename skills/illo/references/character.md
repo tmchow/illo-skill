@@ -16,7 +16,11 @@ a small set of **locked** choices, and nothing else:
   house default favors a single soft geometric form; cuteness comes from
   proportion and roundness, never from added parts). Bipedal is the default,
   not a rule — a quadruped or other body plan is fine if the outline stays
-  simple and the character can still perform a move.
+  simple and the character can still perform a move. The locked silhouette
+  and body proportions are non-negotiable in every register: they stay
+  the pack sheet's. Dramatize scale in the world (a too-small door, a
+  tiny hatch, an oversized pile), never by stretching, squashing, or
+  flattening the body to fill architecture or the frame.
 - **A locked face** — the face is the pack author's choice, but it must be
   **exactly specified** and identical in every render. The house default —
   two dot eyes, blank deadpan, no eyebrows, no mouth — is the most

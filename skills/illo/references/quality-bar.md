@@ -68,6 +68,11 @@ its style's file** — everything else here still applies.
     character sheet: a stubby arm cannot become a long bar, cable, lever, or
     bridge across the scene. For one-arm / handle characters, the handle is
     never a second hand and the working arm must stay visually short.
+    **Body / torso proportions** are the same hard fail: a squash, stretch,
+    or flatten versus the pack sheet — including a body filling a door,
+    hatch, or the frame — fails like a limb-proportion miss. Dramatize
+    scale in the world, not the mascot. This lock holds in every register,
+    not only X Article banners.
   - **No fused props** — a tool/object connects through a declared contact
     surface (separated from the torso) or sits in the scene; it is never
     pressed flat against the body or sprouting from it. Exception: when the
@@ -90,7 +95,8 @@ its style's file** — everything else here still applies.
 - **Value matches the palette**: in light palettes the body is light with
   structure-ink (not pure-black) features — not a heavy dark blob.
 - One core idea, one structure. Subject large (~50–70%; explainer images may
-  spread ~40–70%), ≥35% negative space.
+  spread ~40–70%), ≥35% negative space. That percentage is occupancy in
+  the frame, not a license to distort the locked body.
 - **Text hierarchy / labels**: editorial text stays short, correctly spelled,
   structure-ink on bare paper — never on a colored fill. A primary floating
   title is allowed when the artifact job needs a standalone read; it must be
@@ -234,6 +240,10 @@ style QA deltas) still applies to the character cluster.
   off-palette accents re-roll or snap in post.
 - Gradients, soft shadows, glossy/3D, photo, real UI → re-roll.
 - Subject tiny in a sea of paper → re-roll larger (scale drifts run-to-run).
+- Torso or body squashed, stretched, or flattened versus the pack sheet
+  (a body filling a door or the frame) → restage the world object, then
+  re-roll. Same hard fail as a limb-proportion miss. Do not "fix" it by
+  prompting the mascot to fill the architecture.
 - A line passes through the mascot's body, a limb roots wrong / is
   doubled/floating, or a prop is fused flat to the torso instead of
   connected through a declared contact surface (declared body contact is
