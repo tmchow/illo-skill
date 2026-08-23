@@ -111,7 +111,11 @@ When the shot list declared the **explainer register** (`composition.md`,
 "The explainer register"), replace the Composition and TEXT HIERARCHY lines with the
 two below — CHARACTER, INTERACTION GEOMETRY, LINE LANGUAGE, STYLE, and
 PALETTE are unchanged, so the structure is drawn in the active look and the
-mascot's station move keeps its validated contact map. Resolve the semantic ink hexes
+mascot's station move keeps its validated contact map. Factory flow is one
+structure type in that slot; when it locked, run the pack-solve scratch
+first (`composition.md`, "Factory flow — skeleton, then pack-solve") and
+write one connected plant into the Composition line, not a row of islands.
+Resolve the semantic ink hexes
 (flow, warning) from `palettes.md` first.
 
 If the artifact job needs a primary announcement/hero read, revisit the
@@ -127,7 +131,7 @@ structure has a return/exception leg, state its direction twice — where it
 leaves and where it rejoins — or the model may flip the arrowhead.
 
 ```text
-Composition (explainer — {structure type from composition.md}): a hand-built sketch-diagram of ONE structure: {the 3–5 stations/beats, each an invented physical object — what each is and what happens at it}. One main flow direction, {e.g. left to right}, drawn as simple hand-drawn arrows in the flow color{, plus one return leg: it leaves from {station}, travels {direction}, and rejoins at {station} — the arrowhead points at {station}}. The mascot is a WORKING PART of the structure — {its station/jam/sorter/hauler move} — never a presenter beside it. No title, no border, no grid, no legend, no formal flowchart boxes. The structure spans ~40–70% of the frame; keep ~35%+ of the canvas empty with one calm region.
+Composition (explainer — {structure type from composition.md: factory flow / flow / fan-out / timeline / loop / layer stack / system slice}): a hand-built sketch-diagram of ONE structure: {the 3–5 stations/beats, each an invented physical object — what each is and what happens at it; when factory flow: one connected plant — input, named stages bound by pipes / belt / shared housing / one flow line, output, optional reject/return — not disconnected props}. One main flow direction, {e.g. left to right}, drawn as simple hand-drawn arrows in the flow color{, plus one return or reject leg: it leaves from {station}, travels {direction}, and rejoins at {station} — the arrowhead points at {station}}. The mascot is a WORKING PART of the structure — {its one pack-solved station/jam/sorter/hauler move} — never a presenter beside it, never operating two stages. No title, no border, no grid, no legend, no formal flowchart boxes, no generic rectangles. Drawn in the active look — not a whiteboard doodle. The structure spans ~40–70% of the frame; keep ~35%+ of the canvas empty with one calm region.
 
 PALETTE: {the style's PALETTE line as usual, hexes here only}. Semantic roles: the flow arrows and the one flow note use the accent ink; {warning-role sentence per palettes.md when present}; everything else, including all callout text not named above, uses the structure ink.
 

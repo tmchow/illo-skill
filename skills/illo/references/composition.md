@@ -31,11 +31,13 @@ just because the source contains a traceable process.
 Editorial wins every tie. Route an image to explainer only when:
 
 - **(a) the user asks for it** — "show the flow", "diagram the pipeline",
-  "map the steps", "make it traceable", "as an explainer"; or
+  "map the steps", "make it traceable", "as an explainer", or names /
+  describes / alludes to a diagram type ("factory", "like that factory
+  diagram"; full precedence in "Pick the diagram type"); or
 - **(b) the unit's locked thesis IS a traceable structure** — its point
-  lives in the stations and their connections (a pipeline with named
-  stages, a fan-out, a timeline, a loop, a layered stack), and one caught
-  moment would force the reader to take the structure on faith.
+  lives in the stations and their connections (a named pipeline or
+  factory flow, a fan-out, a timeline, a loop, a layered stack), and one
+  caught moment would force the reader to take the structure on faith.
 
 A process that is merely *evidence* for a different lock stays editorial —
 the lock is the arbiter, exactly as in Source routing step 2. Genres that
@@ -43,7 +45,9 @@ most often qualify: how-to / process and systems / architecture pieces.
 Opinions, quotes, launches, and anecdotes stay editorial: their theses are
 claims, not structures. Like the mini-comic, the explainer is a deliberate
 choice, never a fallback — and a set may mix registers (an editorial hero
-over explainer anchors is a natural article shape).
+over explainer anchors is a natural article shape). Factory flow is a
+structure type *inside* this register, not a third register and not a
+new look.
 
 ## Turn the idea into a move
 
@@ -84,7 +88,9 @@ both arms  -> no contact -> low at the sides, outside the machine
 
 The gate applies in **both registers**: an explainer's mascot move — its
 station, jam, sorter, or hauler role — maps its contacts the same way
-before the structure locks. Confirm each active part is a declared contact
+before the structure locks. Factory flow pack-solves to **one** operator
+stage first ("Factory flow — skeleton, then pack-solve"), then this gate
+runs on that one contact map. Confirm each active part is a declared contact
 surface, can plausibly reach the contact without changing its locked
 proportions, and that no object or route must cross a protected region or
 fuse with the body. **Re-stage — a
@@ -120,6 +126,47 @@ Blend sparingly; one clear staging beats two muddled ones. Across a set, vary
 the stagings — two adjacent images shouldn't lean on the same staging or
 metaphor family.
 
+## Pick the diagram type
+
+Once the thesis is locked, pick the diagram type from that lock. The user
+can override. An allusion is enough. After the type locks, do not rotate
+it for variety.
+
+Override precedence (highest wins):
+
+1. The user **names** a type — "factory", "timeline", "loop", "fan-out",
+   "stack", "as an explainer", "mini-comic", "just the scene".
+2. The user **describes** a type — "swim the stages", "one machine with
+   windows".
+3. The user **alludes** to a type — "like that factory diagram".
+4. The agent default from the thesis map below.
+
+A named or alluded type locks both the register (when the type is a
+diagram) and the type. "As an explainer" locks the register only — then
+the map (or a more specific name) picks the structure. "Mini-comic" and
+"just the scene" lock those editorial shapes and skip the diagram.
+
+Default only when the user did not steer:
+
+- A named pipeline, recipe, or staged process → **factory flow** (inside
+  explainer): one connected plant, named stages, an input and an output,
+  optional reject and/or return.
+- A split or sort → **fan-out**
+- Order or history → **timeline**
+- A cycle or feedback as the point → **loop**
+- Layers / a capability stack → **layer stack**
+- A few connected parts, no single direction → **system slice**
+- A story beat (fail→fix, before→after) → **mini-comic**, not a diagram
+  (the existing editorial shape)
+- A claim you can feel in one move → **editorial**, not a diagram
+- If two types fit, pick the one that makes the stations nameable
+- If none fit, do not force a diagram — editorial wins the tie, as in
+  "Two registers"
+
+The register gate still applies: user asks, or the thesis IS a
+traceable structure. Do not invent a look to "read as a diagram" —
+the pack's existing style draws whatever type locks.
+
 ## The explainer register
 
 One structure, drawn as a hand-built sketch the mascot is working inside —
@@ -130,10 +177,15 @@ boxes-and-diamonds flowchart formality. The result must still read as one
 artist's hand-built drawing in the active look.
 
 Structure types — pick ONE (these are the explainer's stagings; an explainer
-shot-list row names one of these in its staging slot):
+shot-list row names one of these in its staging slot). Factory flow is
+the plant form of a staged process; the other types stay as they are.
 
+- **A factory flow** — one connected plant or line: an input, 3–5 named
+  stages (the thesis), an output, optional reject and/or return. Lock
+  the skeleton and run the pack-solve below before drawing.
 - **A flow** — 3–5 stations left to right on one flow line; the
-  transformation is visible station to station.
+  transformation is visible station to station. Use factory flow when
+  the stages are a named pipeline or recipe.
 - **A fan-out / sort** — one source, the mascot routing, 2–4 labeled
   destinations.
 - **A timeline** — one axis, 3–5 beats with short callouts; the order or
@@ -168,6 +220,49 @@ Budget (replaces the Restraint section's editorial numbers for this image):
 Sequence routing changes inside this register: a progression that would be a
 mini-comic in editorial is drawn as the flow itself here. Panels are
 editorial machinery — never mix panels and flow arrows in one image.
+
+**Factory flow — skeleton, then pack-solve.** One plant or one connected
+line — not five editorial islands, not a formal boxes-and-diamonds
+flowchart, not a title / legend / grid. The look stays the pack's: draw
+the plant in riso, woodcut, clay, or whichever style the character
+already wears. Do not switch to a white doodle or whiteboard look to
+"read as a diagram."
+
+Lock this skeleton (content, style-agnostic) **before** drawing:
+
+- Input
+- 3–5 named stages (the thesis)
+- Output(s)
+- Optional reject and/or return
+
+Stations are invented physical objects in the scene's world (a press, a
+hopper, a well) — never generic rectangles. One main flow direction.
+Callout budget stays the explainer budget above (≤5 stations, ≤6
+callouts, 1–4 words).
+
+**Pack-solve (required before the prompt).** Each character pack is
+different. Reason from this body; do not template one factory. Write a
+short internal scratch — stage list → operator stage → contact map →
+bind — then the image prompt:
+
+1. Read the active pack's `## Interaction model` (or derive
+   conservatively from the locked design per `character.md`): contact
+   surfaces, reach, grip, protected regions.
+2. Pick ONE stage this body can actually operate. Examples: Blot
+   (stubby, pressure/contact, no fingers) → a pedal, a press, a jam, a
+   hopper. A long-armed pack → haul between stations. A no-limb /
+   body-contact pack → *be* the jam or the vessel. Prefer body-weight,
+   pressing, carrying, leaning over invented dexterity.
+3. Every other stage is a world object that MUST NOT require that
+   character's hands or undeclared contacts.
+4. Bind the stages into one connected plant (pipes, a belt, shared
+   housing, one flow line) — not a row of disconnected props.
+5. Run the anatomy-action feasibility gate (above) on the ONE contact
+   map. If it fails, restage the verb or which stage the mascot works —
+   not the thesis, not the stage names.
+6. Draw the factory in the pack's existing look and palette.
+
+Then write the explainer prompt (`prompt-recipe.md`) from that scratch.
 
 ## Source routing (URLs, articles, threads, long posts) — before any prompt
 
@@ -458,9 +553,11 @@ and the never-pad rule. Per image:
 - **Register** — editorial unless the row passes the explainer gate ("Two
   registers"); say which, so the reader can challenge the call.
 - **Staging** — which angle above (editorial), or which structure type
-  (explainer)
-- **The mascot's move** — the physical action
-- **Object(s)** — the one or two built things
+  (explainer; pick per "Pick the diagram type")
+- **The mascot's move** — the physical action (factory flow: the one
+  pack-solved operator stage)
+- **Object(s)** — the one or two built things (factory flow: one
+  connected plant, not a row of props)
 - **Palette** — preset name or derived dominant
 - **Text hierarchy** — primary read/title if needed, then supporting labels or
   explainer callouts; keep their visual priority distinct. For a primary title,
