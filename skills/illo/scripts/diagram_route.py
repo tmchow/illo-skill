@@ -3,8 +3,11 @@
 
 The prose in references/composition.md is the source of truth. This module
 extracts the type-picker phrases from that file and classifies a request the
-same way: name > description > allusion > default map. "As an explainer"
-locks the explainer register only; the map then picks the type.
+same way: name > description > allusion > default map. Register-gate (a)
+asks ("show the flow", "diagram the pipeline", "map the steps",
+"make it traceable", "as an explainer") lock the explainer register only;
+the map then picks the type. They do not force labeled stages when the
+thesis is a loop or fan-out. Bare "flow" is not an ask.
 
 Pack-solve reasons from an interaction-model fixture — one operator stage,
 declared contacts only, one connected system invented from the thesis and
@@ -72,6 +75,16 @@ _FLOWCHART_PREP = re.compile(
 )
 _FLOWCHART_STYLE = re.compile(
     r"\bflowchart\b(?:\s+\w+){0,2}\s+style\b|\bstyle\b(?:\s+\w+){0,3}\s+flowchart\b"
+)
+_CLAIM_THESIS = re.compile(r"you(?:'re| are) the\b|bottleneck")
+REQUIRED_REGISTER_ASKS = frozenset(
+    {
+        "show the flow",
+        "diagram the pipeline",
+        "map the steps",
+        "make it traceable",
+        "as an explainer",
+    }
 )
 
 AUDIT_STAGES = ("intent", "bounded", "sensored", "audited", "verified")
@@ -304,10 +317,28 @@ def parse_composition_policy(text: str) -> TypePolicy:
     named = _quotes(names_chunk)
     if "as an explainer" not in named:
         raise ValueError("names list must include 'as an explainer'")
-    register_only = tuple(p for p in named if p == "as an explainer")
     named_types = tuple(p for p in named if p != "as an explainer")
     descriptions = _quotes(desc_chunk)
     allusions = _quotes(allusion_chunk)
+    two_reg = re.search(
+        r"## Two registers\n(?P<body>.*?)(?=\n## )", text, flags=re.S
+    )
+    if not two_reg:
+        raise ValueError("composition.md is missing '## Two registers'")
+    a_chunk = re.search(
+        r"\*\*\(a\) the user asks for it\*\* — (.*?)(?:or names|\n- \*\*\(b\))",
+        two_reg.group("body"),
+        flags=re.S,
+    )
+    if not a_chunk:
+        raise ValueError("composition.md is missing register-gate (a)")
+    type_locking = set(named_types) | set(descriptions) | set(allusions)
+    gate_asks = tuple(
+        q for q in _quotes(a_chunk.group(1)) if q not in type_locking
+    )
+    missing = REQUIRED_REGISTER_ASKS - set(gate_asks)
+    if missing:
+        raise ValueError(f"register gate (a) missing {sorted(missing)}")
     labels = tuple(
         LABEL_TO_TYPE[label]
         for label in re.findall(r"→\s+\*\*(.+?)\*\*", body)
@@ -320,7 +351,7 @@ def parse_composition_policy(text: str) -> TypePolicy:
         )
     return TypePolicy(
         named_phrases=named_types,
-        register_only_phrases=register_only,
+        register_only_phrases=gate_asks,
         description_examples=descriptions,
         allusion_examples=allusions,
         default_map_labels=labels,
@@ -346,8 +377,8 @@ def _register_for(diagram_type: str, *, explainer_named: bool = False) -> str:
     return REGISTER_EDITORIAL
 
 
-def _named_code(phrase: str) -> str | object:
-    if phrase == "as an explainer":
+def _named_code(phrase: str, register_only: Sequence[str]) -> str | object:
+    if phrase in register_only:
         return REGISTER_ONLY
     if phrase == "stack":
         return TYPE_STACK
@@ -379,7 +410,13 @@ def _find_named(
             pattern = r"\b" + re.escape(phrase) + r"\b"
         match = re.search(pattern, stripped)
         if match:
-            candidates.append((match.start(), phrase, _named_code(phrase)))
+            candidates.append(
+                (
+                    match.start(),
+                    phrase,
+                    _named_code(phrase, policy.register_only_phrases),
+                )
+            )
     if not candidates:
         return None
     candidates.sort(key=lambda item: (-len(item[1]), item[0]))
@@ -392,6 +429,35 @@ def _find_quoted_examples(text: str, examples: Sequence[str]) -> str | None:
         if example in text:
             return example
     return None
+
+
+def _claim_thesis(text: str) -> bool:
+    return bool(_CLAIM_THESIS.search(_normalize(text)))
+
+
+def _strip_phrases(text: str, phrases: Sequence[str]) -> str:
+    out = text
+    for phrase in sorted(phrases, key=len, reverse=True):
+        out = re.sub(r"\b" + re.escape(phrase) + r"\b", " ", out)
+    return _normalize(out)
+
+
+def _register_only_type(locked: str, policy: TypePolicy) -> str:
+    """After a register-gate (a) ask, the map picks the type.
+
+    A leftover process (how X ships, mapped steps, named stations) can
+    be labeled stages. A loop or fan-out thesis keeps that type. A claim
+    thesis stays editorial. Bare leftover-empty asks stay editorial.
+    """
+    diagram_type = default_map(locked)
+    if diagram_type != TYPE_EDITORIAL:
+        return diagram_type
+    if _claim_thesis(locked):
+        return TYPE_EDITORIAL
+    remainder = _strip_phrases(_normalize(locked), policy.register_only_phrases)
+    if re.search(r"[a-z0-9]", remainder):
+        return TYPE_LABELED_STAGES
+    return TYPE_EDITORIAL
 
 
 def specified_labeled_stages_intent(text: str) -> bool:
@@ -439,7 +505,7 @@ def default_map(thesis: str) -> str:
         hits.append(TYPE_STACK)
     if re.search(r"connected parts|no single direction|system slice", text):
         hits.append(TYPE_SLICE)
-    if re.search(r"you(?:'re| are) the\b|bottleneck", text):
+    if _CLAIM_THESIS.search(text):
         hits.append(TYPE_EDITORIAL)
 
     unique = list(dict.fromkeys(hits))
@@ -479,10 +545,9 @@ def route_diagram(
     if named is not None:
         code, _phrase = named
         if code is REGISTER_ONLY:
-            diagram_type = default_map(locked)
             return DiagramDecision(
                 register=REGISTER_EXPLAINER,
-                diagram_type=diagram_type,
+                diagram_type=_register_only_type(locked, policy),
                 override=OVERRIDE_NAME,
             )
         return DiagramDecision(

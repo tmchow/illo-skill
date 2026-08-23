@@ -46,7 +46,16 @@ class CompositionAlignmentTests(unittest.TestCase):
                 "just the scene",
             ),
         )
-        self.assertEqual(self.policy.register_only_phrases, ("as an explainer",))
+        self.assertEqual(
+            self.policy.register_only_phrases,
+            (
+                "show the flow",
+                "diagram the pipeline",
+                "map the steps",
+                "make it traceable",
+                "as an explainer",
+            ),
+        )
         self.assertEqual(
             self.policy.description_examples,
             (
@@ -189,6 +198,40 @@ class DiagramRoutingTests(unittest.TestCase):
         self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
         self.assertEqual(decision.diagram_type, self.route.TYPE_EDITORIAL)
         self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_show_the_flow_of_newsletter_shipping_is_explainer(self):
+        decision = self._decide("show the flow of how a newsletter issue ships")
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_map_the_steps_of_dinner_party_is_explainer(self):
+        decision = self._decide("map the steps of throwing a dinner party")
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_make_it_traceable_named_stages_is_explainer(self):
+        decision = self._decide(
+            "make it traceable: notice, dive, inspect, surface"
+        )
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+        self.assertEqual(decision.override, self.route.OVERRIDE_NAME)
+
+    def test_show_the_flow_of_feedback_cycle_stays_loop(self):
+        decision = self._decide("show the flow of the feedback cycle")
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_LOOP)
+        self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
+
+    def test_show_the_flow_of_fan_out_stays_fan_out(self):
+        decision = self._decide(
+            "show the flow of one source into traffic/trust/conversion"
+        )
+        self.assertEqual(decision.register, self.route.REGISTER_EXPLAINER)
+        self.assertEqual(decision.diagram_type, self.route.TYPE_FAN_OUT)
+        self.assertNotEqual(decision.diagram_type, self.route.TYPE_LABELED_STAGES)
 
     def test_bottleneck_as_a_flowchart_is_specified_labeled_stages(self):
         decision = self._decide("draw the bottleneck as a flowchart")
