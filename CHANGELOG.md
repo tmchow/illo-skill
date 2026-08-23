@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.0](https://github.com/tmchow/illo-skill/compare/v0.34.4...v0.35.0) (2026-08-23)
+
+
+### Features
+
+* add labeled-stages explainer type, pack-solve, and arrow notes ([#69](https://github.com/tmchow/illo-skill/issues/69)) ([a081033](https://github.com/tmchow/illo-skill/commit/a0810330f4148b09b42d599247a14d004a1c58cf))
+
 ## [0.34.4](https://github.com/tmchow/illo-skill/compare/v0.34.3...v0.34.4) (2026-08-22)
 
 
