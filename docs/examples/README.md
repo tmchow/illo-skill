@@ -1,0 +1,3 @@
+# Explainer evals
+
+These six renders are the proven user lines for the explainer register: `eval-blip-newsletter.png` — Using Blip, make a flowchart of how a newsletter issue ships; `eval-blip-fanout.png` — Sort incoming mail into keep, later, and trash as a fan-out, using Blip; `eval-forge-pipeline.png` — Diagram the pipeline from a raw idea to a shipped tool. Use Forge.; `eval-spritz-party.png` — Walk the stages of throwing a last-minute dinner party, using Spritz; `eval-fathom-loop.png` — Map the loop of investigating a weird production bug, using Fathom; `eval-sulk-bloom.png` — Labeled stages of a mood becoming a small bloom, using Sulk.

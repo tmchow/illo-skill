@@ -36,7 +36,7 @@ indexes by skill name (`tmchow/illo-skill/illo`), the same way
 - `skills/illo/README.md` — required. The human-facing landing page
   (below).
 - `skills/illo/references/` — deep material loaded on demand, including
-  the ten look definitions in `references/styles/`.
+  the seventeen look definitions in `references/styles/`.
 - `skills/illo/scripts/` — the engine (`illo.py`) and the Hermes
   asset-repair preflight.
 - `skills/illo/assets/` — bundled binary assets plus `checksums.txt`, a
