@@ -49,7 +49,7 @@ Use your runtime's native plugin or skill manager.
 | **Claude Code** | `/plugin marketplace add tmchow/illo-skill` then `/plugin install illo@illo-skill` | `claude plugin update illo`, or enable marketplace auto-update |
 | **Codex** | `codex plugin marketplace add tmchow/illo-skill` then `codex plugin add illo@illo-skill` | `codex plugin marketplace upgrade` |
 | **Grok CLI** | `grok plugin marketplace add tmchow/illo-skill` then `grok plugin install tmchow/illo-skill --trust` | `grok plugin update illo` |
-| **Grok Bot** | paste the prompt below into Grok Bot. | paste the prompt again after updates |
+| **Grok Bot** | tap [the illo bot template](https://x.ai/bot/y3uTGY5hkl6iTmE-ZAX02) | add the template again after updates |
 | **Gemini CLI** | `gemini extensions install https://github.com/tmchow/illo-skill` | `gemini extensions update illo` |
 | **Copilot / GitHub CLI** | `gh skill install tmchow/illo-skill illo` (cross-agent via `--agent`) | `gh skill update illo` |
 | **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
@@ -59,13 +59,7 @@ Use your runtime's native plugin or skill manager.
 
 ### Grok Bot
 
-Paste this into Grok Bot; it is not a terminal command for you to run yourself.
-
-```text
-Install the illo skill and all community characters.
-
-npx skills add tmchow/illo-skill --skill illo -g -y
-```
+Open the [illo bot template](https://x.ai/bot/y3uTGY5hkl6iTmE-ZAX02) and tap **Add to Grok Bot**. That creates an illo bot on your account.
 
 Engines, models, cost, and API keys: [`skills/illo/README.md`](skills/illo/README.md).
 
