@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.35.1](https://github.com/tmchow/illo-skill/compare/v0.35.0...v0.35.1) (2026-08-29)
+
+
+### Bug Fixes
+
+* make the repo README a product poster ([#71](https://github.com/tmchow/illo-skill/issues/71)) ([74c05dd](https://github.com/tmchow/illo-skill/commit/74c05ddce8c581a18e6095140f6b41b14a52bef9))
+* point Grok Bot install at the shareable template ([#73](https://github.com/tmchow/illo-skill/issues/73)) ([6623c82](https://github.com/tmchow/illo-skill/commit/6623c82d40c6b3e0a4d44333288e4b436b8047c2))
+
 ## [0.35.0](https://github.com/tmchow/illo-skill/compare/v0.34.4...v0.35.0) (2026-08-23)
 
 
