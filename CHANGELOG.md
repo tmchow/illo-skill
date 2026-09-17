@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.36.0](https://github.com/tmchow/illo-skill/compare/v0.35.0...v0.36.0) (2026-09-17)
+
+
+### Features
+
+* support GPT Image 2.5 Flare through OpenRouter ([#75](https://github.com/tmchow/illo-skill/issues/75)) ([0defa0b](https://github.com/tmchow/illo-skill/commit/0defa0b842125c63e51f1f2fb09e8f76319bf8fb))
+
+
+### Bug Fixes
+
+* make the repo README a product poster ([#71](https://github.com/tmchow/illo-skill/issues/71)) ([74c05dd](https://github.com/tmchow/illo-skill/commit/74c05ddce8c581a18e6095140f6b41b14a52bef9))
+* point Grok Bot install at the shareable template ([#73](https://github.com/tmchow/illo-skill/issues/73)) ([6623c82](https://github.com/tmchow/illo-skill/commit/6623c82d40c6b3e0a4d44333288e4b436b8047c2))
+
 ## [0.35.0](https://github.com/tmchow/illo-skill/compare/v0.34.4...v0.35.0) (2026-08-23)
 
 
