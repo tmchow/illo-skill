@@ -192,6 +192,7 @@ model table below applies to the OpenRouter backend.
 | **Grok Imagine** — *default* | The recommendation comes from testing, not loyalty: boldest riso texture, the strongest character lock from the reference sheet, honors 16:9 — and the cheapest of the set. | $ |
 | Nano Banana 2 | The dependable fallback: fast, the most reliable label text, publicly catalogued. | $ |
 | Nano Banana Pro | Richest detail — worth it for hero images. | $$ |
+| GPT Image 2.5 Flare | Fast OpenRouter Images API option for generation and reference-guided edits; see the [Flare details](references/models.md#flare-through-openrouter). | $$ |
 | GPT-5.4 Image 2 | Strong instruction-following, but pricey and tends to return square regardless of the requested aspect. | $$$ |
 
 Worth knowing:

@@ -28,6 +28,8 @@ import argparse, base64, getpass, json, mimetypes, os, pathlib, re, shutil, stru
 import urllib.error, urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+IMAGES_ENDPOINT = "https://openrouter.ai/api/v1/images"
+FLARE_MODEL = "openai/gpt-image-2.5-flare"
 DEFAULT_PACKS_REPO = "https://raw.githubusercontent.com/tmchow/illo-characters/main"
 PACK_NAME_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 ALIASES_RE = re.compile(r"^Aliases:\s*(.+)$", re.M)
@@ -1057,11 +1059,13 @@ def run_base():
 
 
 def openrouter_generate(model, content, key, image_config=None):
-    """OpenRouter backend (the dispatch seam). Returns (img_bytes, partial_record) for
-    cmd_generate to place; the wire payload is byte-identical to the pre-refactor
-    path. Hard caller errors (no usable response, fatal HTTP) stay `sys.exit`; a
+    """Dispatch Flare to Images and other models to chat completions.
+    Return (img_bytes, partial_record) for cmd_generate to place.
+    Hard caller errors (no usable response, fatal HTTP) stay `sys.exit`; a
     "no image after retry" outcome raises BackendUnavailable so it can fall
     through to another backend instead of killing the run."""
+    if model == FLARE_MODEL:
+        return openrouter_images_generate(model, content, key, image_config)
     try:
         payload = post_chat(model, content, key, ["image", "text"], image_config)
     except urllib.error.HTTPError as e:
@@ -1087,6 +1091,46 @@ def openrouter_generate(model, content, key, image_config=None):
             f"text: {message.get('content', '')[:300]}")
     gid = payload.get("id")
     return img, {"model": model, "id": gid}
+
+
+def openrouter_images_generate(model, content, key, image_config=None):
+    options = dict(image_config or {})
+    allowed = {"aspect_ratio", "resolution", "size", "quality", "background",
+               "output_format", "output_compression", "seed", "provider"}
+    unknown = options.keys() - allowed
+    if unknown:
+        sys.exit("Unsupported Images API --image-config fields: "
+                 + ", ".join(sorted(unknown)))
+    options.setdefault("output_format", "png")
+    if options["output_format"] not in ("png", "jpeg"):
+        sys.exit("illo supports Images API output_format png or jpeg.")
+    body = {
+        **options,
+        "model": model,
+        "prompt": "\n\n".join(part["text"] for part in content if part["type"] == "text"),
+        "n": 1,
+        "input_references": [part for part in content if part["type"] == "image_url"],
+    }
+    req = urllib.request.Request(
+        IMAGES_ENDPOINT, data=json.dumps(body).encode(), method="POST",
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=300) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as e:
+        sys.exit(f"OpenRouter Images HTTP {e.code}: {e.read().decode()[:600]}")
+    data = payload.get("data") or []
+    if not data or not data[0].get("b64_json"):
+        raise BackendUnavailable("OpenRouter Images returned no image.")
+    try:
+        img = base64.b64decode(data[0]["b64_json"], validate=True)
+    except (ValueError, TypeError) as e:
+        raise BackendUnavailable("OpenRouter Images returned invalid image data.") from e
+    if sniff_ext(img) is None:
+        raise BackendUnavailable("OpenRouter Images returned an unsupported image format.")
+    return img, {"model": model, "id": payload.get("id"),
+                 "cost": (payload.get("usage") or {}).get("cost")}
 
 
 def _codex_thread_id(output):
@@ -1518,7 +1562,8 @@ def _openrouter_record(cfg, prompt, model, refs, want_cost, out_path,
     # MEDIA: attachment tags) needs the absolute path to build the tag.
     rec = {"path": str(path), "model": meta["model"], "id": meta["id"],
            "backend": "openrouter",
-           "cost": (fetch_cost(meta["id"], key) if want_cost else None),
+           "cost": ((meta["cost"] if "cost" in meta else fetch_cost(meta["id"], key))
+                    if want_cost else None),
            "width": w, "height": h}
     return _apply_cutout_meta(rec, cutout_meta)
 
@@ -2101,7 +2146,8 @@ def main():
     g.add_argument("--ref", action="append", default=[], help="reference image path (repeatable)")
     g.add_argument("--aspect", help="aspect ratio hint, e.g. 16:9")
     g.add_argument("--image-config",
-                   help="OpenRouter image_config JSON object (merged with --aspect); "
+                   help="OpenRouter image options JSON (merged with --aspect; top-level "
+                        "Images API options for Flare, image_config for other models); "
                         "e.g. '{\"aspect_ratio\":\"1:1\"}'")
     g.add_argument("--chroma", choices=("magenta", "green"),
                    help="force the cutout chroma compatibility path and choose its screen "
