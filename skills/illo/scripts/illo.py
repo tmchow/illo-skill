@@ -2277,7 +2277,7 @@ def main():
     gl.set_defaults(func=cmd_gallery)
 
     ko = sub.add_parser("keyout", help="chroma-key an agent-side native render to a transparent PNG")
-    ko.add_argument("--in", dest="src", required=True,
+    ko.add_argument("src",
                     help="rendered image file (flat chroma screen background)")
     ko.add_argument("--out", required=True, help="output PNG path (forced to .png)")
     ko.add_argument("--chroma", choices=("magenta", "green"),
