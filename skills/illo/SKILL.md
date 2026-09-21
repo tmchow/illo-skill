@@ -20,7 +20,7 @@ author: Trevin Chow
 license: MIT
 metadata:
   hermes:
-    tags: [illustration, riso, image-generation, editorial, mascot, codex, grok, openrouter]
+    tags: [illustration, riso, image-generation, editorial, mascot, codex, grok, openrouter, muse]
     category: creative
     requires_toolsets: [terminal]
   openclaw:
@@ -87,10 +87,16 @@ look — the formality ban is a look constraint, not a refusal of the word.
 ## Prerequisites
 
 The engine (`scripts/illo.py`, stdlib Python, no installs) renders through one
-of **three engine backends**; `python3` and network access are the only hard
-requirements. **Grok Bot** (Cursor's Grok Bot / the Grok desktop assistant) is
-a fourth, agent-side transport: use its built-in Grok image tool directly, not
-`illo.py generate`, when no user config explicitly selects an engine backend.
+of **three engine backends** plus **two agent-side transports**; `python3` and
+network access are the only hard requirements. **Grok Bot** (Cursor's Grok
+Bot / the Grok desktop assistant) is an agent-side transport: use its built-in
+Grok image tool directly, not `illo.py generate`, when no user config
+explicitly selects an engine backend. **Muse** (Meta's personal assistant,
+Blip) is the other agent-side transport: when *you* are Blip, build the illo
+prompt per this skill and call your native image-generation tool with the
+active character sheet attached as a reference. Other agents that happen to
+expose some image API must not take either native path — the agent must be
+able to call its own built-in image tool *and* be named above.
 
 **Running the engine — set `$SKILL_DIR` inline in each block.** Every engine
 command below is `python3 "$SKILL_DIR/scripts/illo.py" …`. Set `SKILL_DIR` to the
@@ -260,13 +266,33 @@ Skip `illo.py init` for OpenRouter unless the user explicitly wants OpenRouter
 or another engine backend default, and skip `illo.py generate` unless the user
 explicitly selected an engine backend.
 
-After the first successful Grok Bot install and bulk character install, ask
-once whether the user wants periodic checks for skill updates (`npx skills
-update`) and character updates (`packs update`). Default is **off**: if they
-say no, do not answer, or the host has no recurring-job mechanism, set up
-nothing. Only create a recurring check/reminder on an explicit yes, and never
-silently update — surface the proposed skill/character update and get consent
-before applying it.
+**Muse native path (agent-side).** If you are **Blip** (Meta's personal
+assistant, Muse) and the user has not explicitly chosen an engine backend
+(`backend: openrouter`, `backend: codex`, or `backend: grok`), initialize the
+agent-side transport before relying on `doctor`:
+
+```bash
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" init --backend muse-native --no-key
+```
+
+Then run `doctor` normally: exit 0 is meaningful readiness for this path.
+Missing Codex CLI, Grok CLI, or OpenRouter key are not failures when
+`backend: muse-native`; corrupted assets, unreadable custom packs, malformed
+palettes, or the wrong `SKILL_DIR` still fail and must be fixed before
+rendering. Generate in Step 5 by calling your native image-generation tool
+with the active model sheet reference. Unlike Grok Bot, this path **can** do
+cutouts: render on the pack's chroma screen and run `illo.py keyout` (see
+`references/cutout.md`). This route is only for Blip's own native image tool;
+other agents with unrelated image tools must use the engine backends.
+
+Short path for Muse: run `init --backend muse-native --no-key` once when
+backend is unset/auto, run `doctor` for assets/config/packs, use `packs`
+commands normally, read the same references, build the same prompt, then call
+your native image tool with the active character reference. Skip
+`illo.py generate` unless the user explicitly selected an engine backend —
+for a native render, record it with `illo.py record` (or `keyout` for
+cutouts) so it joins the run's `manifest.jsonl` and galleries.
 
 **Config migration — surface the backend choice interactively.** When you are
 going to use `illo.py generate`, if `doctor` reports `backend: NEEDS CHOICE`
@@ -277,13 +303,14 @@ been offered a subscription CLI. Do **not** pick for them silently. Surface an
 blocking-question capability (`AskUserQuestion` in Claude Code, the equivalent
 elsewhere; where the host has none — e.g. a plain chat session — ask the same one
 choice as a concise message and wait for the reply, never picking silently):
-"illo now has image backends/transports — which would you like?" with four
+"illo now has image backends/transports — which would you like?" with five
 options — **Codex** (free, your Codex subscription), **Grok CLI** (free, your
 Grok subscription; no transparent cutouts), **Grok Bot** (agent-side native
-tool; use only when you are Grok Bot), and **OpenRouter** (pick the model: Grok
-Imagine, Nano Banana, GPT Image, and others). Persist the answer without
+tool; use only when you are Grok Bot), **Muse** (agent-side native tool; use
+only when you are Blip, Meta's personal assistant), and **OpenRouter** (pick
+the model: Grok Imagine, Nano Banana, GPT Image, and others). Persist the answer without
 touching any existing key:
-`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|grok-bot|openrouter> --no-key`,
+`python3 "$SKILL_DIR/scripts/illo.py" init --backend <codex|grok|grok-bot|muse-native|openrouter> --no-key`,
 then continue. A brand-new install (no config at all) is ordinary onboarding,
 not this migration — it does not fire.
 
@@ -303,6 +330,12 @@ when backend is unset/auto, persist `backend: grok-bot` with
 `init --backend grok-bot --no-key` and use the native Grok image tool path
 above. If the user explicitly configured or requested an engine backend, honor
 that choice instead of silently switching to Grok Bot native.
+
+For Blip (Muse), the equivalent rule is the same: when backend is unset/auto,
+persist `backend: muse-native` with `init --backend muse-native --no-key` and
+use the native image tool path. If the user explicitly configured or requested
+an engine backend, honor that choice instead of silently switching to Muse
+native.
 
 Read the printed **config path** before concluding
 the key is missing: under Hermes,
@@ -524,6 +557,26 @@ transport: no model selector, no OpenRouter billing, and no alpha channel.
 Transparent cutouts stay off this path; route them to a cutout-capable engine
 backend instead, or stop and ask for that backend to be configured.
 
+**Muse native render.** If you are Blip (Meta's personal assistant, Muse)
+and the native path from Step 0 applies, do **not** run `illo.py generate`.
+Use the same full prompt recipe, same aspect ratio, same character lock, same
+style-anchor rule for sets, and call your native image-generation tool.
+Attach the active character's model sheet as a reference image
+(`assets/character-reference.webp` for Blot, or the pack's `reference.png`);
+for later images in a set, also attach the accepted style anchor image. Up to
+four native image calls may be batched in one response — beyond that, continue
+in a follow-up. Save each returned file under the run dir, then record it with
+`illo.py record` (see its usage), which appends a `muse-native` manifest row
+with the label and prompt so it joins galleries like engine renders. Treat
+the recorded path as the engine JSON `.path` equivalent for QA and delivery.
+
+Unlike Grok Bot, this path **can** do cutouts: ask the native tool for the
+pack's flat chroma screen (the pack declares `green` or `magenta`), then run
+`illo.py keyout <screen.png> --chroma <green|magenta> --out <final.png>` to
+produce a transparent PNG — see `references/cutout.md` for the chroma
+selection, QA, and the opaque-fallback rule. There is no model selector and
+no OpenRouter billing on this path; `--model` does not apply.
+
 Set `SKILL_DIR` inline (see Prerequisites), and use the bundled sheet as `REF` — or
 the active pack's `reference.png` for a custom character. Add `--model <id>` to
 override the config/default model for this image (OpenRouter backend only):
@@ -569,8 +622,8 @@ and flat-vs-dimensional treatment stay consistent throughout. The same trick
 locks style for a one-off: add any finished example as a second `--ref`.
 
 **Model choice (OpenRouter backend only).** `--model` and config `model:` are
-an **OpenRouter-only** axis — on Codex, Grok CLI, and Grok Bot native the image
-model is automatic and `--model` does not apply (`references/backends.md`). For
+an **OpenRouter-only** axis — on Codex, Grok CLI, Grok Bot native, and Muse
+native the image model is automatic and `--model` does not apply (`references/backends.md`). For
 the OpenRouter path, read `references/models.md` in full before passing any
 `--model` (or whenever the user names a model in plain language or asks for
 "best quality" / "cheapest"): it holds the friendly-name → OpenRouter id map,
@@ -589,7 +642,8 @@ append, and the two-render caveat are in `references/prompt-recipe.md`.
 or the piece is important enough to be worth it — and **say first what each
 image costs**: on the Codex backend it draws on the user's Codex quota (no
 per-image charge), on Grok CLI or Grok Bot native it draws on the user's Grok
-quota, and on the OpenRouter backend it bills their OpenRouter account
+quota, on Muse native it uses the agent's built-in image tool (no OpenRouter
+billing), and on the OpenRouter backend it bills their OpenRouter account
 (typically under ten cents per image, varying by model). Keep N small (2–4).
 Orchestrate the loop with the engine's primitives:
 
@@ -663,6 +717,13 @@ images themselves the way this session can actually show them:
   built-in image tool inline/as an attachment in chat, and include its saved
   file path in the same role that engine renders use `.path`. The returned
   file is the original for this transport; do not ask the user to configure
+  OpenRouter just to retrieve it.
+- **Muse native sessions:** deliver the file returned by your native image
+  tool as a `sandbox://workspace/...` link in chat, and include its saved
+  file path in the same role that engine renders use `.path`. Record every
+  delivered image with `illo.py record` (or `keyout` for cutouts) so the
+  run's `manifest.jsonl` and galleries stay complete. The returned file is
+  the original for this transport; do not ask the user to configure
   OpenRouter just to retrieve it.
 - **Chat sessions** (the user is on a messaging surface — Hermes over
   Telegram/Discord/WhatsApp, or any chat surface with lossy media delivery —

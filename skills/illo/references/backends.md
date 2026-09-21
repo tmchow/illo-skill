@@ -252,6 +252,56 @@ Do not use it for transparent cutouts. Route cutouts to a cutout-capable engine
 backend (Codex if usable, otherwise OpenRouter GPT Image 2 when configured) or
 stop and ask for that backend to be configured.
 
+## Muse native transport
+
+Muse native is an **agent-side transport**, not an engine backend. Use it
+only when the agent is **Blip**: Meta's personal assistant (Muse) with a
+built-in image-generation tool. Other agents that happen to expose some image
+API must not take this path; they use Codex, Grok CLI, or OpenRouter through
+the engine.
+
+### Routing and readiness
+
+Run `doctor` first for the non-transport checks: Python can launch the engine,
+the skill path is correct, bundled assets are intact, custom packs are readable,
+and palette/config files parse. On first Muse preflight when backend is
+unset/auto, run `init --backend muse-native --no-key`, then run `doctor`.
+With `backend: muse-native`, missing Codex CLI, Grok CLI, and OpenRouter key are
+expected; `doctor` exits 0 when the non-transport checks pass.
+
+An explicit user/backend choice still wins. If config or the request says
+`backend: openrouter`, `backend: codex`, or `backend: grok`, honor that engine
+backend and handle its readiness/failure normally instead of silently switching
+to Muse native.
+
+### Tool use and model behavior
+
+Build the prompt exactly as `references/prompt-recipe.md` specifies, including
+the active character spec, style file, palette mapping, composition register,
+text budget, and QA constraints. Attach the active character's model sheet as a
+reference image (`assets/character-reference.webp` for Blot, or the pack's
+`reference.png`); for image sets, attach the accepted style anchor as a second
+reference on later images. Ask the native image tool for the target aspect
+ratio and saved output file. Up to four native image calls may be batched in
+one response; beyond that, continue in a follow-up.
+
+There is no model selector and no OpenRouter billing on this path; `--model`
+does not apply. The native tool returns opaque images (no alpha channel), so
+cutouts go through the chroma compatibility path below. `illo.py generate`
+refuses `muse-native` with a message to use the agent-side tool. Record every
+native render with `illo.py record` so it joins the run's `manifest.jsonl`
+(and galleries) like an engine render.
+
+### Cutouts via chroma + keyout
+
+The native tool cannot emit transparency directly, but it holds a flat chroma
+screen well enough to key out: ask for the pack's declared chroma (green or
+magenta), save the screen render, then run
+`illo.py keyout <screen.png> --chroma <green|magenta> --out <final.png>`,
+which keys and despills through illo's existing chroma path and appends a
+`muse-native` manifest record. Full procedure, QA, and the opaque-fallback
+rule: `references/cutout.md`.
+
 ## Grok CLI backend
 
 The Grok CLI backend is the Codex backend's twin: it drives the user's own Grok
