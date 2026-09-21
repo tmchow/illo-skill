@@ -2,8 +2,9 @@
 
 **This table is the OpenRouter backend only.** `--model` (and config `model:`)
 is an **OpenRouter-only axis** — it is orthogonal to `--backend`, and **Codex,
-Grok CLI, and Grok Bot native ignore it entirely**: there the image model is
-automatic (Codex → gpt-image-2; Grok → its built-in image tool) with no selector
+Grok CLI, Grok Bot native, and Muse native ignore it entirely**: there the image model is
+automatic (Codex → gpt-image-2; Grok → its built-in image tool; Muse → its native
+image tool) with no selector
 (`references/backends.md`). So only translate model names / honor `--model` when
 the OpenRouter backend is in play.
 

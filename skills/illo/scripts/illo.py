@@ -8,6 +8,10 @@ Subcommands:
              alpha, chroma key, or opaque fallback; see cutout_alpha in JSON).
   newrun     Make + print a fresh batch dir: $ILLO_TMP (or /tmp/illo) / <runid>.
   gallery    Build a self-contained index.html from a run dir's manifest.jsonl.
+  keyout     Chroma-key an agent-side native render (flat chroma screen) to a
+             transparent PNG; prints a manifest record like generate.
+  record     Append a manifest record for an agent-side native render so it can
+             join gallery runs.
   init       Create/update the user config (run by the user; prompts for the key).
   doctor     Preflight: report whether the skill is ready to generate.
   packs      Community character packs: list / show / install / update.
@@ -87,7 +91,12 @@ SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 # subprocess call to the user's own CLI, the same sanctioned exception as Codex.
 # Grok returns JPEG with no alpha channel, so it CANNOT produce transparent
 # cutouts; those redirect to a cutout-capable backend (see cmd_generate).
-BACKENDS = ("codex", "grok", "openrouter", "grok-bot")
+# "grok-bot" and "muse-native" are agent-side transports, not engine backends:
+# only the named agent can call its own image tool, so `generate` refuses them
+# (see cmd_generate) and the agent renders agent-side instead.
+BACKENDS = ("codex", "grok", "openrouter", "grok-bot", "muse-native")
+# Transports the engine never renders through: no CLI detection, no key, no cost.
+NATIVE_TRANSPORTS = ("grok-bot", "muse-native")
 # The subscription-CLI backends: no API key, no per-image charge, no --model, and
 # a null cost/id in the manifest (never queried for OpenRouter cost).
 CLI_BACKENDS = ("codex", "grok")
@@ -300,9 +309,9 @@ def dump_config_yaml(cfg):
         f"apiKey: {val(cfg['apiKey'])}" if cfg.get("apiKey")
         else "# apiKey: sk-or-...           # set via: illo.py init",
         f"model: {val(cfg['model'])}" if cfg.get("model")
-        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok/grok-bot ignore it)",
+        else f"# model: {DEFAULT_MODEL}   # any OpenRouter image model id (codex/grok/grok-bot/muse-native ignore it)",
         f"backend: {val(cfg['backend'])}" if cfg.get("backend")
-        else "# backend: codex            # codex, grok, openrouter, or grok-bot; default: auto",
+        else "# backend: codex            # codex, grok, openrouter, grok-bot, or muse-native; default: auto",
         f"defaultPalette: {val(cfg['defaultPalette'])}" if cfg.get("defaultPalette")
         else "# defaultPalette: signal     # preset or custom palette name; default: ink-punch",
         f"defaultCharacter: {val(cfg['defaultCharacter'])}" if cfg.get("defaultCharacter")
@@ -362,6 +371,9 @@ def migration_message():
         f"      {PROG} init --backend openrouter --no-key\n"
         f"  Grok Bot   — agent-side native image tool (not illo.py generate):\n"
         f"      {PROG} init --backend grok-bot --no-key\n"
+        f"  Muse       — agent-side native image tool, Blip/Muse agents only\n"
+        f"               (not illo.py generate):\n"
+        f"      {PROG} init --backend muse-native --no-key\n"
         "Agents: surface this as an interactive backend choice to the "
         "user, then run the matching init.")
 
@@ -376,7 +388,8 @@ def resolve_backend(cfg, override=None):
     upgrade: a usable Codex CLI picks codex; otherwise a configured OpenRouter key
     picks openrouter; otherwise the host has neither and onboarding is needed
     (returned as None so doctor/generate can route to the right setup). An
-    explicit choice is honored as-is — including agent-side grok-bot — and
+    explicit choice is honored as-is — including the agent-side transports
+    (grok-bot, muse-native) — and
     readiness is judged separately so doctor can flag a chosen-but-unusable
     backend without re-resolving."""
     choice = override or cfg.get("backend")
@@ -1413,13 +1426,16 @@ def cmd_generate(args):
         # No backend configured — name the fixes.
         sys.exit(f"No image backend ready. Install + `codex login` (or `grok login`) "
                  f"to use a subscription CLI, or run `{PROG} init` to set an "
-                 f"OpenRouter key. Grok Bot agents should run "
-                 f"`{PROG} init --backend grok-bot --no-key` and use the native "
-                 "Grok Bot image tool instead of `illo.py generate`.")
-    if backend == "grok-bot":
-        sys.exit("backend grok-bot is agent-side: `illo.py generate` cannot call "
-                 "Grok Bot's native image tool. The Grok Bot agent should build "
-                 "the illo prompt and call its built-in Grok image tool with the "
+                 f"OpenRouter key. Agents on a native transport (Grok Bot, "
+                 f"Blip/Muse) should run "
+                 f"`{PROG} init --backend <grok-bot|muse-native> --no-key` and use "
+                 f"their agent-side image tool instead of `illo.py generate`.")
+    if backend in NATIVE_TRANSPORTS:
+        tool = ("Grok Bot's native image tool" if backend == "grok-bot"
+                else "its native image tool (Blip/Muse agent-side)")
+        sys.exit(f"backend {backend} is agent-side: `illo.py generate` cannot call "
+                 f"{tool}. The agent should build "
+                 "the illo prompt and call its built-in image tool with the "
                  "active character sheet as a reference. To use `illo.py generate`, "
                  "choose an engine backend: codex, grok, or openrouter.")
 
@@ -1630,7 +1646,7 @@ def cmd_init(args):
     # entered on these branches (neither CLI path needs a key). Codex is offered
     # first (precedence Codex > Grok); if both declined or unavailable, fall through
     # to the existing hidden-prompt OpenRouter flow.
-    skip_key_prompt = args.no_key or args.backend == "grok-bot"
+    skip_key_prompt = args.no_key or args.backend in NATIVE_TRANSPORTS
     chose_cli = (not skip_key_prompt and not args.backend
                  and (_maybe_offer_codex(cfg) or _maybe_offer_grok(cfg)))
     if not chose_cli and not skip_key_prompt:
@@ -1643,8 +1659,8 @@ def cmd_init(args):
     backend_note = cfg.get("backend") or "auto"
     if cfg.get("apiKey"):
         key_note = "set"
-    elif backend_note == "grok-bot":
-        key_note = "not needed for grok-bot"
+    elif backend_note in NATIVE_TRANSPORTS:
+        key_note = f"not needed for {backend_note}"
     else:
         key_note = "not set — run init again to set it"
     print(f"wrote {p} (backend: {backend_note}; "
@@ -1817,14 +1833,17 @@ def cmd_doctor(args):
         lines.append("backend: NEEDS CHOICE — this config predates the image "
                      "backend choice. Codex (free, your Codex subscription), Grok "
                      "(free, your Grok subscription; no cutouts), or OpenRouter "
-                     "(model choice: Grok Imagine, Nano Banana, GPT Image, …), or "
-                     "Grok Bot (agent-side native image tool)? Run "
-                     f"`{PROG} init --backend codex|grok|openrouter|grok-bot --no-key`. Agents: "
+                     "(model choice: Grok Imagine, Nano Banana, GPT Image, …), "
+                     "Grok Bot (agent-side native image tool), or Muse native "
+                     "(agent-side; Blip/Muse agents only)? Run "
+                     f"`{PROG} init --backend codex|grok|openrouter|grok-bot|muse-native --no-key`. Agents: "
                      "ask the user interactively, then run that init.")
-    elif backend == "grok-bot":
+    elif backend in NATIVE_TRANSPORTS:
+        tool = ("native Grok Bot image tool" if backend == "grok-bot"
+                else "native image tool (Blip/Muse agent-side)")
         ready = True
-        lines.append("backend: grok-bot — transport: agent-side native Grok Bot "
-                     "image tool (not `illo.py generate`; no CLI/OpenRouter key "
+        lines.append(f"backend: {backend} — transport: agent-side {tool} "
+                     "(not `illo.py generate`; no CLI/OpenRouter key "
                      "required)")
     elif backend == "codex":
         ready = codex_ok
@@ -2110,9 +2129,10 @@ def cmd_gallery(args):
             sys.exit("every manifest record excluded — nothing to build")
     key = load_config().get("apiKey")
     for r in recs:  # backfill any costs not captured at generate time (settled by now)
-        # CLI-served records (Codex/Grok) are free (no model id, no OpenRouter
-        # cost) — never query OpenRouter for them, even if a stray id is present.
-        if r.get("backend") in CLI_BACKENDS:
+        # CLI-served and agent-side native records are free (no model id, no
+        # OpenRouter cost) — never query OpenRouter for them, even if a stray
+        # id is present.
+        if r.get("backend") in CLI_BACKENDS + NATIVE_TRANSPORTS:
             continue
         if r.get("cost") is None and r.get("id"):
             r["cost"] = fetch_cost(r["id"], key, tries=8, delay=2)
@@ -2126,6 +2146,54 @@ def cmd_gallery(args):
         webbrowser.open(out.resolve().as_uri())
 
 
+def cmd_keyout(args):
+    """Chroma-key an agent-side native render (flat chroma screen background)
+    to a transparent PNG using the engine's keying, then print the manifest
+    record JSON and append it to <out-dir>/manifest.jsonl. Lets the muse-native
+    transport produce cutouts without an engine backend."""
+    src = pathlib.Path(args.src)
+    if not src.is_file():
+        sys.exit(f"no such file: {src}")
+    cfg = load_config()
+    pack_chroma = resolve_cutout_chroma_from_context(args.ref, cfg)
+    key = resolve_chroma_key("", override=args.chroma, pack_chroma=pack_chroma)
+    out, w, h, meta = place_cutout_image(src.read_bytes(), args.out, chroma_key=key)
+    rec = {"path": str(out), "model": None, "id": None,
+           "backend": "muse-native", "cost": None, "width": w, "height": h,
+           "label": args.label or "", "prompt": ""}
+    rec = _apply_cutout_meta(rec, meta)
+    manifest = out.parent / "manifest.jsonl"
+    with manifest.open("a") as f:
+        f.write(json.dumps(rec) + "\n")
+    print(json.dumps(rec))
+
+
+def cmd_record(args):
+    """Append a manifest record for an agent-side native render (muse-native,
+    grok-bot) so native transports can join `gallery` like engine renders.
+    Prints the record JSON."""
+    p = pathlib.Path(args.path)
+    if not p.is_file():
+        sys.exit(f"no such file: {p}")
+    w, h = image_size(p.read_bytes())
+    if w is None or h is None:
+        sys.exit(f"not a valid PNG or JPEG image: {p}")
+    prompt = ""
+    if args.prompt_file:
+        prompt_file = pathlib.Path(args.prompt_file)
+        if not prompt_file.is_file():
+            sys.exit(f"no such file: {prompt_file}")
+        prompt = prompt_file.read_text(encoding="utf-8", errors="replace")
+    rec = {"path": str(p.resolve()), "model": None, "id": None,
+           "backend": args.backend, "cost": None, "width": w, "height": h,
+           "label": args.label or "", "prompt": prompt}
+    rundir = pathlib.Path(args.dir) if args.dir else p.parent
+    rundir.mkdir(parents=True, exist_ok=True)
+    with (rundir / "manifest.jsonl").open("a") as f:
+        f.write(json.dumps(rec) + "\n")
+    print(json.dumps(rec))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Illo editorial illustration engine.")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -2135,10 +2203,10 @@ def main():
     g.add_argument("--prompt-file")
     g.add_argument("--out", required=True)
     g.add_argument("--model", help="OpenRouter image model id (overrides config/default; "
-                   "ignored by codex/grok/grok-bot, which use their own image tools)")
+                   "ignored by codex/grok/grok-bot/muse-native, which use their own image tools)")
     g.add_argument("--backend", choices=BACKENDS,
                    help="image backend (overrides config/default): codex or grok (your "
-                        "subscription CLI), openrouter, or grok-bot (agent-side; "
+                        "subscription CLI), openrouter, or grok-bot/muse-native (agent-side; "
                         "generate refuses); default resolves by host capability")
     g.add_argument("--allow-paid-fallback", action="store_true",
                    help="if a Codex/Grok subscription render fails, explicitly allow "
@@ -2164,8 +2232,8 @@ def main():
     i = sub.add_parser("init", help="create/update user config (run this yourself)")
     i.add_argument("--model", help="default model id")
     i.add_argument("--backend", choices=BACKENDS,
-                   help="default image backend: codex, grok, openrouter, or grok-bot "
-                        "(skips the subscription-CLI questionnaire)")
+                   help="default image backend: codex, grok, openrouter, grok-bot, "
+                        "or muse-native (skips the subscription-CLI questionnaire)")
     i.add_argument("--palette", help="default palette preset name")
     i.add_argument("--character", help="default character pack name (characters/<name>/)")
     i.add_argument("--aspect", help="default aspect ratio")
@@ -2211,6 +2279,27 @@ def main():
                     help="drop records with this exact label (repeatable) — e.g. rolls superseded by a re-roll")
     gl.add_argument("--title", help="gallery heading naming the piece/request this run is for")
     gl.set_defaults(func=cmd_gallery)
+
+    ko = sub.add_parser("keyout", help="chroma-key an agent-side native render to a transparent PNG")
+    ko.add_argument("src",
+                    help="rendered image file (flat chroma screen background)")
+    ko.add_argument("--out", required=True, help="output PNG path (forced to .png)")
+    ko.add_argument("--chroma", choices=("magenta", "green"),
+                    help="screen color (default: the pack's Cutout chroma line via --ref, else magenta)")
+    ko.add_argument("--ref", action="append", default=[],
+                    help="character sheet path (resolves the pack's Cutout chroma line; repeatable)")
+    ko.add_argument("--label", help="short caption recorded in the manifest / gallery")
+    ko.set_defaults(func=cmd_keyout)
+
+    rc = sub.add_parser("record", help="append a manifest record for an agent-side native render")
+    rc.add_argument("--path", required=True, help="final image file from the agent-side tool")
+    rc.add_argument("--dir", help="run dir whose manifest.jsonl gains the record "
+                    "(default: the image's parent dir)")
+    rc.add_argument("--backend", choices=NATIVE_TRANSPORTS, default="muse-native",
+                    help="which agent-side transport rendered it (default: muse-native)")
+    rc.add_argument("--label", help="short caption recorded in the manifest / gallery")
+    rc.add_argument("--prompt-file", help="file holding the prompt used (stored in the record)")
+    rc.set_defaults(func=cmd_record)
 
     args = ap.parse_args()
     args.func(args)

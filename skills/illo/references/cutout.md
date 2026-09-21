@@ -116,6 +116,7 @@ aspect **1:1**. Pass the active character's model sheet as `--ref`. Always pass
 | **Codex** | gpt-image-2 (automatic) | Cutout template only; engine appends the native-alpha contract | Native PNG alpha via `--cutout`; explicit `--chroma` forces compatibility keying |
 | **Grok CLI** | — | — | **Unsupported** — engine auto-redirects (see below) |
 | **Grok Bot native** | — | — | **Unsupported** — route to a cutout-capable engine backend |
+| **Muse native** | — | Cutout variant prompt + flat chroma `BACKGROUND:` from the pack's declared screen | Chroma key via `illo.py keyout` (agent-side, after the native render) |
 | **OpenRouter** | **`openai/gpt-5.4-image-2`** (engine default when `--cutout` and no `--model`) | Cutout template + `--image-config`; engine appends chroma | Chroma key via `--cutout` |
 | **OpenRouter** (other `--model`) | User override only | Engine-appended chroma; may fail on JPEG models | Best-effort; read `cutout_alpha` |
 
@@ -131,6 +132,26 @@ action needed from the caller for the CLI redirect — the note and the manifest
 record the backend that ran.
 Gemini and other models are unreliable for cutout alpha; prefer **Codex +
 native alpha** or **OpenRouter GPT Image 2 + chroma**.
+
+**Muse native** — the native tool cannot emit transparency directly, so the
+cutout runs through the chroma compatibility path agent-side. Build the
+cutout-variant prompt and append an explicit flat `BACKGROUND:` line using the
+pack's declared chroma (`Cutout chroma: green|magenta` in `character.md`;
+magenta when absent) — e.g. `BACKGROUND: flat solid #FF00FF, no gradient, no
+texture, no shadow`. Render with the native image tool, then key it out:
+
+```bash
+SKILL_DIR="<path to this skill>";
+python3 "$SKILL_DIR/scripts/illo.py" keyout /tmp/illo-cutout-screen.png --chroma magenta --out /tmp/illo-cutout-blot-wave.png
+```
+
+`keyout` keys and despills through illo's existing chroma path, writes a
+transparent PNG, and appends a `muse-native` manifest record (with
+`cutout_alpha: true`, `cutout_method: chroma`). The native tool holds a flat
+chroma screen well enough to key (verified: ~80% of pixels keyed on a magenta
+screen test), but it never returns alpha directly — do not ask it for
+transparency. If the keyed result shows fringe or an opaque fallback, re-roll
+the screen render or route to Codex/OpenRouter.
 
 **Codex backend** — omit manual background/output instructions. The engine asks
 gpt-image-2 for a real transparent PNG and preserves clean native alpha. Native

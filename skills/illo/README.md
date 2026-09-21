@@ -222,6 +222,7 @@ the fallback for runtimes without a native plugin/skill manager.
 | **Hermes** | `hermes skills install tmchow/illo-skill/illo` | `hermes skills update illo` |
 | **OpenClaw** | `openclaw skills install illo` | reinstall with the same command |
 | **Cursor** | `npx skills add tmchow/illo-skill --skill illo` (Cursor Marketplace listing pending review) | re-run the installer |
+| **Muse (Blip)** | Paste into your Muse chat: `Install the illo skill from https://github.com/tmchow/illo-skill` | Ask Muse to update the illo skill |
 | **Other agents / last resort** | `npx skills add tmchow/illo-skill --skill illo` | `npx skills update` |
 
 ### Grok Bot
