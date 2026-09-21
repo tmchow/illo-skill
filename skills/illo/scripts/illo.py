@@ -2176,10 +2176,14 @@ def cmd_record(args):
     if not p.is_file():
         sys.exit(f"no such file: {p}")
     w, h = image_size(p.read_bytes())
+    if w is None or h is None:
+        sys.exit(f"not a valid PNG or JPEG image: {p}")
     prompt = ""
     if args.prompt_file:
-        prompt = pathlib.Path(args.prompt_file).read_text(
-            encoding="utf-8", errors="replace")
+        prompt_file = pathlib.Path(args.prompt_file)
+        if not prompt_file.is_file():
+            sys.exit(f"no such file: {prompt_file}")
+        prompt = prompt_file.read_text(encoding="utf-8", errors="replace")
     rec = {"path": str(p.resolve()), "model": None, "id": None,
            "backend": args.backend, "cost": None, "width": w, "height": h,
            "label": args.label or "", "prompt": prompt}
