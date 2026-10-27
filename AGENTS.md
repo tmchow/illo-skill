@@ -266,19 +266,11 @@ still verifies manifest lockstep on `main`. When the Release Please PR is
 merged, Release Please creates the `v<version>` git tag and GitHub release:
 that tag is what Copilot's `gh skill` resolves versions against and what
 Gemini CLI's release-based update detection watches. Never hand-create version
-tags. The workflow uses `secrets.RELEASE_PLEASE_TOKEN` when present and falls
-back to `github.token`; add a PAT secret only if branch protection requires CI
-to run on Release Please-created PRs.
-
-**One-time repo setup for the release PR.** Release Please opens its release
-PR, so with the `github.token` fallback the repo must allow Actions to do that:
-Settings → Actions → General → "Allow GitHub Actions to create and approve pull
-requests" must be **on** (API: `can_approve_pull_request_reviews: true`).
-Without it the release job fails at PR creation with "GitHub Actions is not
-permitted to create or approve pull requests" — the workflow itself is fine.
-The scoped alternative, which keeps that toggle off, is to set the
-`RELEASE_PLEASE_TOKEN` PAT secret (contents + pull-requests write); the workflow
-prefers it automatically.
+tags. The workflow opens the release PR with a GitHub App installation token
+(`RELEASE_APP_ID` variable, `RELEASE_APP_PRIVATE_KEY` secret; the app needs
+contents, pull-requests, and issues write). A PR opened with `github.token`
+leaves its CI runs at `action_required` until a maintainer approves them, so
+the app token is what lets checks run on the release PR automatically.
 
 Before merging layout or manifest changes, validate with the real tools:
 `claude plugin validate .`, `gemini extensions validate .`,
